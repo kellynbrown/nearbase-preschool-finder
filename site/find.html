@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#085041">
+<title>NearBase — Find Preschools Near Your Base</title>
+<meta name="description" content="Search 150+ preschools across all 9 National Capital Region zones. Filter by Montessori, free charter, bilingual, and military-friendly programs. Built for PCS moves.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://nearbase.net/find.html">
+<meta property="og:site_name" content="NearBase">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Find Preschools Near Your Base — NearBase">
+<meta property="og:description" content="Search 150+ preschools across all 9 National Capital Region zones. Filter by Montessori, free charter, bilingual, and military-friendly programs. Built for PCS moves.">
+<meta property="og:url" content="https://nearbase.net/find.html">
+<meta property="og:image" content="https://nearbase.net/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@nearbasenet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#1D9E75;--dark:#085041;--mid:#0F6E56;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--white:#fff;--cream:#F8FAF8}
+html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflow:hidden}
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh}
+.topbar{background:var(--dark);padding:.875rem 1.25rem;display:flex;align-items:center;gap:1rem;z-index:200;flex-shrink:0;flex-wrap:wrap}
+.logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:var(--white);text-decoration:none;white-space:nowrap}
+.logo span{color:var(--g)}
+.search-wrap{flex:1;position:relative;max-width:500px;min-width:200px}
+.search-wrap input{width:100%;padding:.65rem 1rem .65rem 2.2rem;border-radius:100px;border:none;background:rgba(255,255,255,0.12);color:var(--white);font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:background .2s}
+.search-wrap input::placeholder{color:rgba(255,255,255,0.45)}
+.search-wrap input:focus{background:rgba(255,255,255,0.2)}
+.search-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.5);font-size:.85rem}
+.btn-account{background:var(--g);color:var(--white);border:none;padding:.5rem 1rem;border-radius:100px;font-size:.8rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;margin-left:auto}
+.main{display:grid;grid-template-columns:360px 1fr;overflow:hidden;position:relative}
+.sidebar{display:flex;flex-direction:column;overflow:hidden;background:var(--cream);border-right:1px solid var(--border)}
+.sidebar-top{padding:.875rem;border-bottom:1px solid var(--border);background:var(--white)}
+.filter-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.65rem}
+.chip{padding:.3rem .75rem;border-radius:100px;border:1px solid var(--border);background:var(--white);font-size:.72rem;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.chip.active{background:var(--g);color:var(--white);border-color:var(--g)}
+.results-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.rc{font-weight:500;color:var(--dark)}
+.school-list{flex:1;overflow-y:auto;padding:.625rem}
+.scard{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:.875rem;margin-bottom:.5rem;cursor:pointer;transition:all .15s;position:relative}
+.scard:hover{border-color:var(--g);box-shadow:0 3px 12px rgba(29,158,117,0.08)}
+.scard.active{border:2px solid var(--g)}
+.card-top{display:flex;align-items:flex-start;gap:.65rem;margin-bottom:.5rem}
+.score{width:40px;height:40px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.score.hi{background:var(--light)}.score.fr{background:#EAF3DE}.score.ch{background:#E6F1FB}.score.pr{background:#F3EEF8}
+.sn{font-size:.85rem;font-weight:500;line-height:1}.sn.hi{color:var(--dark)}.sn.fr{color:#27500A}.sn.ch{color:#0C447C}.sn.pr{color:#5B2D8E}
+.sl{font-size:.58rem;color:var(--muted)}
+.ci{flex:1;min-width:0}
+.cn{font-size:.85rem;font-weight:500;color:var(--dark);line-height:1.3;margin-bottom:.15rem}
+.cl{font-size:.72rem;color:var(--muted)}
+.brow{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem}
+.bdg{font-size:.65rem;padding:.15rem .5rem;border-radius:100px}
+.bm{background:#E6F1FB;color:#0C447C}.be{background:var(--light);color:var(--dark)}.bf{background:#EAF3DE;color:#27500A}.bw{background:#FAEEDA;color:#633806}.bp{background:#F3EEF8;color:#5B2D8E}
+.cq{font-size:.72rem;color:var(--muted);font-style:italic;line-height:1.5;border-top:1px solid var(--border);padding-top:.4rem;position:relative}
+.lock{position:absolute;inset:0;background:rgba(248,250,248,0.88);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;backdrop-filter:blur(2px)}
+.lock-btn{font-size:.68rem;background:var(--g);color:var(--white);border:none;padding:.25rem .7rem;border-radius:100px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.prem-bar{padding:.875rem;border-top:1px solid var(--border);background:var(--dark);display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.pb-txt{font-size:.75rem;color:rgba(255,255,255,0.65);line-height:1.4}
+.pb-txt strong{color:var(--white);display:block;font-size:.82rem;margin-bottom:.1rem}
+.pb-btn{background:var(--g);color:var(--white);border:none;padding:.45rem .9rem;border-radius:100px;font-size:.75rem;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.map-wrap{position:relative;overflow:hidden}
+#map{width:100%;height:100%}
+.map-ctrls{position:absolute;top:1rem;right:1rem;z-index:400}
+.ctrl-group{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:.5rem}
+.ctrl-lbl{font-size:.62rem;font-weight:500;color:var(--muted);padding:.35rem .65rem;background:var(--cream);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.05em}
+.tog{display:flex;align-items:center;gap:.45rem;padding:.45rem .65rem;cursor:pointer;border:none;background:var(--white);width:100%;font-size:.75rem;color:var(--text);font-family:'DM Sans',sans-serif;border-bottom:1px solid var(--border);transition:background .15s}
+.tog:last-child{border-bottom:none}
+.tog:hover{background:var(--cream)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .15s}
+.tog.on .dot{background:var(--g)}
+.tog.on{color:var(--dark)}
+.base-bar{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);z-index:400;background:var(--white);border:1px solid var(--border);border-radius:100px;padding:.45rem .75rem;display:flex;align-items:center;gap:.5rem;box-shadow:0 3px 16px rgba(0,0,0,0.1);white-space:nowrap;max-width:calc(100% - 1.5rem)}
+.base-lbl{font-size:.72rem;color:var(--muted)}
+.base-sel{font-size:.75rem;font-weight:500;color:var(--dark);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;padding-right:.5rem}
+.counter-badge{position:absolute;top:1rem;left:1rem;z-index:400;background:var(--dark);color:var(--white);border-radius:100px;padding:.35rem .875rem;font-size:.75rem;font-weight:500;box-shadow:0 2px 10px rgba(0,0,0,0.15)}
+.counter-badge span{color:var(--g)}
+#premModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.prem-box{background:var(--white);border-radius:18px;padding:1.75rem;max-width:400px;width:100%;position:relative}
+@media(max-width:768px){
+  .main{grid-template-columns:1fr;grid-template-rows:1fr 42vh}
+  .sidebar{order:2;border-right:none;border-top:1px solid var(--border)}
+  .map-wrap{order:1}
+  .base-bar{left:.75rem;right:.75rem;transform:none;width:auto;max-width:none;white-space:normal}
+  .base-sel{flex:1;min-width:0;max-width:100%}
+  .map-ctrls{top:.5rem;right:.5rem;max-width:46%}
+  .counter-badge{top:.5rem;left:.5rem;max-width:50%}
+  .ctrl-lbl,.tog{padding-left:.5rem;padding-right:.5rem}
+}
+.leaflet-popup-content-wrapper{border-radius:10px;border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+.leaflet-popup-content{margin:.75rem .875rem;font-family:'DM Sans',sans-serif}
+.pu-name{font-size:.875rem;font-weight:500;color:var(--dark);margin-bottom:.25rem}
+.pu-meta{font-size:.72rem;color:var(--muted);margin-bottom:.4rem}
+.pu-bdgs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem}
+.pu-btn{background:var(--g);color:var(--white);border:none;padding:.35rem .875rem;border-radius:100px;font-size:.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="topbar">
+  <a class='logo' href='/'>Near<span>Base</span></a>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="searchInput" aria-label="Search schools, neighborhoods, or base names" placeholder="Search schools, neighborhoods, or base names..." oninput="doFilter()">
+  </div>
+  <button class="btn-account" onclick="showPrem()">Sign in / Join free</button>
+</div>
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="filter-row" id="filterRow">
+        <button class="chip active" onclick="setFilter('all',this)">All programs</button>
+        <button class="chip" onclick="setFilter('montessori',this)">Montessori</button>
+        <button class="chip" onclick="setFilter('free',this)">Free / Charter</button>
+        <button class="chip" onclick="setFilter('mil',this)">Military</button>
+        <button class="chip" onclick="setFilter('toddler',this)">18mo+</button>
+        <button class="chip" onclick="setFilter('bilingual',this)">Bilingual</button>
+        <button class="chip" onclick="setFilter('church',this)">Faith-based</button>
+        <button class="chip" onclick="setFilter('nature',this)">Nature</button>
+      </div>
+      <div class="results-meta">
+        <span><span class="rc" id="rc">0</span> programs found</span>
+        <a href="#" onclick="showPrem();return false" style="color:var(--g);font-weight:500;font-size:.72rem;text-decoration:none">Upgrade for full access</a>
+      </div>
+    </div>
+    <div class="school-list" id="schoolList"></div>
+    <div class="prem-bar">
+      <div class="pb-txt"><strong>Unlock full NearBase access</strong>Waitlist times · Match scores · Sibling filter · PCS simulator</div>
+      <button class="pb-btn" onclick="showPrem()">$9/mo →</button>
+    </div>
+  </div>
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="counter-badge">NCR: <span id="pinCount">0</span> programs mapped</div>
+    <div class="map-ctrls">
+      <div class="ctrl-group">
+        <div class="ctrl-lbl">Map layers</div>
+        <button class="tog on" id="tog-schools" onclick="togLayer('schools',this)"><span class="dot"></span>Preschools</button>
+        <button class="tog" id="tog-coffee" onclick="togLayer('coffee',this)"><span class="dot"></span>Coffee shops</button>
+        <button class="tog" id="tog-rec" onclick="togLayer('rec',this)"><span class="dot"></span>Rec / gyms</button>
+        <button class="tog" id="tog-housing" onclick="togLayer('housing',this)"><span class="dot"></span>Military housing</button>
+      </div>
+    </div>
+    <div class="base-bar">
+      <span class="base-lbl">Base:</span>
+      <select class="base-sel" aria-label="Choose a base or neighborhood" onchange="goBase(this.value)">
+        <option value="38.872,-77.056,12">Pentagon / Arlington VA</option>
+        <option value="38.710,-77.150,12">Fort Belvoir VA</option>
+        <option value="38.843,-77.016,12">Joint Base Anacostia-Bolling</option>
+        <option value="38.812,-76.867,12">Joint Base Andrews MD</option>
+        <option value="39.108,-76.771,12">Fort Meade / NSA MD</option>
+        <option value="38.975,-76.490,12">Naval Academy / Annapolis MD</option>
+        <option value="38.524,-77.303,12">Quantico MCB VA</option>
+        <option value="38.856,-77.128,12">Culmore / Bailey's Crossroads</option>
+        <option value="39.160,-77.000,12">Germantown / Rockville MD</option>
+        <option value="38.950,-77.330,12">Reston / Herndon VA</option>
+      </select>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="premModal" role="dialog" aria-modal="true" aria-labelledby="premTitle" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem">
+  <div class="prem-box">
+    <button type="button" onclick="closePrem()" aria-label="Close" style="position:absolute;top:.875rem;right:.875rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted)">×</button>
+    <div style="font-size:1.4rem;margin-bottom:.4rem">🌱</div>
+    <h2 id="premTitle" style="font-family:'Fraunces',serif;font-size:1.3rem;color:var(--dark);margin-bottom:.4rem">Unlock full NearBase</h2>
+    <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Real waitlist times, match scores, the sibling filter, spot alerts, and the PCS move simulator.</p>
+    <div style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.25rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem;background:var(--light);border-radius:10px;border:2px solid var(--g)">
+        <div><div style="font-weight:500;color:var(--dark);font-size:.875rem">Premium monthly</div><div style="font-size:.75rem;color:var(--muted)">Full access, cancel anytime</div></div>
+        <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--g);font-weight:600">$9<span style="font-size:.75rem;color:var(--muted)">/mo</span></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem;background:var(--cream);border-radius:10px;border:1px solid var(--border)">
+        <div><div style="font-weight:500;color:var(--dark);font-size:.875rem">Flex weekly pass</div><div style="font-size:.75rem;color:var(--muted)">Active search mode</div></div>
+        <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--dark);font-weight:600">$4<span style="font-size:.75rem;color:var(--muted)">/wk</span></div>
+      </div>
+    </div>
+    <a href="/premium#waitlist" style="display:block;text-align:center;width:100%;background:var(--g);color:var(--white);text-decoration:none;padding:.8rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'DM Sans',sans-serif">Join the waitlist →</a>
+    <p style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:.6rem">No credit card for free tier · Built for military families</p>
+  </div>
+</div>
+
+<script src="schools.js"></script>
+<script>
+// ── 150+ NCR SCHOOLS ACROSS ALL 9 ZONES ────────────────────────────────────
+const SCHOOLS = window.SCHOOLS
+
+// ECOSYSTEM
+const ECO = {
+  coffee:[
+    {name:"Starbucks — Army Navy Dr",lat:38.870,lng:-77.055},{name:"Starbucks — Crystal Dr",lat:38.854,lng:-77.049},
+    {name:"Compass Coffee Capitol Hill",lat:38.893,lng:-76.997},{name:"Starbucks — Bethesda Ave",lat:38.983,lng:-77.094},
+    {name:"Perk Coffee Annapolis",lat:38.977,lng:-76.492},{name:"Starbucks — Burke Centre",lat:38.793,lng:-77.280},
+    {name:"Lost Dog Cafe Merrifield",lat:38.876,lng:-77.226},{name:"Starbucks — Reston Town Center",lat:38.958,lng:-77.359},
+  ],
+  rec:[
+    {name:"Long Bridge Aquatics DC",lat:38.870,lng:-77.043},{name:"Chinquapin Rec Arlington",lat:38.823,lng:-77.083},
+    {name:"Franconia Rec Center",lat:38.772,lng:-77.147},{name:"Spring Hill Rec Center McLean",lat:38.929,lng:-77.214},
+    {name:"Reston Community Center",lat:38.958,lng:-77.342},{name:"Jewish Community Center Rockville",lat:39.083,lng:-77.153},
+    {name:"Fairland Rec Center",lat:39.065,lng:-76.944},{name:"South Run Rec Center",lat:38.771,lng:-77.284},
+  ],
+  housing:[
+    {name:"Pentagon City family area",lat:38.862,lng:-77.059},{name:"Bailey's Crossroads corridor",lat:38.856,lng:-77.128},
+    {name:"Brookland / Ward 5 DC",lat:38.933,lng:-76.994},{name:"Odenton (Fort Meade families)",lat:39.074,lng:-76.696},
+    {name:"Woodbridge family corridor",lat:38.638,lng:-77.270},{name:"Crofton MD (Fort Meade)",lat:39.010,lng:-76.679},
+    {name:"Herndon family corridor",lat:38.970,lng:-77.390},{name:"Bowie MD (Andrews area)",lat:38.942,lng:-76.730},
+  ]
+};
+
+// MAP SETUP — the list must work even if the map can't load (slow base wifi, blocked CDN)
+let map = null;
+try{
+  if(typeof L === 'undefined') throw new Error('Leaflet unavailable');
+  map = L.map('map',{zoomControl:true}).setView([38.872,-77.056],11);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(map);
+}catch(e){
+  const mEl = document.getElementById('map');
+  if(mEl) mEl.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;color:var(--muted);background:var(--cream);text-align:center;padding:2rem"><div style="font-size:1.6rem">🗺</div><div style="font-size:.85rem;max-width:280px">The map couldn\'t load on this connection — every school is still in the list.</div></div>';
+}
+
+function mkSchoolIcon(tier){
+  const colors={hi:'#1D9E75',fr:'#27500A',ch:'#0C447C',pr:'#5B2D8E'};
+  const c=colors[tier]||colors.hi;
+  return L.divIcon({className:'',html:`<div style="background:${c};color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:500;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);">●</div>`,iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-16]});
+}
+function mkEcoIcon(e){
+  return L.divIcon({className:'',html:`<div style="background:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;border:1px solid #d4ead8;box-shadow:0 1px 4px rgba(0,0,0,0.08)">${e}</div>`,iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-14]});
+}
+function mkBaseIcon(label){
+  return L.divIcon({className:'',html:`<div style="background:#042C53;color:white;padding:3px 8px;border-radius:100px;font-size:.65rem;font-weight:500;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);white-space:nowrap;font-family:'DM Sans',sans-serif">🏛 ${label}</div>`,iconSize:[90,24],iconAnchor:[45,12],popupAnchor:[0,-14]});
+}
+
+let schoolLayer=null, coffeeLayer=null, recLayer=null, housingLayer=null;
+if(map){
+  schoolLayer = L.layerGroup().addTo(map);
+  coffeeLayer = L.layerGroup();
+  recLayer = L.layerGroup();
+  housingLayer = L.layerGroup();
+
+  // Base markers
+  [[38.872,-77.056,"Pentagon"],[38.843,-77.016,"JBAB"],[38.699,-77.141,"Ft Belvoir"],[38.812,-76.867,"Andrews"],[39.108,-76.771,"Ft Meade"],[38.975,-76.490,"USNA"]].forEach(([lat,lng,name])=>{
+    L.marker([lat,lng],{icon:mkBaseIcon(name)}).addTo(map).bindPopup(`<div class="pu-name">${name}</div>`);
+  });
+
+  ECO.coffee.forEach(p=>L.marker([p.lat,p.lng],{icon:mkEcoIcon("☕")}).addTo(coffeeLayer).bindPopup(`<div class="pu-name">${p.name}</div>`));
+  ECO.rec.forEach(p=>L.marker([p.lat,p.lng],{icon:mkEcoIcon("🏋️")}).addTo(recLayer).bindPopup(`<div class="pu-name">${p.name}</div>`));
+  ECO.housing.forEach(p=>L.marker([p.lat,p.lng],{icon:mkEcoIcon("🏠")}).addTo(housingLayer).bindPopup(`<div class="pu-name">${p.name}</div>`));
+}
+
+let activeFilter='all', markers={}, activeCard=null;
+
+function render(data){
+  if(schoolLayer) schoolLayer.clearLayers();
+  markers={};
+  const list=document.getElementById('schoolList');
+  list.innerHTML='';
+  document.getElementById('rc').textContent=data.length;
+  document.getElementById('pinCount').textContent=data.length;
+
+  data.forEach((s,i)=>{
+    const locked=i>=6;
+    // Map pin (only when the map loaded)
+    if(map && schoolLayer){
+      const m=L.marker([s.lat,s.lng],{icon:mkSchoolIcon(s.tier)}).addTo(schoolLayer);
+      const popBdgs=s.badges.slice(0,2).map(b=>`<span class="badge ${b.c}" style="font-size:.65rem;padding:.15rem .5rem;border-radius:100px">${b.t}</span>`).join('');
+      m.bindPopup(`<div class="pu-name">${s.name}</div><div class="pu-meta">Zone ${s.zone} · ${s.loc}</div><div class="pu-bdgs">${popBdgs}</div><a class="pu-btn" style="display:inline-block;text-decoration:none;text-align:center" href="school/${s.slug}.html">Full profile →</a>`);
+      markers[s.id]=m;
+    }
+
+    // Sidebar card
+    const card=document.createElement('div');
+    card.className='scard';card.id='card-'+s.id;
+    card.onclick=()=>selectCard(s.id);
+    const scoreLbl=s.score==='FREE'?'tuition':s.score==='★'?'on-post':'match';
+    card.innerHTML=`
+      <div class="card-top">
+        <div class="score ${s.tier}"><span class="sn ${s.tier}">${s.score}</span><span class="sl">${scoreLbl}</span></div>
+        <div class="ci"><div class="cn">${s.name}</div><div class="cl">Zone ${s.zone} · ${s.loc}</div></div>
+      </div>
+      <div class="brow">${s.badges.map(b=>`<span class="bdg ${b.c}">${b.t}</span>`).join('')}</div>
+      <a href="school/${s.slug}.html" onclick="event.stopPropagation()" style="display:inline-block;font-size:.72rem;font-weight:500;color:var(--g);text-decoration:none;margin:.35rem 0 .1rem">Full profile →</a>
+      <div class="cq">${s.quote}${locked?`<div class="lock"><span style="font-size:1rem">🔒</span><span style="font-size:.7rem;font-weight:500;color:var(--dark)">Waitlist · Contact · Match score</span><button class="lock-btn" onclick="event.stopPropagation();showPrem()">Unlock →</button></div>`:''}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function selectCard(id){
+  if(activeCard){document.getElementById('card-'+activeCard)?.classList.remove('active');}
+  document.getElementById('card-'+id)?.classList.add('active');
+  document.getElementById('card-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  activeCard=id;
+  if(map && markers[id]){markers[id].openPopup();map.panTo(markers[id].getLatLng(),{animate:true});}
+}
+
+function doFilter(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  let data=SCHOOLS;
+  if(activeFilter!=='all') data=data.filter(s=>s.tags.includes(activeFilter));
+  if(q) data=data.filter(s=>s.name.toLowerCase().includes(q)||s.loc.toLowerCase().includes(q)||('zone'+s.zone).includes(q));
+  render(data);
+}
+
+function setFilter(f,el){
+  activeFilter=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  doFilter();
+}
+
+function togLayer(name,btn){
+  if(!map) return;
+  btn.classList.toggle('on');
+  const L2={coffee:coffeeLayer,rec:recLayer,housing:housingLayer,schools:schoolLayer};
+  if(btn.classList.contains('on')) L2[name].addTo(map); else map.removeLayer(L2[name]);
+}
+
+function goBase(val){
+  if(!map) return;
+  const [lat,lng,z]=val.split(',').map(Number);
+  map.flyTo([lat,lng],z,{duration:1.2});
+}
+
+function showPrem(){document.getElementById('premModal').style.display='flex';}
+function closePrem(){document.getElementById('premModal').style.display='none';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();});
+
+// Init
+render(SCHOOLS);
+
+// Deep link: find.html?school=ID opens that school
+(function(){
+  const p = new URLSearchParams(location.search).get('school');
+  if(p){ const s = SCHOOLS.find(x=>String(x.id)===p || x.slug===p); if(s){ setTimeout(()=>selectCard(s.id), 400); } }
+})();
+</script>
+</body>
+</html>

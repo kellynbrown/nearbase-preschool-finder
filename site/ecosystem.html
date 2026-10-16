@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NearBase — Trust & Transparency</title>
+<meta name="description" content="How NearBase stays honest: families and teachers grade quality, directors update facts — and no school can grade itself.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://nearbase.net/ecosystem.html">
+<meta property="og:site_name" content="NearBase">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Trust & Transparency — NearBase">
+<meta property="og:description" content="How NearBase stays honest: families and teachers grade quality, directors update facts — and no school can grade itself.">
+<meta property="og:url" content="https://nearbase.net/ecosystem.html">
+<meta property="og:image" content="https://nearbase.net/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@nearbasenet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#1D9E75;--dark:#085041;--light:#E1F5EE;--mid:#0F6E56;--text:#1a1a18;--muted:#6b6b67;--white:#ffffff;--cream:#F8FAF8;--border:#d4ead8;--gold:#C8922A;--gold-light:#FDF3E3;--red:#C0442C;--red-light:#FDF0EE;--purple:#6B3FA0;--purple-light:#F0EAF8;}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem}
+.nav-inner{max-width:1100px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;color:var(--dark);letter-spacing:-0.02em;text-decoration:none}.logo span{color:var(--green)}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{font-size:.875rem;color:var(--muted);text-decoration:none;transition:color .2s}.nav-links a:hover{color:var(--dark)}.nav-links a.active{color:var(--green);font-weight:500}
+.nav-cta{background:var(--green);color:var(--white)!important;padding:.5rem 1.25rem;border-radius:100px;font-size:.875rem;font-weight:500;text-decoration:none;transition:background .2s}.nav-cta:hover{background:var(--dark)!important}
+
+/* ROLE TABS */
+.role-bar{background:var(--dark);padding:0;position:sticky;top:64px;z-index:90;border-bottom:2px solid var(--mid)}
+.role-bar-inner{max-width:1100px;margin:0 auto;display:flex}
+.role-tab{flex:1;padding:1rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:pointer;border:none;background:transparent;border-bottom:3px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif}
+.role-tab:hover{background:rgba(255,255,255,0.06)}
+.role-tab.active{border-bottom-color:var(--green);background:rgba(255,255,255,0.08)}
+.role-tab-icon{font-size:1.1rem}
+.role-tab-label{font-size:.7rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,0.55)}
+.role-tab.active .role-tab-label{color:white}
+.role-tab-badge{font-size:.6rem;font-weight:700;background:var(--green);color:white;padding:.1rem .5rem;border-radius:100px}
+
+/* PAGES */
+.page{display:none}.page.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SHARED */
+.section{padding:4rem 2rem}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.625rem}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:600;letter-spacing:-0.03em;color:var(--dark);line-height:1.15;margin-bottom:.875rem}
+.section-title em{font-style:italic;font-weight:300;color:var(--green)}
+.section-sub{font-size:.95rem;line-height:1.7;color:var(--muted);max-width:580px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.sidebar-layout{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 2px 16px rgba(8,80,65,0.05)}
+.card-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:.88rem;font-weight:500;color:var(--dark)}
+.card-body{padding:1.25rem}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem}
+.stat-num{font-family:'Fraunces',serif;font-size:1.8rem;color:var(--dark);line-height:1}
+.stat-num.green{color:var(--green)}.stat-num.gold{color:var(--gold)}.stat-num.red{color:var(--red)}.stat-num.purple{color:var(--purple)}
+.stat-label{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+.stat-trend{font-size:.7rem;margin-top:.2rem;font-weight:500}.trend-up{color:var(--green)}.trend-warn{color:var(--gold)}
+
+/* TRUST BADGES */
+.tbadge{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .7rem;border-radius:100px;font-size:.68rem;font-weight:500}
+.tb-green{background:var(--light);color:var(--mid);border:1px solid var(--border)}
+.tb-amber{background:var(--gold-light);color:var(--gold);border:1px solid #E8C87A}
+.tb-red{background:var(--red-light);color:var(--red);border:1px solid rgba(192,68,44,0.2)}
+.tb-purple{background:var(--purple-light);color:var(--purple);border:1px solid rgba(107,63,160,0.2)}
+
+/* VOICE BARS */
+.voice-row{display:flex;align-items:center;gap:.875rem;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.voice-row:last-child{border-bottom:none}
+.vi{font-size:.9rem;width:20px;text-align:center;flex-shrink:0}
+.vl{color:var(--muted);font-size:.72rem;width:110px;flex-shrink:0}
+.vt{flex:1;height:5px;background:var(--border);border-radius:2px;overflow:hidden}
+.vb{height:100%;border-radius:2px}
+.vb-fam{background:var(--green)}.vb-teach{background:var(--purple)}.vb-rate{background:var(--gold)}.vb-admin{background:var(--red)}
+.vv{font-size:.72rem;font-weight:500;color:var(--dark);width:30px;text-align:right}
+
+/* CLAIM ROWS */
+.claim-row{display:flex;align-items:center;justify-content:space-between;padding:.625rem .875rem;border-radius:10px;border:1px solid var(--border);gap:.75rem;margin-bottom:.5rem}
+.claim-label{font-size:.78rem;font-weight:500;flex:1}
+.claim-status{font-size:.68rem;font-weight:500;white-space:nowrap}
+.cs-good{color:var(--green)}.cs-bad{color:var(--red)}.cs-warn{color:var(--gold)}
+.claim-row.c-good{background:var(--light);border-color:var(--border)}
+.claim-row.c-bad{background:var(--red-light);border-color:rgba(192,68,44,0.2)}
+.claim-row.c-warn{background:var(--gold-light);border-color:#E8C87A}
+
+/* HEALTH SCORE RING */
+.score-ring-wrap{display:flex;align-items:center;gap:.875rem;flex-shrink:0}
+.arc-svg{transform:rotate(-90deg)}
+.arc-bg{fill:none;stroke:var(--border);stroke-width:6}
+.arc-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+
+/* DISSENT FLAGS */
+.dissent{background:var(--red-light);border:1px solid rgba(192,68,44,0.2);border-radius:10px;padding:.875rem 1rem;margin-bottom:.75rem}
+.dissent-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:.375rem}
+.dissent-text{font-size:.8rem;color:var(--text);line-height:1.45}
+.dissent-meta{font-size:.68rem;color:var(--muted);margin-top:.375rem}
+
+/* TEACHER VERIFY */
+.verify-card{background:var(--purple-light);border:1.5px solid rgba(107,63,160,0.2);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+.verify-title{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:.75rem}
+.verify-steps{display:flex;gap:.5rem;margin-bottom:1rem}
+.vstep{flex:1;padding:.5rem;border-radius:7px;text-align:center;font-size:.7rem;font-weight:600;border:1.5px solid rgba(107,63,160,0.2);background:white;color:var(--muted)}
+.vstep.done{background:var(--purple);color:white;border-color:var(--purple)}
+.vstep.cur{border-color:var(--purple);color:var(--purple)}
+
+/* OPT BUTTONS */
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem}
+.opts-2col{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
+.opt-btn{padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:10px;background:white;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:400;color:var(--text);cursor:pointer;text-align:left;transition:all .12s;display:flex;align-items:center;gap:.625rem}
+.opt-btn:hover{border-color:var(--green);background:var(--cream)}
+.opt-btn.selected{border-color:var(--dark);background:var(--light);font-weight:500;color:var(--dark)}
+.opt-btn.selected::after{content:'✓';margin-left:auto;color:var(--green);font-weight:700}
+
+/* TOGGLES */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:.5rem;transition:border-color .12s}
+.toggle-row:hover{border-color:var(--green)}
+.tl{font-size:.82rem;font-weight:500}.ts{font-size:.7rem;color:var(--muted)}
+.toggle{width:38px;height:21px;background:var(--border);border-radius:100px;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;width:15px;height:15px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+.toggle.on::after{transform:translateX(17px)}
+
+/* FORM */
+.form-input,.form-select,.form-textarea{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text);background:white;outline:none;transition:border-color .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b67' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .9rem center;padding-right:2.25rem}
+.form-textarea{min-height:75px;resize:vertical}
+.form-textarea::placeholder{color:#aaa}
+.inline-fields{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+.form-group{margin-bottom:1rem}
+.form-label{font-size:.75rem;font-weight:500;color:var(--dark);margin-bottom:.375rem;display:block}
+
+/* BUTTONS */
+.btn-primary{background:var(--green);color:white;padding:.75rem 1.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;border:none;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;text-decoration:none}
+.btn-primary:hover{background:var(--dark)}
+.btn-primary.purple{background:var(--purple)}.btn-primary.purple:hover{background:#4A2880}
+.btn-primary.red{background:var(--red)}.btn-primary.red:hover{background:#9A2A1A}
+.btn-primary.gold{background:var(--gold)}.btn-primary.gold:hover{background:#A87520}
+.btn-sm{padding:.5rem 1.1rem;font-size:.78rem}
+.btn-outline{background:white;color:var(--dark);padding:.75rem 1.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+/* FAMILY ROWS */
+.family-row{display:flex;align-items:center;gap:.875rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.family-row:last-child{border-bottom:none}
+.fav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--light),var(--green));display:flex;align-items:center;justify-content:center;font-size:.8rem;color:white;font-weight:600;flex-shrink:0}
+.fi{flex:1}.fn{font-size:.82rem;font-weight:500;color:var(--dark)}.fd{font-size:.7rem;color:var(--muted);margin-top:.1rem}
+.fstatus{font-size:.65rem;font-weight:600;padding:.2rem .625rem;border-radius:100px}
+.fs-pcs{background:#FFF0E0;color:#B06000}.fs-search{background:var(--light);color:var(--mid)}.fs-tour{background:var(--light);color:var(--green)}
+
+/* PLACEMENT CARD */
+.placement-card{background:var(--dark);border-radius:14px;padding:1.25rem}
+.pc-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:.5rem}
+.pc-plan{font-family:'Fraunces',serif;font-size:1.3rem;color:white;margin-bottom:.25rem}
+.pc-sub{font-size:.75rem;color:rgba(255,255,255,0.55);margin-bottom:1rem;line-height:1.5}
+.pc-price{font-family:'Fraunces',serif;font-size:1.5rem;color:white;margin-bottom:1rem}
+.pc-price span{font-size:.85rem;font-weight:300}
+
+/* FEED */
+.feed-item{display:flex;gap:.875rem;padding:.875rem 0;border-bottom:1px solid var(--border)}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.fi-fam{background:var(--light)}.fi-teach{background:var(--purple-light)}.fi-admin{background:var(--gold-light)}.fi-sys{background:var(--light)}
+.fc{flex:1;min-width:0}
+.ft{display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;flex-wrap:wrap}
+.frole{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.rteach{color:var(--purple)}.rfam{color:var(--mid)}.radmin{color:var(--gold)}.rsys{color:var(--green)}
+.fschool{font-size:.7rem;color:var(--muted)}
+.ftime{font-size:.65rem;color:var(--muted);margin-left:auto}
+.fmsg{font-size:.8rem;color:var(--text);line-height:1.45}
+.fquote{margin-top:.5rem;padding:.5rem .75rem;border-left:2.5px solid var(--border);font-size:.76rem;color:var(--muted);font-style:italic;line-height:1.45;border-radius:0 6px 6px 0}
+.fquote.qt{border-left-color:var(--purple);background:var(--purple-light);color:#3D1F6B}
+.fquote.qf{border-left-color:var(--green);background:var(--light);color:var(--mid)}
+.fwt{font-size:.65rem;color:var(--muted);margin-top:.3rem}
+
+/* CVR */
+.cvr-row{display:flex;align-items:center;gap:.75rem;padding:.625rem 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.cvr-row:last-child{border-bottom:none}
+.cvr-label{flex:1;font-weight:500}
+.cvr-claim{font-size:.68rem;font-weight:600;padding:.15rem .6rem;border-radius:100px}
+.cvr-v{background:var(--light);color:var(--mid)}.cvr-d{background:var(--red-light);color:var(--red)}.cvr-u{background:var(--gold-light);color:var(--gold)}
+.cvr-gap{font-size:.68rem;font-weight:600;margin-left:auto;white-space:nowrap}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:white;padding:.75rem 1.5rem;border-radius:100px;font-size:.82rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);z-index:500;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.green{background:var(--green)}.toast.purple{background:var(--purple)}.toast.gold{background:var(--gold)}.toast.red{background:var(--red)}
+
+footer{background:#021f19;padding:2.5rem 2rem}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:rgba(255,255,255,0.5)}.footer-logo span{color:var(--green)}
+.footer-links{display:flex;gap:2rem;flex-wrap:wrap}
+.footer-links a{font-size:.8rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s}.footer-links a:hover{color:rgba(255,255,255,0.7)}
+.footer-copy{font-size:.75rem;color:rgba(255,255,255,0.25)}
+
+@media(max-width:900px){.two-col,.three-col,.sidebar-layout,.stat-row,.inline-fields{grid-template-columns:1fr}.nav-links{display:none}.opts-2col{grid-template-columns:1fr}}
+</style>
+
+<style id="nbv3-css">
+.nbv3-inner{gap:1rem}
+.nbv3-links{display:flex;align-items:center;gap:1.4rem}
+.nbv3-links>a{font-size:.875rem;color:#6b6b67;text-decoration:none;font-weight:400;transition:color .2s;white-space:nowrap}
+.nbv3-links>a:hover{color:#085041}
+.nbv3-links>a.on{color:#1D9E75;font-weight:500}
+.nbv3-drop{position:relative}
+.nbv3-drop>button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:.875rem;color:#6b6b67;cursor:pointer;padding:.4rem 0;display:flex;align-items:center;gap:.25rem}
+.nbv3-drop.on>button{color:#1D9E75;font-weight:500}
+.nbv3-drop>button:hover{color:#085041}
+.nbv3-car{font-size:.6rem;opacity:.6}
+.nbv3-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #d4ead8;border-radius:14px;box-shadow:0 10px 30px rgba(8,80,65,.12);padding:.45rem;min-width:190px;display:none;flex-direction:column}
+.nbv3-drop:hover .nbv3-menu,.nbv3-drop:focus-within .nbv3-menu{display:flex}
+.nbv3-menu a{font-size:.84rem;color:#1a1a18;text-decoration:none;padding:.5rem .8rem;border-radius:9px;white-space:nowrap}
+.nbv3-menu a:hover{background:#E1F5EE;color:#085041}
+.nbv3-menu a.on{color:#1D9E75;font-weight:500}
+.nbv3-burger{display:none;background:none;border:none;flex-direction:column;gap:4px;padding:.5rem;cursor:pointer}
+.nbv3-burger span{display:block;width:20px;height:2px;background:#085041;border-radius:2px;transition:.2s}
+body.nbv3-open .nbv3-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+body.nbv3-open .nbv3-burger span:nth-child(2){opacity:0}
+body.nbv3-open .nbv3-burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nbv3-mobile{display:none;flex-direction:column;background:#fff;border-bottom:1px solid #d4ead8;padding:.75rem 1.5rem 1.25rem;gap:.1rem;max-height:calc(100vh - 64px);overflow-y:auto}
+.nbv3-mobile a{font-size:.95rem;color:#1a1a18;text-decoration:none;padding:.6rem .25rem;border-bottom:1px solid #f0f7f2}
+.nbv3-mobile a.on{color:#1D9E75;font-weight:500}
+body.nbv3-open .nbv3-mobile{display:flex}
+@media(max-width:1020px){.nbv3-links{display:none}.nbv3-burger{display:flex}}
+/* email capture */
+.nbcap{background:#085041;padding:3.5rem 2rem}
+.nbcap-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.nbcap h3{font-family:'Fraunces',serif;font-weight:600;color:#fff;font-size:1.5rem;margin-bottom:.35rem}
+.nbcap h3 em{font-style:italic;font-weight:300;color:#7ED9B9}
+.nbcap p{color:rgba(255,255,255,.75);font-size:.875rem;max-width:420px;line-height:1.55}
+.nbcap form{display:flex;gap:.6rem;flex-wrap:wrap}
+.nbcap input[type=email]{padding:.75rem 1.2rem;border-radius:100px;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.9rem;min-width:260px;background:rgba(255,255,255,.95)}
+.nbcap button{background:#1D9E75;color:#fff;border:none;padding:.75rem 1.5rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s}
+.nbcap button:hover{background:#C8922A}
+@media(max-width:640px){.nbcap input[type=email]{min-width:0;flex:1}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner nbv3-inner">
+    <a class='logo' href='/'>Near<span>Base</span></a>
+    <div class="nbv3-links">
+      <a href='/find'>Find schools</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/families'>For families</a>
+      <a href='/schools'>For schools</a>
+      <a href='/premium'>Premium</a>
+      <div class="nbv3-drop on"><button type="button" aria-haspopup="true">Community<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a class='on' href='/ecosystem'>Trust & transparency</a></div></div>
+      <div class="nbv3-drop"><button type="button" aria-haspopup="true">About<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a href='/about'>Our story</a><a href='/mission'>Mission</a></div></div>
+      <a class='nav-cta' href='/find'>Search near my base →</a>
+    </div>
+    <button type="button" class="nbv3-burger" aria-label="Open menu" aria-expanded="false" onclick="document.body.classList.toggle('nbv3-open');var open=document.body.classList.contains('nbv3-open');this.setAttribute('aria-expanded',open?'true':'false');this.setAttribute('aria-label',open?'Close menu':'Open menu')"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nbv3-mobile">
+    <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/schools'>For schools</a><a href='/premium'>Premium</a><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a class='on' href='/ecosystem'>Trust & transparency</a><a href='/about'>Our story</a><a href='/mission'>Mission</a>
+    <a class='nav-cta' href='/find' style='text-align:center;margin-top:.5rem'>Search near my base →</a>
+  </div>
+</nav>
+
+<div class="role-bar">
+  <div class="role-bar-inner">
+    <button class="role-tab active" onclick="showPage('family')">
+      <div class="role-tab-icon">👨‍👩‍👧</div>
+      <div class="role-tab-label">Family</div>
+    </button>
+    <button class="role-tab" onclick="showPage('teacher')">
+      <div class="role-tab-icon">👩‍🏫</div>
+      <div class="role-tab-label">Teacher</div>
+      <div class="role-tab-badge">New</div>
+    </button>
+    <button class="role-tab" onclick="showPage('school')">
+      <div class="role-tab-icon">🏫</div>
+      <div class="role-tab-label">School Admin</div>
+    </button>
+    <button class="role-tab" onclick="showPage('trust')">
+      <div class="role-tab-icon">🔬</div>
+      <div class="role-tab-label">Trust Layer</div>
+    </button>
+    <button class="role-tab" onclick="showPage('feed')">
+      <div class="role-tab-icon">📡</div>
+      <div class="role-tab-label">Live Feed</div>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ FAMILY ═══════════════ -->
+<div class="page active" id="page-family">
+<div class="section" style="background:var(--cream)">
+<div class="section-inner">
+  <div class="section-label">Family dashboard</div>
+  <div class="section-title">Your school search —<br><em>ranked, verified, and watched.</em></div>
+  <div class="stat-row" style="margin-top:1.5rem">
+    <div class="stat-card"><div class="stat-num">73</div><div class="stat-label">Days to report date</div><div class="stat-trend trend-warn">⚠ Act on waitlists now</div></div>
+    <div class="stat-card"><div class="stat-num gold">3</div><div class="stat-label">Schools on watchlist</div><div class="stat-trend trend-up">1 new offer waiting</div></div>
+    <div class="stat-card"><div class="stat-num green">2</div><div class="stat-label">Check-ins you've contributed</div><div class="stat-trend trend-up">Paid it forward ✓</div></div>
+    <div class="stat-card"><div class="stat-num">18mo</div><div class="stat-label">Child age · infant priority</div><div class="stat-trend">Nido programs flagged</div></div>
+  </div>
+  <div class="sidebar-layout">
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><div class="card-title">Top matches for Pentagon / Arlington · Aug 2026 PCS</div></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:.625rem">
+            <div style="display:flex;align-items:center;gap:.875rem;padding:.875rem;border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:.95rem;flex-shrink:0">1</div>
+              <div style="flex:1"><div style="font-size:.88rem;font-weight:500;color:var(--dark)">Toddlers on the Hill</div><div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">Navy Yard DC · 2.1mi from JBAB · MCCYN accepted</div></div>
+              <span class="tbadge tb-green">✓ Community Verified</span>
+              <span style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--green)">97%</span>
+              <span style="font-size:1.1rem;cursor:pointer" onclick="showToast('⭐ Added to watchlist','green')">⭐</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.875rem;padding:.875rem;border:2px solid var(--gold);border-radius:12px;background:var(--gold-light);cursor:pointer">
+              <div style="width:34px;height:34px;border-radius:8px;background:var(--gold);color:white;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0">★ FP</div>
+              <div style="flex:1"><div style="font-size:.88rem;font-weight:500;color:var(--dark)">Full Circle Montessori</div><div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">Arlington VA · 1.2mi from Pentagon · PCS specialists</div></div>
+              <span class="tbadge tb-amber">Featured Partner</span>
+              <span style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--green)">91%</span>
+              <span style="font-size:1.1rem;cursor:pointer" onclick="showToast('⭐ Added to watchlist','green')">☆</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.875rem;padding:.875rem;border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--mid);color:white;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:.95rem;flex-shrink:0">2</div>
+              <div style="flex:1"><div style="font-size:.88rem;font-weight:500;color:var(--dark)">Nido Nurturing Center</div><div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">Brookland DC · Harvard-inspired · Spanish + sign language</div></div>
+              <span class="tbadge tb-green">✓ Community Verified</span>
+              <span style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--green)">88%</span>
+              <span style="font-size:1.1rem;cursor:pointer" onclick="showToast('⭐ Added to watchlist','green')">⭐</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--gold)">
+        <div class="card-header"><div class="card-title">💛 Pay it forward — 60-second check-in</div></div>
+        <div class="card-body">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">You contacted <strong style="color:var(--dark)">Toddlers on the Hill</strong> recently. Did they reply? One minute of your intel saves the next family hours.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.875rem">
+            <button class="opt-btn" onclick="selOpt(this)">✅ They replied</button>
+            <button class="opt-btn" onclick="selOpt(this)">⏳ Still waiting</button>
+            <button class="opt-btn" onclick="selOpt(this)">🟢 Waitlist open</button>
+            <button class="opt-btn" onclick="selOpt(this)">🔴 9+ month wait</button>
+          </div>
+          <button class="btn-primary btn-sm" onclick="showToast('💛 Intel submitted — thank you!','green')">Submit intel →</button>
+          <a href='/checkin' style='font-size:.78rem;color:var(--green);margin-left:1rem;text-decoration:none'>Full check-in →</a>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><div class="card-title">⭐ Watchlist</div></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
+            <div><div style="font-size:.82rem;font-weight:500;color:var(--dark)">Toddlers on the Hill</div><div style="font-size:.7rem;color:var(--muted)">Navy Yard DC · 97% match</div></div>
+            <span style="font-size:.68rem;font-weight:600;background:var(--light);color:var(--green);padding:.2rem .6rem;border-radius:100px">🟢 Open</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
+            <div><div style="font-size:.82rem;font-weight:500;color:var(--dark)">Full Circle Montessori</div><div style="font-size:.7rem;color:var(--muted)">Arlington VA · Featured Partner</div></div>
+            <span style="font-size:.68rem;font-weight:600;background:var(--gold-light);color:var(--gold);padding:.2rem .6rem;border-radius:100px">🎁 Offer</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0">
+            <div><div style="font-size:.82rem;font-weight:500;color:var(--dark)">Nido Nurturing Center</div><div style="font-size:.7rem;color:var(--muted)">Brookland DC · 88% match</div></div>
+            <span style="font-size:.68rem;font-weight:600;background:var(--light);color:var(--mid);padding:.2rem .6rem;border-radius:100px">3mo wait</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border:2px solid var(--gold)">
+        <div class="card-header" style="background:var(--gold-light)"><div class="card-title" style="color:var(--gold)">🎁 Active offer for you</div><span style="font-size:.68rem;color:var(--gold);font-weight:600">Expires Jun 30</span></div>
+        <div class="card-body">
+          <div style="font-size:.88rem;font-weight:500;color:var(--dark);margin-bottom:.375rem">Full Circle Montessori</div>
+          <div style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.5">Free first month of tuition for military families who schedule a tour before June 30.</div>
+          <div style="display:flex;gap:.625rem">
+            <button class="btn-primary gold btn-sm" onclick="showToast('🎁 Offer claimed! They\'ll contact you within 24 hours.','gold')">Claim offer</button>
+            <button class="btn-outline btn-sm" onclick="showToast('📅 Tour request sent!','')">Schedule tour</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════ TEACHER ═══════════════ -->
+<div class="page" id="page-teacher">
+<div class="section" style="background:var(--cream)">
+<div class="section-inner">
+  <div class="section-label">Teacher portal</div>
+  <div class="section-title">Your insight carries <em>real weight.</em></div>
+  <p class="section-sub" style="margin-bottom:2rem">Teachers shape rankings — anonymous, permanent, honest. No director ever sees your name.</p>
+  <div class="two-col">
+    <div>
+      <div class="verify-card">
+        <div class="verify-title">🔒 Verification status</div>
+        <div class="verify-steps">
+          <div class="vstep done">1. Email</div>
+          <div class="vstep done">2. Domain</div>
+          <div class="vstep cur">3. Tenure</div>
+          <div class="vstep">4. Badge</div>
+        </div>
+        <p style="font-size:.8rem;color:var(--text);line-height:1.55;margin-bottom:.875rem">Your school email <strong>@fioremontessori.com</strong> is verified. Confirm your start date to unlock full tenure weighting. After 6 months of contributions your reports carry <strong style="color:var(--purple)">1.8× weight</strong>.</p>
+        <div class="inline-fields" style="margin-bottom:.875rem">
+          <div><div class="form-label">Start date at this school</div><input class="form-input" type="month" value="2023-08"></div>
+          <div><div class="form-label">Role</div><select class="form-select"><option>Lead Teacher</option><option>Assistant Teacher</option><option>Specialist (OT/SLP)</option></select></div>
+        </div>
+        <button class="btn-primary purple btn-sm" onclick="showToast('✅ Tenure confirmed. Weight upgraded to 1.8×','purple')">Confirm & unlock full weight</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 School reality report</div><span class="tbadge tb-purple">Teacher verified</span></div>
+        <div class="card-body">
+          <p style="font-size:.75rem;color:var(--muted);margin-bottom:1rem;line-height:1.55;background:var(--purple-light);padding:.75rem;border-radius:8px">100% anonymous. Your director will never see your name or submission. Reports are combined with others before any score changes.</p>
+          <div class="form-group">
+            <div class="form-label">Does your school's public profile accurately reflect your classroom?</div>
+            <div class="opts-2col">
+              <button class="opt-btn selected" onclick="selOpt(this)">✅ Yes, accurate</button>
+              <button class="opt-btn" onclick="selOpt(this)">🟡 Mostly accurate</button>
+              <button class="opt-btn" onclick="selOpt(this)">🔴 No — there's a gap</button>
+              <button class="opt-btn" onclick="selOpt(this)">⚠️ Overpromising</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Claims you'd flag as inaccurate</div>
+            <div class="toggle-row" onclick="togEl(this)"><div><div class="tl">EFMP / Special needs support</div><div class="ts">School claims this — is it real?</div></div><div class="toggle"></div></div>
+            <div class="toggle-row" onclick="togEl(this)"><div><div class="tl">Speech therapy on-site</div><div class="ts">SLP present at school?</div></div><div class="toggle"></div></div>
+            <div class="toggle-row" onclick="togEl(this)"><div><div class="tl">Mid-year military enrollment</div><div class="ts">Actually accepted in practice?</div></div><div class="toggle"></div></div>
+            <div class="toggle-row" onclick="togEl(this)"><div><div class="tl">MCCYN / DoD subsidy accepted</div><div class="ts">Actively processing these?</div></div><div class="toggle"></div></div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Admin support for your classroom (optional)</div>
+            <div class="opts-2col">
+              <button class="opt-btn" onclick="selOpt(this)">⭐⭐⭐⭐⭐ Excellent</button>
+              <button class="opt-btn" onclick="selOpt(this)">⭐⭐⭐⭐ Good</button>
+              <button class="opt-btn selected" onclick="selOpt(this)">⭐⭐⭐ Mixed</button>
+              <button class="opt-btn" onclick="selOpt(this)">⭐ Poor</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">One thing families should know before enrolling</div>
+            <textarea class="form-textarea" placeholder="e.g. 'We say we have an SLP but she visits once a month. Families expecting weekly support will be disappointed.'"></textarea>
+          </div>
+          <button class="btn-primary purple" onclick="showToast('👩‍🏫 Report submitted anonymously. 1.4× weight applied.','purple')">Submit anonymously →</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--purple)">
+        <div class="card-header"><div class="card-title">How your voice is weighted</div></div>
+        <div class="card-body">
+          <div style="background:var(--purple-light);border-radius:10px;padding:.875rem;margin-bottom:1rem;font-size:.82rem"><strong style="color:var(--purple)">Your current weight: 1.4×</strong><br><span style="font-size:.72rem;color:var(--muted)">Verified email + 2 prior reports</span></div>
+          <div class="voice-row"><div class="vi">👨‍👩‍👧</div><div class="vl">Family check-in</div><div class="vt"><div class="vb vb-fam" style="width:55%"></div></div><div class="vv">1.0×</div></div>
+          <div class="voice-row"><div class="vi">👩‍🏫</div><div class="vl">New teacher</div><div class="vt"><div class="vb vb-teach" style="width:65%"></div></div><div class="vv">1.3×</div></div>
+          <div class="voice-row"><div class="vi">👩‍🏫</div><div class="vl">Teacher 6mo+</div><div class="vt"><div class="vb vb-teach" style="width:90%"></div></div><div class="vv">1.8×</div></div>
+          <div class="voice-row"><div class="vi">🚪</div><div class="vl">Exit report</div><div class="vt"><div class="vb vb-teach" style="width:100%"></div></div><div class="vv">2.2×</div></div>
+          <div class="voice-row"><div class="vi">⭐</div><div class="vl">Pairwise rater</div><div class="vt"><div class="vb vb-rate" style="width:40%"></div></div><div class="vv">0.8×</div></div>
+          <div class="voice-row"><div class="vi">🏫</div><div class="vl">Admin quality</div><div class="vt"><div class="vb vb-admin" style="width:0%"></div></div><div class="vv" style="color:var(--red)">0×</div></div>
+          <div style="margin-top:.875rem;padding:.75rem;background:var(--light);border-radius:8px;font-size:.72rem;color:var(--mid);line-height:1.55">Directors own the <em>facts</em> — waitlist, tuition, hours. They cannot vote on their own quality scores. That score comes only from families and teachers.</div>
+        </div>
+      </div>
+      <div class="card" style="border:1.5px solid var(--red);margin-bottom:1rem">
+        <div class="card-header" style="background:var(--red-light)"><div class="card-title" style="color:var(--red)">🚪 Leaving this school?</div></div>
+        <div class="card-body">
+          <p style="font-size:.8rem;color:var(--text);margin-bottom:.875rem;line-height:1.5">Departing teachers carry the highest trust weight — 2.2×. You have nothing to lose and everything to contribute.</p>
+          <button class="btn-primary red btn-sm" onclick="showToast('🚪 Exit report opened — 2.2× weight applied','red')">Submit exit report →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Active dissent flags</div><span class="tbadge tb-purple">Internal only</span></div>
+        <div class="card-body">
+          <div class="dissent"><div class="dissent-label">⚠ Claim gap detected</div><div class="dissent-text">School claims "speech therapy on-site." 0 of 3 teachers confirmed this in 90 days.</div><div class="dissent-meta">3 teacher reports · Score impact: −8 pts special needs</div></div>
+          <div class="dissent"><div class="dissent-label">⚠ Mid-year enrollment gap</div><div class="dissent-text">Website says mid-year military enrollment welcome. 2 teachers flagged as "director discretion only — rarely granted."</div><div class="dissent-meta">2 teacher reports · Score impact: −5 pts military awareness</div></div>
+          <p style="font-size:.72rem;color:var(--muted);margin-top:.75rem;line-height:1.5">Flags are visible only to NearBase. Your director sees only that their score dropped — never who reported what.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════ SCHOOL ADMIN ═══════════════ -->
+<div class="page" id="page-school">
+<div class="section" style="background:var(--cream)">
+<div class="section-inner">
+  <div class="section-label">School admin dashboard</div>
+  <div class="section-title">What families and teachers<br><em>are saying about you.</em></div>
+  <div class="stat-row" style="margin-top:1.5rem">
+    <div class="stat-card"><div class="stat-num gold">82</div><div class="stat-label">School Health Score</div><div class="stat-trend trend-warn">↓ 4 pts — 2 claim gaps</div></div>
+    <div class="stat-card"><div class="stat-num">17</div><div class="stat-label">Families watching</div><div class="stat-trend trend-up">↑ 5 this month</div></div>
+    <div class="stat-card"><div class="stat-num purple">3</div><div class="stat-label">Verified teacher voices</div><div class="stat-trend">Anonymized</div></div>
+    <div class="stat-card"><div class="stat-num red">2</div><div class="stat-label">Claim gaps flagged</div><div class="stat-trend trend-warn">Action needed</div></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><div class="card-title">Facts you control (update anytime)</div><span class="tbadge tb-green">Admin verified</span></div>
+        <div class="card-body">
+          <p style="font-size:.75rem;color:var(--muted);margin-bottom:1rem;line-height:1.55">These are factual fields. Quality scores are set by community voice — not by you.</p>
+          <div class="inline-fields" style="margin-bottom:.875rem">
+            <div><div class="form-label">Current waitlist status</div><select class="form-select"><option>🟡 Short wait — 1–3 months</option><option>🟢 Open — spots available</option><option>🟠 Medium — 3–9 months</option><option>🔴 Long — 9+ months</option><option>🚫 Closed</option></select></div>
+            <div><div class="form-label">Monthly tuition (infant)</div><input class="form-input" value="$2,100 / month"></div>
+          </div>
+          <div class="inline-fields" style="margin-bottom:.875rem">
+            <div><div class="form-label">Hours of operation</div><input class="form-input" value="7:30am – 6:00pm"></div>
+            <div><div class="form-label">Spots available now</div><input class="form-input" type="number" value="2"></div>
+          </div>
+          <button class="btn-primary btn-sm" onclick="showToast('✅ Facts updated — live on NearBase immediately','green')">Save & publish →</button>
+        </div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--red)">
+        <div class="card-header"><div class="card-title">⚠ Claim gaps — action needed</div><span class="tbadge tb-red">Unverified</span></div>
+        <div class="card-body">
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem">Your community score dropped because families and teachers are not confirming these claims.</p>
+          <div class="cvr-row"><div class="cvr-label">Speech therapy on-site</div><div class="cvr-claim cvr-d">You claimed: Yes</div><div class="cvr-gap" style="color:var(--red)">0/5 confirmed ↓8pts</div></div>
+          <div class="cvr-row"><div class="cvr-label">Mid-year military enrollment</div><div class="cvr-claim cvr-d">You claimed: Always</div><div class="cvr-gap" style="color:var(--red)">1/4 confirmed ↓5pts</div></div>
+          <div class="cvr-row"><div class="cvr-label">MCCYN / DoD subsidy</div><div class="cvr-claim cvr-v">Confirmed: Yes</div><div class="cvr-gap" style="color:var(--green)">3/3 ✓</div></div>
+          <div class="cvr-row"><div class="cvr-label">EFMP resources</div><div class="cvr-claim cvr-u">You claimed: Yes</div><div class="cvr-gap" style="color:var(--gold)">2/5 partial</div></div>
+          <div style="margin-top:.875rem;padding:.75rem;background:var(--light);border-radius:8px;font-size:.78rem;color:var(--mid)">💡 <strong>To resolve:</strong> Update claims to match reality, or encourage families you've served to submit a NearBase check-in confirming their experience.</div>
+          <div style="display:flex;gap:.625rem;margin-top:.875rem">
+            <button class="btn-primary red btn-sm" onclick="showToast('✏️ Edit claims opened','')">Edit claims</button>
+            <button class="btn-primary btn-sm" onclick="showToast('📨 Check-in reminder sent to recent families','green')">Ask families to confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--purple)">
+        <div class="card-header"><div class="card-title">Community voice — what you can't control</div></div>
+        <div class="card-body">
+          <p style="font-size:.72rem;color:var(--muted);margin-bottom:.875rem">These scores come from families and teachers only. You can improve them by being better.</p>
+          <div class="voice-row"><div class="vi">👨‍👩‍👧</div><div class="vl">Families</div><div class="vt"><div class="vb vb-fam" style="width:74%"></div></div><div class="vv">74%</div></div>
+          <div class="voice-row"><div class="vi">👩‍🏫</div><div class="vl">Teachers</div><div class="vt"><div class="vb vb-teach" style="width:61%"></div></div><div class="vv">61%</div></div>
+          <div class="voice-row"><div class="vi">⭐</div><div class="vl">Raters</div><div class="vt"><div class="vb vb-rate" style="width:88%"></div></div><div class="vv">88%</div></div>
+          <div style="margin-top:.875rem;font-size:.72rem;color:var(--muted);line-height:1.5">Teacher satisfaction is 13 points below family satisfaction. This gap suggests a disconnect between what families see on tours and what teachers experience daily.</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><div class="card-title">🎁 Send offer to watching families</div></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.875rem">
+            <label class="opt-btn selected" style="font-size:.8rem"><input type="radio" name="offer" checked style="accent-color:var(--green);margin-right:.25rem"> 🎁 Free first month — military families</label>
+            <label class="opt-btn" style="font-size:.8rem"><input type="radio" name="offer" style="accent-color:var(--green);margin-right:.25rem"> 🚌 Free transportation · first 3 months</label>
+            <label class="opt-btn" style="font-size:.8rem"><input type="radio" name="offer" style="accent-color:var(--green);margin-right:.25rem"> 🌟 $50 gift card for June tours</label>
+            <label class="opt-btn" style="font-size:.8rem"><input type="radio" name="offer" style="accent-color:var(--green);margin-right:.25rem"> 💰 10% military discount · year 1</label>
+          </div>
+          <button class="btn-primary gold btn-sm" onclick="showToast('✅ Offer sent to 17 watching families!','gold')">Send to 17 families →</button>
+        </div>
+      </div>
+      <div class="placement-card">
+        <div class="pc-label">Your placement</div>
+        <div class="pc-plan">Featured Partner</div>
+        <div class="pc-sub">Appearing between #1 and #2 in family searches · Map photo card active · Offer notifications enabled</div>
+        <div class="pc-price">$149 <span>/month</span></div>
+        <div style="display:flex;gap:.625rem">
+          <button class="btn-primary gold btn-sm" onclick="showToast('🚀 Upgrade options coming soon!','gold')">Upgrade placement</button>
+          <button class="btn-outline btn-sm" onclick="showPage('family')">Preview family view</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════ TRUST LAYER ═══════════════ -->
+<div class="page" id="page-trust">
+<div class="section">
+<div class="section-inner">
+  <div class="section-label">Trust architecture</div>
+  <div class="section-title">How NearBase weighs<br><em>every voice honestly.</em></div>
+  <p class="section-sub" style="margin-bottom:2rem">Families, teachers, admins, and independent raters all contribute — but not equally. Here's exactly how each voice is weighted and why.</p>
+  <div id="trustSchoolList"></div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════ LIVE FEED ═══════════════ -->
+<div class="page" id="page-feed">
+<div class="section" style="background:var(--cream)">
+<div class="section-inner">
+  <div class="section-label">Live intelligence feed</div>
+  <div class="section-title">Real-time stream across<br><em>all NCR schools.</em></div>
+  <div class="two-col" style="margin-top:1.5rem">
+    <div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📡 Incoming reports</div><button class="btn-primary btn-sm" onclick="addFeed()">+ Simulate report</button></div>
+        <div class="card-body" id="liveFeed"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><div class="card-title">Weight breakdown</div></div>
+        <div class="card-body">
+          <div class="voice-row"><div class="vi">👨‍👩‍👧</div><div class="vl">Family check-in</div><div class="vt"><div class="vb vb-fam" style="width:55%"></div></div><div class="vv">1.0×</div></div>
+          <div class="voice-row"><div class="vi">👩‍🏫</div><div class="vl">Teacher (new)</div><div class="vt"><div class="vb vb-teach" style="width:65%"></div></div><div class="vv">1.3×</div></div>
+          <div class="voice-row"><div class="vi">👩‍🏫</div><div class="vl">Teacher (6mo+)</div><div class="vt"><div class="vb vb-teach" style="width:90%"></div></div><div class="vv">1.8×</div></div>
+          <div class="voice-row"><div class="vi">🚪</div><div class="vl">Exit report</div><div class="vt"><div class="vb vb-teach" style="width:100%"></div></div><div class="vv">2.2×</div></div>
+          <div class="voice-row"><div class="vi">⭐</div><div class="vl">Pairwise rater</div><div class="vt"><div class="vb vb-rate" style="width:40%"></div></div><div class="vv">0.8×</div></div>
+          <div class="voice-row"><div class="vi">🏫</div><div class="vl">Admin (quality)</div><div class="vt"><div class="vb vb-admin" style="width:0%"></div></div><div class="vv" style="color:var(--red)">0×</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">System flags this week</div></div>
+        <div class="card-body">
+          <div class="dissent"><div class="dissent-label">🔴 Claim gap · Fiore Montessori</div><div class="dissent-text">SLP on-site claim: 0/5 family confirmations in 90 days. Score −8.</div></div>
+          <div class="dissent"><div class="dissent-label">🟡 Director narrative conflict</div><div class="dissent-text">Breakthrough Montessori: Admin updated "mid-year military enrollment: yes." 2 teacher reports say "director discretion only." Flag held pending more data.</div></div>
+          <div style="padding:.75rem;background:var(--light);border-radius:8px;font-size:.78rem;color:var(--mid)">✅ <strong>Confirmed this week:</strong> ToTH Montessori MCCYN claim confirmed by 4 new family check-ins. Score +3.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+
+<section class="nbcap">
+  <div class="nbcap-in">
+    <div>
+      <h3>PCS orders coming? <em>Hear it first.</em></h3>
+      <p>New schools, waitlist changes, and military discounts near your next base — one short email when it matters, never spam.</p>
+    </div>
+    <form name="nearbase-updates" method="POST" action="thanks.html" data-netlify="true">
+      <input type="hidden" name="form-name" value="nearbase-updates">
+      <input type="hidden" name="page" value="ecosystem">
+      <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address">
+      <button type="submit">Keep me posted</button>
+    </form>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Near<span>Base</span></div>
+    <div class="footer-links">
+      <a href='/find'>Find schools</a>
+      <a href='/families'>For families</a>
+      <a href='/schools'>For schools</a>
+      <a href='/checkin'>Pay it forward</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/quiz'>Preference Quiz</a>
+      <a href='/about'>About</a>
+    </div>
+    <div class="footer-copy">© 2026 NearBase · kellybrown@nearbase.net</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCHOOLS_DATA=[
+  {name:"Toddlers on the Hill",loc:"Navy Yard, DC",rank:1,featured:false,score:94,claims:[{l:"MCCYN accepted",s:"good",c:"4/4"},{l:"Infant/Nido program",s:"good",c:"6/6"},{l:"Mid-year enrollment",s:"good",c:"3/4"},{l:"EFMP support",s:"warn",c:"1/3"}],voices:{f:88,t:79,r:95},waitlist:"🟢 Open"},
+  {name:"Full Circle Montessori",loc:"Arlington, VA",rank:null,featured:true,score:88,claims:[{l:"MCCYN accepted",s:"good",c:"3/3"},{l:"PCS portfolio transfer",s:"good",c:"5/5"},{l:"Speech therapy on-site",s:"bad",c:"0/3"},{l:"EFMP resources",s:"warn",c:"2/4"}],voices:{f:74,t:61,r:88},waitlist:"🟡 1–3 months"},
+  {name:"Breakthrough Montessori",loc:"Capitol Hill, DC",rank:5,featured:false,score:61,claims:[{l:"Mid-year military enrollment",s:"bad",c:"1/5"},{l:"On-site play space",s:"bad",c:"0/4"},{l:"Free / public tuition",s:"good",c:"5/5"},{l:"Director responsive",s:"warn",c:"2/5"}],voices:{f:52,t:38,r:71},waitlist:"🔴 9+ months"},
+];
+function renderTrust(){
+  document.getElementById('trustSchoolList').innerHTML=SCHOOLS_DATA.map(s=>{
+    const sc=s.score,color=sc>=85?'var(--green)':sc>=70?'var(--gold)':'var(--red)';
+    const circ=2*Math.PI*28,off=circ*(1-sc/100);
+    return`<div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:.875rem;flex:1">
+          <div style="width:36px;height:36px;border-radius:10px;background:${s.featured?'var(--gold)':'var(--dark)'};color:white;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:.95rem;flex-shrink:0">${s.featured?'★':s.rank}</div>
+          <div><div style="font-family:'Fraunces',serif;font-size:1rem;color:var(--dark)">${s.name}</div><div style="font-size:.72rem;color:var(--muted)">${s.loc} · Waitlist: ${s.waitlist}</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.875rem">
+          <svg width="64" height="64" style="transform:rotate(-90deg)"><circle class="arc-bg" cx="32" cy="32" r="28"/><circle class="arc-fill" cx="32" cy="32" r="28" stroke="${color}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg>
+          <div style="margin-left:-56px;width:64px;text-align:center;font-family:'Fraunces',serif;font-size:1.1rem;color:${color};line-height:64px">${sc}</div>
+          <div style="font-size:.62rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em">Health<br>Score</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.75rem">Claim verification · community confirmed</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.25rem">
+          ${s.claims.map(c=>`<div class="claim-row c-${c.s}"><span class="claim-label">${c.l}</span><span class="claim-status cs-${c.s==='good'?'good':c.s==='bad'?'bad':'warn'}">${c.s==='good'?'✓ Verified':'c.s==='bad'?'⚠ Disputed':'? Partial'} ${c.c}</span></div>`).join('')}
+        </div>
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.625rem">Voice breakdown · weighted</div>
+        <div class="voice-row"><div class="vi">👨‍👩‍👧</div><div class="vl">Families (1.0×)</div><div class="vt"><div class="vb vb-fam" style="width:${s.voices.f}%"></div></div><div class="vv">${s.voices.f}%</div></div>
+        <div class="voice-row"><div class="vi">👩‍🏫</div><div class="vl">Teachers (1.8×)</div><div class="vt"><div class="vb vb-teach" style="width:${s.voices.t}%"></div></div><div class="vv">${s.voices.t}%</div></div>
+        <div class="voice-row"><div class="vi">⭐</div><div class="vl">Raters (0.8×)</div><div class="vt"><div class="vb vb-rate" style="width:${s.voices.r}%"></div></div><div class="vv">${s.voices.r}%</div></div>
+        <div class="voice-row"><div class="vi">🏫</div><div class="vl">Admin (0×)</div><div class="vt"><div class="vb vb-admin" style="width:0%"></div></div><div class="vv" style="color:var(--red)">0×</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+const FEED=[
+  {role:'teacher',school:'Fiore Montessori',time:'2 min ago',wt:'1.8× weight',msg:'Verified teacher (6+ months) submitted reality report.',quote:'Our SLP is contracted — she visits Tuesdays only. Families expecting daily support should clarify.',qt:true},
+  {role:'family',school:'Toddlers on the Hill',time:'8 min ago',wt:'1.0× weight',msg:'Family check-in: waitlist inquiry confirmed.',quote:'Called today — director picked up immediately. Waitlist for infants is 2 months. Very warm, knew exactly what MCCYN was.',qt:false},
+  {role:'admin',school:'Breakthrough Montessori',time:'14 min ago',wt:'0× quality weight',msg:'Admin updated: mid-year enrollment policy changed to "always welcome."',quote:null,qt:false},
+  {role:'system',school:'NearBase',time:'22 min ago',wt:'Auto-flag',msg:'⚠ Claim gap: Breakthrough mid-year enrollment claim conflicts with 2 teacher reports. Flag escalated.',quote:null,qt:false},
+  {role:'teacher',school:'Breakthrough Montessori',time:'1 hr ago',wt:'2.2× exit report',msg:'Exit report submitted by departing teacher.',quote:'Mid-year enrollment is director discretion. I saw 3 military families told no mid-year in 2 years. The website does not reflect this.',qt:true},
+];
+const SIM=[
+  {role:'family',school:'LAMB PCS',time:'Just now',wt:'1.0×',msg:'Family check-in: lottery inquiry.',quote:'Called LAMB — December lottery confirmed. Military families who miss can apply for waitlist.',qt:false},
+  {role:'teacher',school:'ToTH Montessori',time:'Just now',wt:'1.3×',msg:'New verified teacher submitted report.',quote:'The director is an Army spouse herself. Mid-year transitions handled with real grace here.',qt:true},
+  {role:'system',school:'NearBase',time:'Just now',wt:'Auto-confirm',msg:'✅ MCCYN confirmation: Nido Nurturing Center confirmed by 2 new check-ins. Score +2.',quote:null,qt:false},
+];
+let simIdx=0;
+let feedData=[...FEED];
+function renderFeed(){
+  document.getElementById('liveFeed').innerHTML=feedData.map(f=>{
+    const rClass={teacher:'rteach',family:'rfam',admin:'radmin',system:'rsys'}[f.role];
+    const iClass={teacher:'fi-teach',family:'fi-fam',admin:'fi-admin',system:'fi-sys'}[f.role];
+    const icon={teacher:'👩‍🏫',family:'👨‍👩‍👧',admin:'🏫',system:'⚙️'}[f.role];
+    const rLabel={teacher:'Teacher',family:'Family',admin:'Admin',system:'System'}[f.role];
+    return`<div class="feed-item">
+      <div class="feed-icon ${iClass}">${icon}</div>
+      <div class="fc">
+        <div class="ft"><span class="frole ${rClass}">${rLabel}</span><span class="fschool">${f.school}</span><span class="ftime">${f.time}</span></div>
+        <div class="fmsg">${f.msg}</div>
+        ${f.quote?`<div class="fquote ${f.qt?'qt':'qf'}">"${f.quote}"</div>`:''}
+        <div class="fwt">${f.wt}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addFeed(){
+  feedData.unshift(SIM[simIdx%SIM.length]);simIdx++;
+  renderFeed();showToast('📡 New report added','green');
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const order=['family','teacher','school','trust','feed'];
+  document.querySelectorAll('.role-tab')[order.indexOf(id)].classList.add('active');
+}
+function selOpt(btn){
+  const g=btn.closest('.opts,.opts-2col');
+  if(g)g.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function togEl(row){row.querySelector('.toggle').classList.toggle('on');}
+
+let toastTimer;
+function showToast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2500);}
+
+renderTrust();
+renderFeed();
+</script>
+</body>
+</html>

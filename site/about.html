@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NearBase — About | Our Story</title>
+<meta name="description" content="NearBase was built by a military spouse and former classroom teacher with 12 years in National Capital Region schools. Here's why.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://nearbase.net/about.html">
+<meta property="og:site_name" content="NearBase">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Our Story — NearBase">
+<meta property="og:description" content="NearBase was built by a military spouse and former classroom teacher with 12 years in National Capital Region schools. Here's why.">
+<meta property="og:url" content="https://nearbase.net/about.html">
+<meta property="og:image" content="https://nearbase.net/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@nearbasenet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#1D9E75;--dark:#085041;--mid:#0F6E56;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--white:#fff;--cream:#F8FAF8}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:0 auto;height:64px;display:flex;align-items:center;gap:1.5rem;padding:0 1.5rem}
+.logo{font-family:'Fraunces',serif;font-size:1.35rem;font-weight:600;color:var(--dark);text-decoration:none}.logo span{color:var(--g)}
+.nav-links{display:flex;align-items:center;gap:1.75rem;margin-left:auto}
+.nav-links a{font-size:.875rem;color:var(--muted);text-decoration:none}.nav-links a:hover{color:var(--dark)}
+.nav-cta{background:var(--g);color:var(--white)!important;padding:.45rem 1.1rem;border-radius:100px;font-size:.82rem;font-weight:500}.nav-cta:hover{background:var(--dark)!important}
+.nav-hamburger{display:none;background:none;border:none;font-size:1.4rem;cursor:pointer;margin-left:auto}
+.nav-mobile{display:none;flex-direction:column;gap:.75rem;padding:1rem 1.5rem;background:var(--white);border-top:1px solid var(--border)}
+.nav-mobile a{font-size:.9rem;color:var(--muted);text-decoration:none}
+@media(max-width:768px){.nav-links{display:none}.nav-hamburger{display:block}.nav-mobile.open{display:flex}}
+.page-wrap{padding-top:64px}
+.s{padding:5rem 1.5rem}.si{max-width:1100px;margin:0 auto}
+.sl{font-size:.72rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:.75rem}
+.st{font-family:'Fraunces',serif;font-size:clamp(1.8rem,3vw,2.7rem);font-weight:600;letter-spacing:-.03em;color:var(--dark);line-height:1.15;margin-bottom:1.1rem}
+.ss{font-size:1rem;line-height:1.75;color:var(--muted);max-width:580px}
+.btn{background:var(--g);color:var(--white);padding:.8rem 1.875rem;border-radius:100px;font-size:.95rem;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s}
+.btn:hover{background:var(--dark);transform:translateY(-1px)}
+/* HERO */
+.hero{background:var(--cream);padding:6rem 1.5rem 5rem}
+.hero-inner{max-width:800px;margin:0 auto;text-align:center}
+.identity{font-size:1rem;line-height:1.75;color:var(--g);font-weight:500;margin-bottom:2rem;font-style:italic}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2.4rem,4vw,3.5rem);font-weight:600;color:var(--dark);line-height:1.1;letter-spacing:-.03em;margin-bottom:1.5rem}
+/* FOUNDER */
+.founder{background:var(--white)}
+.founder-grid{display:grid;grid-template-columns:280px 1fr;gap:4rem;align-items:start;margin-top:3rem}
+.founder-card{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center;position:sticky;top:5rem}
+.founder-avatar{width:100px;height:100px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--white);margin:0 auto 1.25rem}
+.founder-name{font-size:1.1rem;font-weight:500;color:var(--dark);margin-bottom:.25rem}
+.founder-title{font-size:.82rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.5}
+.founder-creds{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.25rem}
+.founder-cred{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.founder-cred::before{content:'·';color:var(--g);font-weight:700}
+.founder-contact{display:flex;flex-direction:column;gap:.4rem}
+.founder-contact a{font-size:.8rem;color:var(--g);text-decoration:none}
+.story-body p{font-size:1rem;line-height:1.85;color:var(--text);margin-bottom:1.5rem}
+.story-body p:last-child{margin-bottom:0}
+.pull-quote{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;font-style:italic;color:var(--dark);line-height:1.4;margin:2.5rem 0;padding:2rem 0;border-top:2px solid var(--light);border-bottom:2px solid var(--light)}
+.bold-close{font-size:1.1rem;font-weight:500;color:var(--dark);line-height:1.6;margin-top:2rem;padding:1.5rem;background:var(--light);border-radius:12px}
+/* VALUES */
+.values{background:var(--cream)}
+.val-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3rem}
+.val-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.val-icon{font-size:1.5rem;margin-bottom:.875rem}
+.val-title{font-size:.9rem;font-weight:500;color:var(--dark);margin-bottom:.4rem}
+.val-body{font-size:.82rem;line-height:1.65;color:var(--muted)}
+/* ROADMAP */
+.roadmap{background:var(--dark);padding:5rem 1.5rem}
+.road-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:3rem auto 0}
+.road-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1.5rem}
+.road-phase{font-size:.72rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--g);margin-bottom:.5rem}
+.road-name{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--white);margin-bottom:.4rem}
+.road-domain{font-size:.8rem;color:rgba(255,255,255,.35);margin-bottom:.875rem}
+.road-desc{font-size:.82rem;line-height:1.6;color:rgba(255,255,255,.45)}
+/* FOOTER */
+footer{background:#021f19;padding:3rem 1.5rem 1.5rem}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:1fr 1.5fr;gap:3rem;margin-bottom:2rem}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:.5rem}.footer-logo span{color:var(--g)}
+.footer-tagline{font-size:.8rem;color:rgba(255,255,255,.3);line-height:1.6;margin-bottom:.875rem}
+.footer-social{display:flex;gap:1rem}.footer-social a{font-size:.78rem;color:rgba(255,255,255,.35);text-decoration:none}
+.footer-links-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.footer-col-title{font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.75rem}
+.footer-links-grid a{display:block;font-size:.8rem;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:.4rem}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:1.25rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.footer-bottom span{font-size:.72rem;color:rgba(255,255,255,.2)}
+@media(max-width:768px){.founder-grid{grid-template-columns:1fr}.founder-card{position:static}.val-grid,.road-grid,.footer-top{grid-template-columns:1fr}.footer-links-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<style id="nbv3-css">
+.nbv3-inner{gap:1rem}
+.nbv3-links{display:flex;align-items:center;gap:1.4rem}
+.nbv3-links>a{font-size:.875rem;color:#6b6b67;text-decoration:none;font-weight:400;transition:color .2s;white-space:nowrap}
+.nbv3-links>a:hover{color:#085041}
+.nbv3-links>a.on{color:#1D9E75;font-weight:500}
+.nbv3-drop{position:relative}
+.nbv3-drop>button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:.875rem;color:#6b6b67;cursor:pointer;padding:.4rem 0;display:flex;align-items:center;gap:.25rem}
+.nbv3-drop.on>button{color:#1D9E75;font-weight:500}
+.nbv3-drop>button:hover{color:#085041}
+.nbv3-car{font-size:.6rem;opacity:.6}
+.nbv3-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #d4ead8;border-radius:14px;box-shadow:0 10px 30px rgba(8,80,65,.12);padding:.45rem;min-width:190px;display:none;flex-direction:column}
+.nbv3-drop:hover .nbv3-menu,.nbv3-drop:focus-within .nbv3-menu{display:flex}
+.nbv3-menu a{font-size:.84rem;color:#1a1a18;text-decoration:none;padding:.5rem .8rem;border-radius:9px;white-space:nowrap}
+.nbv3-menu a:hover{background:#E1F5EE;color:#085041}
+.nbv3-menu a.on{color:#1D9E75;font-weight:500}
+.nbv3-burger{display:none;background:none;border:none;flex-direction:column;gap:4px;padding:.5rem;cursor:pointer}
+.nbv3-burger span{display:block;width:20px;height:2px;background:#085041;border-radius:2px;transition:.2s}
+body.nbv3-open .nbv3-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+body.nbv3-open .nbv3-burger span:nth-child(2){opacity:0}
+body.nbv3-open .nbv3-burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nbv3-mobile{display:none;flex-direction:column;background:#fff;border-bottom:1px solid #d4ead8;padding:.75rem 1.5rem 1.25rem;gap:.1rem;max-height:calc(100vh - 64px);overflow-y:auto}
+.nbv3-mobile a{font-size:.95rem;color:#1a1a18;text-decoration:none;padding:.6rem .25rem;border-bottom:1px solid #f0f7f2}
+.nbv3-mobile a.on{color:#1D9E75;font-weight:500}
+body.nbv3-open .nbv3-mobile{display:flex}
+@media(max-width:1020px){.nbv3-links{display:none}.nbv3-burger{display:flex}}
+/* email capture */
+.nbcap{background:#085041;padding:3.5rem 2rem}
+.nbcap-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.nbcap h3{font-family:'Fraunces',serif;font-weight:600;color:#fff;font-size:1.5rem;margin-bottom:.35rem}
+.nbcap h3 em{font-style:italic;font-weight:300;color:#7ED9B9}
+.nbcap p{color:rgba(255,255,255,.75);font-size:.875rem;max-width:420px;line-height:1.55}
+.nbcap form{display:flex;gap:.6rem;flex-wrap:wrap}
+.nbcap input[type=email]{padding:.75rem 1.2rem;border-radius:100px;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.9rem;min-width:260px;background:rgba(255,255,255,.95)}
+.nbcap button{background:#1D9E75;color:#fff;border:none;padding:.75rem 1.5rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s}
+.nbcap button:hover{background:#C8922A}
+@media(max-width:640px){.nbcap input[type=email]{min-width:0;flex:1}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner nbv3-inner">
+    <a class='logo' href='/'>Near<span>Base</span></a>
+    <div class="nbv3-links">
+      <a href='/find'>Find schools</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/families'>For families</a>
+      <a href='/schools'>For schools</a>
+      <a href='/premium'>Premium</a>
+      <div class="nbv3-drop"><button type="button" aria-haspopup="true">Community<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a></div></div>
+      <div class="nbv3-drop on"><button type="button" aria-haspopup="true">About<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a class='on' href='/about'>Our story</a><a href='/mission'>Mission</a></div></div>
+      <a class='nav-cta' href='/find'>Search near my base →</a>
+    </div>
+    <button type="button" class="nbv3-burger" aria-label="Open menu" aria-expanded="false" onclick="document.body.classList.toggle('nbv3-open');var open=document.body.classList.contains('nbv3-open');this.setAttribute('aria-expanded',open?'true':'false');this.setAttribute('aria-label',open?'Close menu':'Open menu')"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nbv3-mobile">
+    <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/schools'>For schools</a><a href='/premium'>Premium</a><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a><a class='on' href='/about'>Our story</a><a href='/mission'>Mission</a>
+    <a class='nav-cta' href='/find' style='text-align:center;margin-top:.5rem'>Search near my base →</a>
+  </div>
+</nav>
+<div class="page-wrap">
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="identity">Every child accelerates with a personalized early educational program.</div>
+    <h1>Built from the inside — by a teacher who lived both worlds.</h1>
+  </div>
+</section>
+
+<section class="s founder">
+  <div class="si">
+    <div class="founder-grid">
+      <div class="founder-card">
+        <div class="founder-avatar">KB</div>
+        <div class="founder-name">Kelly Brown</div>
+        <div class="founder-title">Founder, NearBase Preschool Finder</div>
+        <div class="founder-creds">
+          <div class="founder-cred">Former classroom teacher</div>
+          <div class="founder-cred">Military spouse</div>
+          <div class="founder-cred">Early childhood advocate</div>
+          <div class="founder-cred">12 years in NCR classrooms</div>
+          <div class="founder-cred">PMP certification in progress</div>
+        </div>
+        <div class="founder-contact">
+          <a href="mailto:kellybrown@nearbase.net">kellybrown@nearbase.net</a>
+          <a href="https://instagram.com/nearbasepreschools">@nearbasepreschools</a>
+          <a href="https://x.com/nearbasenet">@nearbasenet</a>
+        </div>
+      </div>
+      <div class="story-body">
+        <div class="sl">The story</div>
+        <h2 class="st">Finding the right preschool shouldn't depend on who you know.</h2>
+        <p>Twelve years teaching in NCR classrooms, built on one belief: every child deserves a great start — not just the ones whose families stumble onto the right school.</p>
+        <p>Then military spouse life made the other side familiar: the scramble. New orders, new city, no network — and the search starting from zero, again.</p>
+        <div class="pull-quote">"The moment I knew the NearBase Preschool Finder needed to exist was when I saw how many great preschools were invisible to the families who needed them most."</div>
+        <p>The schools weren't the problem — extraordinary small Montessori programs were everywhere. They were just invisible to anyone searching from a thousand miles away.</p>
+        <p>NearBase runs on direct, present-day knowledge: the directors, the classrooms, the waitlists that never make it onto a website.</p>
+        <div class="pull-quote">"I want every military parent who uses NearBase to feel seen. Like the platform actually understands their life — the deployments, the moves, the uncertainty, and the love."</div>
+        <p>That knowledge shouldn't live in one head. Now it doesn't.</p>
+        <div class="bold-close">Finding the right preschool shouldn't depend on who you know. Now it doesn't.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s values">
+  <div class="si">
+    <div class="sl">What we stand for</div>
+    <h2 class="st">Five values. Every decision flows from them.</h2>
+    <div class="val-grid">
+      <div class="val-card"><div class="val-icon">👨‍👩‍👧‍👦</div><div class="val-title">Family-centered</div><p class="val-body">Built for the family mid-search — not the school, not the algorithm.</p></div>
+      <div class="val-card"><div class="val-icon">🪖</div><div class="val-title">Military-aware</div><p class="val-body">Deployments, PCS, EFMP, MCCYN — we live the acronyms, not just list them.</p></div>
+      <div class="val-card"><div class="val-icon">🔍</div><div class="val-title">Transparent</div><p class="val-body">Every score explainable. Every waitlist sourced. No black boxes.</p></div>
+      <div class="val-card"><div class="val-icon">🌍</div><div class="val-title">Inclusive</div><p class="val-body">All 18 program types — special needs, bilingual, co-ops, nature schools.</p></div>
+      <div class="val-card"><div class="val-icon">💚</div><div class="val-title">Paid forward</div><p class="val-body">Every search pays forward to the next family. That's the soul of the platform.</p></div>
+      <div class="val-card"><div class="val-icon">📚</div><div class="val-title">Education-first</div><p class="val-body">Built by a teacher who's seen what great early education does — in the research and in the classroom.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="roadmap">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="sl" style="color:var(--g)">The brand roadmap</div>
+    <h2 class="st" style="color:var(--white)">Built to scale — from military families to every family.</h2>
+    <div class="road-grid">
+      <div class="road-card">
+        <div class="road-phase">Phase 1 — Now</div>
+        <div class="road-name">NearBase</div>
+        <div class="road-domain">nearbase.net</div>
+        <p class="road-desc">Military families in the NCR first — the audience that needs it most.</p>
+      </div>
+      <div class="road-card">
+        <div class="road-phase">Phase 2 — Year 3</div>
+        <div class="road-name">NearBurrow</div>
+        <div class="road-domain">nearburrow.com</div>
+        <p class="road-desc">Then every relocating family — same data, wider doors.</p>
+      </div>
+      <div class="road-card">
+        <div class="road-phase">Phase 3 — Year 5+</div>
+        <div class="road-name">Burrow</div>
+        <div class="road-domain">burrow.com</div>
+        <p class="road-desc">The Zillow moment: every family, everywhere, finding the right start.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="nbcap">
+  <div class="nbcap-in">
+    <div>
+      <h3>PCS orders coming? <em>Hear it first.</em></h3>
+      <p>New schools, waitlist changes, and military discounts near your next base — one short email when it matters, never spam.</p>
+    </div>
+    <form name="nearbase-updates" method="POST" action="thanks.html" data-netlify="true">
+      <input type="hidden" name="form-name" value="nearbase-updates">
+      <input type="hidden" name="page" value="about">
+      <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address">
+      <button type="submit">Keep me posted</button>
+    </form>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div><div class="footer-logo">Near<span>Base</span></div><div class="footer-tagline">Every child accelerates with a personalized early educational program.</div><div class="footer-social"><a href="https://instagram.com/nearbasepreschools">@nearbasepreschools</a><a href="https://x.com/nearbasenet">@nearbasenet</a></div></div>
+      <div class="footer-links-grid">
+        <div><div class="footer-col-title">Families</div><a href='/find'>Find schools</a><a href='/families'>How it works</a><a href='/premium'>Premium</a></div>
+        <div><div class="footer-col-title">Schools</div><a href='/schools'>Partner with us</a><a href='/schools#pricing'>Pricing</a></div>
+        <div><div class="footer-col-title">About</div><a href='/about'>Our story</a><a href='/mission'>Mission</a><a href="mailto:kellybrown@nearbase.net">Contact</a></div>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 NearBase · nearbase.net · kellybrown@nearbase.net</span><span>Built by a former teacher and military spouse.</span></div>
+  </div>
+</footer>
+</div>
+</body>
+</html>

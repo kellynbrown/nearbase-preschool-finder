@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NearBase — Pay It Forward</title>
+<meta name="description" content="Contacted a school? 60 seconds to share what you learned saves the next military family hours. Waitlist reality, response times, subsidies.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://nearbase.net/checkin.html">
+<meta property="og:site_name" content="NearBase">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pay It Forward — NearBase">
+<meta property="og:description" content="Contacted a school? 60 seconds to share what you learned saves the next military family hours. Waitlist reality, response times, subsidies.">
+<meta property="og:url" content="https://nearbase.net/checkin.html">
+<meta property="og:image" content="https://nearbase.net/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@nearbasenet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#1D9E75;--dark:#085041;--light:#E1F5EE;--mid:#0F6E56;--text:#1a1a18;--muted:#6b6b67;--white:#ffffff;--cream:#F8FAF8;--border:#d4ead8;--gold:#C8922A;--gold-light:#FDF3E3;}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem}
+.nav-inner{max-width:1100px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;color:var(--dark);letter-spacing:-0.02em;text-decoration:none}
+.logo span{color:var(--green)}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{font-size:.875rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--dark)}
+.nav-links a.active{color:var(--green);font-weight:500}
+.nav-cta{background:var(--green);color:var(--white)!important;padding:.5rem 1.25rem;border-radius:100px;font-size:.875rem;font-weight:500;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--dark)!important}
+
+.page-hero{padding:8rem 2rem 3rem;background:var(--cream);border-bottom:1px solid var(--border);text-align:center}
+.page-hero-inner{max-width:680px;margin:0 auto}
+.section-label{font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.875rem}
+.page-hero h1{font-family:'Fraunces',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:600;letter-spacing:-0.03em;color:var(--dark);line-height:1.15;margin-bottom:1rem}
+.page-hero h1 em{font-style:italic;font-weight:300;color:var(--green)}
+.page-hero p{font-size:1rem;line-height:1.7;color:var(--muted)}
+
+.main-section{padding:3rem 2rem 5rem;background:var(--white)}
+.main-inner{max-width:700px;margin:0 auto}
+
+/* CARD */
+.survey-card{background:var(--white);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 4px 32px rgba(8,80,65,0.07)}
+
+/* SCHOOL SELECTOR */
+.school-selector{padding:2rem}
+.school-selector h2{font-family:'Fraunces',serif;font-size:1.25rem;color:var(--dark);margin-bottom:.375rem}
+.school-selector p{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6}
+.search-wrap{position:relative;margin-bottom:1rem}
+.search-wrap input{width:100%;padding:.75rem 1rem .75rem 2.5rem;border:1.5px solid var(--border);border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .15s;color:var(--text)}
+.search-wrap input:focus{border-color:var(--green)}
+.search-icon{position:absolute;left:.875rem;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none}
+.school-list-wrap{max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:12px}
+.school-opt{padding:.875rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:none;border-bottom:1px solid var(--border);transition:background .1s;width:100%;background:transparent;font-family:inherit;text-align:left;gap:.75rem}
+.school-opt:last-child{border-bottom:none}
+.school-opt:hover{background:var(--cream)}
+.school-opt-name{font-size:.85rem;font-weight:500;color:var(--dark)}
+.school-opt-loc{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+.school-opt-type{font-size:.65rem;font-weight:500;background:var(--light);color:var(--mid);padding:.2rem .65rem;border-radius:100px;flex-shrink:0}
+
+/* SURVEY HEADER */
+.survey-header{background:linear-gradient(135deg,var(--dark),var(--mid));padding:1.5rem 2rem;position:relative;overflow:hidden;display:none}
+.survey-header::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05)}
+.sh-label{font-size:.65rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:.375rem}
+.sh-name{font-family:'Fraunces',serif;font-size:1.3rem;color:white;margin-bottom:.2rem}
+.sh-loc{font-size:.78rem;color:rgba(255,255,255,0.6)}
+.sh-mission{margin-top:1rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:.75rem 1rem;font-size:.78rem;color:rgba(255,255,255,0.82);line-height:1.55}
+.sh-mission strong{color:white}
+
+/* PROGRESS BAR */
+.prog-bar-wrap{height:3px;background:var(--border);display:none}
+.prog-bar{height:100%;background:var(--green);transition:width .4s ease}
+
+/* STEPS */
+.steps-wrap{padding:2rem;display:none}
+.step{display:none;animation:fadeUp .2s ease}
+.step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step-num{font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.375rem}
+.step-q{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--dark);margin-bottom:.25rem}
+.step-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.55}
+.opts{display:flex;flex-direction:column;gap:.625rem;margin-bottom:.5rem}
+.opt-btn{width:100%;padding:.875rem 1rem;border:1.5px solid var(--border);border-radius:12px;background:white;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:400;color:var(--text);cursor:pointer;text-align:left;transition:all .12s;display:flex;align-items:center;gap:.75rem;line-height:1.3}
+.opt-btn:hover{border-color:var(--green);background:var(--cream)}
+.opt-btn.selected{border-color:var(--dark);background:var(--light);font-weight:500;color:var(--dark)}
+.opt-btn.selected::after{content:'✓';margin-left:auto;color:var(--green);font-weight:700}
+.opt-icon{font-size:1rem;flex-shrink:0}
+.opts-2col{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;margin-bottom:.5rem}
+
+/* TOGGLES */
+.toggle-group{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color .12s}
+.toggle-row:hover{border-color:var(--green)}
+.tl{font-size:.84rem;font-weight:500;color:var(--dark)}
+.ts{font-size:.72rem;color:var(--muted);margin-top:.15rem}
+.toggle{width:38px;height:21px;background:var(--border);border-radius:100px;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;width:15px;height:15px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+.toggle.on::after{transform:translateX(17px)}
+
+/* SELECT */
+.form-select{width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text);background:white;outline:none;transition:border-color .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b67' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+.form-select:focus{border-color:var(--green)}
+
+/* TEXTAREA */
+.form-textarea{width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text);min-height:80px;resize:vertical;outline:none;transition:border-color .15s}
+.form-textarea:focus{border-color:var(--green)}
+.form-textarea::placeholder{color:#aaa}
+.char-count{font-size:.7rem;color:var(--muted);text-align:right;margin-top:.25rem}
+
+/* NAV BUTTONS */
+.nav-btns{display:flex;gap:.75rem;margin-top:1.5rem}
+.btn-back{padding:.75rem 1.5rem;border:1.5px solid var(--border);border-radius:100px;background:white;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--muted);cursor:pointer;transition:all .12s}
+.btn-back:hover{border-color:var(--green);color:var(--dark)}
+.btn-next{flex:1;padding:.75rem 1.5rem;border:none;border-radius:100px;background:var(--dark);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;color:white;cursor:pointer;transition:background .15s}
+.btn-next:hover{background:var(--green)}
+.btn-next:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+.btn-submit{flex:1;padding:.75rem 1.5rem;border:none;border-radius:100px;background:var(--green);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;color:white;cursor:pointer;transition:background .15s}
+.btn-submit:hover{background:var(--dark)}
+.skip-link{text-align:center;margin-top:.875rem;font-size:.78rem;color:var(--muted);cursor:pointer}
+.skip-link:hover{color:var(--dark);text-decoration:underline}
+
+/* THANK YOU */
+.thankyou{display:none;padding:3rem 2rem;text-align:center}
+.thankyou.show{display:block;animation:fadeUp .3s ease}
+.ty-icon{font-size:3rem;margin-bottom:1rem}
+.ty-title{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--dark);margin-bottom:.625rem}
+.ty-sub{font-size:.88rem;color:var(--muted);line-height:1.65;margin-bottom:1.5rem;max-width:420px;margin-left:auto;margin-right:auto}
+.ty-data{background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;text-align:left;margin-bottom:1.25rem}
+.ty-data-label{font-size:.68rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.75rem}
+.ty-data-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.ty-data-row:last-child{border-bottom:none}
+.ty-data-key{color:var(--muted)}
+.ty-data-val{color:var(--dark);font-weight:500}
+.ty-impact{background:var(--light);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;font-size:.82rem;color:var(--mid);line-height:1.55;margin-bottom:1.5rem;text-align:left}
+.ty-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--green);color:white;padding:.75rem 1.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;border:none;cursor:pointer;transition:background .15s;text-decoration:none;display:inline-flex;align-items:center}
+.btn-primary:hover{background:var(--dark)}
+.btn-outline{background:white;color:var(--dark);padding:.75rem 1.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+/* ADMIN STRIP */
+.admin-strip{background:var(--cream);border-top:1px solid var(--border);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--muted)}
+.export-btn-sm{padding:.4rem 1rem;background:white;border:1px solid var(--border);border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;color:var(--dark);cursor:pointer;transition:all .12s}
+.export-btn-sm:hover{border-color:var(--green);color:var(--green)}
+
+/* TRUST NOTE */
+.trust-note{background:var(--dark);padding:1.25rem 2rem}
+.trust-inner{max-width:700px;margin:0 auto;display:flex;align-items:flex-start;gap:1rem}
+.trust-icon{font-size:1.5rem;flex-shrink:0;margin-top:.1rem}
+.trust-text{font-size:.82rem;color:rgba(255,255,255,0.65);line-height:1.6}
+.trust-text strong{color:white}
+
+footer{background:#021f19;padding:2.5rem 2rem}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:rgba(255,255,255,0.5)}
+.footer-logo span{color:var(--green)}
+.footer-links{display:flex;gap:2rem;flex-wrap:wrap}
+.footer-links a{font-size:.8rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:rgba(255,255,255,0.7)}
+.footer-copy{font-size:.75rem;color:rgba(255,255,255,0.25)}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:white;padding:.75rem 1.5rem;border-radius:100px;font-size:.82rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);z-index:500;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.green{background:var(--green)}
+
+@media(max-width:600px){.nav-links{display:none}.opts-2col{grid-template-columns:1fr}}
+</style>
+
+<style id="nbv3-css">
+.nbv3-inner{gap:1rem}
+.nbv3-links{display:flex;align-items:center;gap:1.4rem}
+.nbv3-links>a{font-size:.875rem;color:#6b6b67;text-decoration:none;font-weight:400;transition:color .2s;white-space:nowrap}
+.nbv3-links>a:hover{color:#085041}
+.nbv3-links>a.on{color:#1D9E75;font-weight:500}
+.nbv3-drop{position:relative}
+.nbv3-drop>button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:.875rem;color:#6b6b67;cursor:pointer;padding:.4rem 0;display:flex;align-items:center;gap:.25rem}
+.nbv3-drop.on>button{color:#1D9E75;font-weight:500}
+.nbv3-drop>button:hover{color:#085041}
+.nbv3-car{font-size:.6rem;opacity:.6}
+.nbv3-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #d4ead8;border-radius:14px;box-shadow:0 10px 30px rgba(8,80,65,.12);padding:.45rem;min-width:190px;display:none;flex-direction:column}
+.nbv3-drop:hover .nbv3-menu,.nbv3-drop:focus-within .nbv3-menu{display:flex}
+.nbv3-menu a{font-size:.84rem;color:#1a1a18;text-decoration:none;padding:.5rem .8rem;border-radius:9px;white-space:nowrap}
+.nbv3-menu a:hover{background:#E1F5EE;color:#085041}
+.nbv3-menu a.on{color:#1D9E75;font-weight:500}
+.nbv3-burger{display:none;background:none;border:none;flex-direction:column;gap:4px;padding:.5rem;cursor:pointer}
+.nbv3-burger span{display:block;width:20px;height:2px;background:#085041;border-radius:2px;transition:.2s}
+body.nbv3-open .nbv3-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+body.nbv3-open .nbv3-burger span:nth-child(2){opacity:0}
+body.nbv3-open .nbv3-burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nbv3-mobile{display:none;flex-direction:column;background:#fff;border-bottom:1px solid #d4ead8;padding:.75rem 1.5rem 1.25rem;gap:.1rem;max-height:calc(100vh - 64px);overflow-y:auto}
+.nbv3-mobile a{font-size:.95rem;color:#1a1a18;text-decoration:none;padding:.6rem .25rem;border-bottom:1px solid #f0f7f2}
+.nbv3-mobile a.on{color:#1D9E75;font-weight:500}
+body.nbv3-open .nbv3-mobile{display:flex}
+@media(max-width:1020px){.nbv3-links{display:none}.nbv3-burger{display:flex}}
+/* email capture */
+.nbcap{background:#085041;padding:3.5rem 2rem}
+.nbcap-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.nbcap h3{font-family:'Fraunces',serif;font-weight:600;color:#fff;font-size:1.5rem;margin-bottom:.35rem}
+.nbcap h3 em{font-style:italic;font-weight:300;color:#7ED9B9}
+.nbcap p{color:rgba(255,255,255,.75);font-size:.875rem;max-width:420px;line-height:1.55}
+.nbcap form{display:flex;gap:.6rem;flex-wrap:wrap}
+.nbcap input[type=email]{padding:.75rem 1.2rem;border-radius:100px;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.9rem;min-width:260px;background:rgba(255,255,255,.95)}
+.nbcap button{background:#1D9E75;color:#fff;border:none;padding:.75rem 1.5rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s}
+.nbcap button:hover{background:#C8922A}
+@media(max-width:640px){.nbcap input[type=email]{min-width:0;flex:1}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner nbv3-inner">
+    <a class='logo' href='/'>Near<span>Base</span></a>
+    <div class="nbv3-links">
+      <a href='/find'>Find schools</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/families'>For families</a>
+      <a href='/schools'>For schools</a>
+      <a href='/premium'>Premium</a>
+      <div class="nbv3-drop on"><button type="button" aria-haspopup="true">Community<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a href='/quiz'>Preference quiz</a><a class='on' href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a></div></div>
+      <div class="nbv3-drop"><button type="button" aria-haspopup="true">About<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a href='/about'>Our story</a><a href='/mission'>Mission</a></div></div>
+      <a class='nav-cta' href='/find'>Search near my base →</a>
+    </div>
+    <button type="button" class="nbv3-burger" aria-label="Open menu" aria-expanded="false" onclick="document.body.classList.toggle('nbv3-open');var open=document.body.classList.contains('nbv3-open');this.setAttribute('aria-expanded',open?'true':'false');this.setAttribute('aria-label',open?'Close menu':'Open menu')"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nbv3-mobile">
+    <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/schools'>For schools</a><a href='/premium'>Premium</a><a href='/quiz'>Preference quiz</a><a class='on' href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a><a href='/about'>Our story</a><a href='/mission'>Mission</a>
+    <a class='nav-cta' href='/find' style='text-align:center;margin-top:.5rem'>Search near my base →</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="section-label">Paid-Forward Intelligence Loop</div>
+    <h1>You called a school.<br><em>Tell the next family what you learned.</em></h1>
+    <p>60 seconds. Real data. Your waitlist intel becomes the thing that saves another military family hours of searching — from a city they've never been to, in a timeline they didn't choose.</p>
+  </div>
+</div>
+
+<div class="main-section">
+  <div class="main-inner">
+    <div class="survey-card">
+
+      <!-- SCHOOL SELECTOR -->
+      <div class="school-selector" id="schoolSelector">
+        <h2>Which school did you reach out to?</h2>
+        <p>Search by name or neighborhood. We'll attach your intel to the right listing.</p>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="schoolSearch" aria-label="Search schools" placeholder="Search schools…" oninput="filterSchools(this.value)">
+        </div>
+        <div class="school-list-wrap" id="schoolListEl"></div>
+      </div>
+
+      <!-- SURVEY HEADER (shown after school selected) -->
+      <div class="survey-header" id="surveyHeader">
+        <div class="sh-label">60-second check-in</div>
+        <div class="sh-name" id="shName">School Name</div>
+        <div class="sh-loc" id="shLoc">Location</div>
+        <div class="sh-mission"><strong>Help the next family.</strong> Your intel goes directly into NearBase — anonymously, instantly. The 40–60 hours military families spend searching compresses to minutes because of people like you.</div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="prog-bar-wrap" id="progBarWrap">
+        <div class="prog-bar" id="progBar" style="width:0%"></div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="steps-wrap" id="stepsWrap">
+
+        <div class="step active" id="step1">
+          <div class="step-num">Step 1 of 5</div>
+          <div class="step-q">Did they respond to you?</div>
+          <div class="step-sub">Phone, email, voicemail — any contact counts.</div>
+          <div class="opts">
+            <button class="opt-btn" onclick="sel(this,'replied','yes')"><span class="opt-icon">✅</span>Yes — they got back to me</button>
+            <button class="opt-btn" onclick="sel(this,'replied','waiting')"><span class="opt-icon">⏳</span>Not yet — still waiting</button>
+            <button class="opt-btn" onclick="sel(this,'replied','no')"><span class="opt-icon">🚫</span>No response at all</button>
+            <button class="opt-btn" onclick="sel(this,'replied','voicemail')"><span class="opt-icon">📱</span>Voicemail only — no callback</button>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-next" id="next1" onclick="goStep(2)" disabled>Next →</button>
+          </div>
+        </div>
+
+        <div class="step" id="step2">
+          <div class="step-num">Step 2 of 5</div>
+          <div class="step-q" id="step2q">How quickly did they reply?</div>
+          <div class="step-sub" id="step2sub">Response speed is one of the most useful data points for families in PCS mode.</div>
+          <div class="opts" id="step2opts">
+            <button class="opt-btn" onclick="sel(this,'response_time','same_day')"><span class="opt-icon">⚡</span>Same day — very responsive</button>
+            <button class="opt-btn" onclick="sel(this,'response_time','1_3_days')"><span class="opt-icon">📅</span>1–3 days</button>
+            <button class="opt-btn" onclick="sel(this,'response_time','week')"><span class="opt-icon">🗓️</span>About a week</button>
+            <button class="opt-btn" onclick="sel(this,'response_time','slow')"><span class="opt-icon">🐢</span>Over a week — slow</button>
+            <button class="opt-btn" onclick="sel(this,'response_time','na')"><span class="opt-icon">—</span>Still waiting / not applicable</button>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-back" onclick="goStep(1)">← Back</button>
+            <button class="btn-next" id="next2" onclick="goStep(3)" disabled>Next →</button>
+          </div>
+        </div>
+
+        <div class="step" id="step3">
+          <div class="step-num">Step 3 of 5</div>
+          <div class="step-q">What did they say about the waitlist?</div>
+          <div class="step-sub">Even a rough answer is gold for the next family searching.</div>
+          <div class="opts">
+            <button class="opt-btn" onclick="sel(this,'waitlist','open')"><span class="opt-icon">🟢</span>Open — spots available now</button>
+            <button class="opt-btn" onclick="sel(this,'waitlist','short')"><span class="opt-icon">🟡</span>Short wait — under 3 months</button>
+            <button class="opt-btn" onclick="sel(this,'waitlist','medium')"><span class="opt-icon">🟠</span>Medium wait — 3–9 months</button>
+            <button class="opt-btn" onclick="sel(this,'waitlist','long')"><span class="opt-icon">🔴</span>Long wait — 9+ months</button>
+            <button class="opt-btn" onclick="sel(this,'waitlist','closed')"><span class="opt-icon">🚫</span>Closed — not taking new names</button>
+            <button class="opt-btn" onclick="sel(this,'waitlist','unclear')"><span class="opt-icon">❓</span>Unclear — they didn't say</button>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-back" onclick="goStep(2)">← Back</button>
+            <button class="btn-next" id="next3" onclick="goStep(4)" disabled>Next →</button>
+          </div>
+        </div>
+
+        <div class="step" id="step4">
+          <div class="step-num">Step 4 of 5</div>
+          <div class="step-q">What did you learn about cost?</div>
+          <div class="step-sub">Optional — but subsidy details help military families enormously.</div>
+          <div style="margin-bottom:1rem">
+            <div style="font-size:.78rem;font-weight:500;color:var(--dark);margin-bottom:.5rem">Monthly tuition range (if shared)</div>
+            <select class="form-select" id="tuitionRange" onchange="data.tuition=this.value">
+              <option value="">— Select if known —</option>
+              <option value="free">Free (public / charter)</option>
+              <option value="under_1000">Under $1,000 / month</option>
+              <option value="1000_1500">$1,000–$1,500 / month</option>
+              <option value="1500_2000">$1,500–$2,000 / month</option>
+              <option value="2000_2500">$2,000–$2,500 / month</option>
+              <option value="over_2500">Over $2,500 / month</option>
+              <option value="not_shared">They didn't share</option>
+            </select>
+          </div>
+          <div style="font-size:.78rem;font-weight:500;color:var(--dark);margin-bottom:.5rem">Subsidies mentioned</div>
+          <div class="toggle-group">
+            <div class="toggle-row" onclick="tog('mccyn')"><div><div class="tl">MCCYN / DoD Fee Assistance accepted</div><div class="ts">Military Child Care in Your Neighborhood</div></div><div class="toggle" id="tog_mccyn"></div></div>
+            <div class="toggle-row" onclick="tog('efmp')"><div><div class="tl">EFMP support available</div><div class="ts">Exceptional Family Member Program resources</div></div><div class="toggle" id="tog_efmp"></div></div>
+            <div class="toggle-row" onclick="tog('mil_discount')"><div><div class="tl">Military family discount offered</div><div class="ts">Any branch-specific or spouse discount</div></div><div class="toggle" id="tog_mil_discount"></div></div>
+            <div class="toggle-row" onclick="tog('sibling')"><div><div class="tl">Sibling priority / discount mentioned</div><div class="ts">Useful for two-child families</div></div><div class="toggle" id="tog_sibling"></div></div>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-back" onclick="goStep(3)">← Back</button>
+            <button class="btn-next" onclick="goStep(5)">Next →</button>
+          </div>
+          <div class="skip-link" onclick="goStep(5)">Skip cost questions →</div>
+        </div>
+
+        <div class="step" id="step5">
+          <div class="step-num">Step 5 of 5</div>
+          <div class="step-q">One thing the next family should know before calling?</div>
+          <div class="step-sub">Optional — but this is the most valuable part of all.</div>
+          <div class="opts" style="margin-bottom:1rem">
+            <button class="opt-btn" onclick="quickNote(this,'warm')"><span class="opt-icon">😊</span>Director was warm and genuinely helpful</button>
+            <button class="opt-btn" onclick="quickNote(this,'cold')"><span class="opt-icon">😐</span>Director felt rushed or hard to reach</button>
+            <button class="opt-btn" onclick="quickNote(this,'mil_aware')"><span class="opt-icon">🪖</span>They clearly understood military family needs</button>
+            <button class="opt-btn" onclick="quickNote(this,'ask_midyear')"><span class="opt-icon">💡</span>Ask specifically about mid-year enrollment</button>
+          </div>
+          <div style="font-size:.78rem;font-weight:500;color:var(--dark);margin-bottom:.5rem">Or write your own (anonymous)</div>
+          <textarea class="form-textarea" id="freeNote" placeholder="e.g. &quot;Ask for the director by name — she's the one who makes mid-year exceptions.&quot;" maxlength="280" oninput="updateChar(this);data.note=this.value"></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 280</div>
+          <div class="nav-btns">
+            <button class="btn-back" onclick="goStep(4)">← Back</button>
+            <button class="btn-submit" onclick="submit()">Submit & pay it forward ✓</button>
+          </div>
+          <div class="skip-link" onclick="submit()">Submit without a note →</div>
+        </div>
+
+      </div>
+
+      <!-- THANK YOU -->
+      <div class="thankyou" id="thankyou">
+        <div class="ty-icon">🌱</div>
+        <div class="ty-title">Intel delivered.</div>
+        <div class="ty-sub">Your 60 seconds just became real data for the next military family searching <span id="tySchool">this school</span>. They'll never know your name — but your check-in will save them hours.</div>
+        <div class="ty-data">
+          <div class="ty-data-label">What you reported</div>
+          <div id="tyDataRows"></div>
+        </div>
+        <div class="ty-impact" id="tyImpact"></div>
+        <div class="ty-btns">
+          <button class="btn-primary" onclick="rateAnother()">Check in on another school</button>
+          <a class='btn-outline' href='/find'>Back to school search</a>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div class="admin-strip">
+        <span><strong id="subCount">0</strong> check-ins recorded this session</span>
+        <button class="export-btn-sm" onclick="exportCSV()">Export CSV</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="trust-note">
+  <div class="trust-inner">
+    <div class="trust-icon">🔒</div>
+    <div class="trust-text"><strong>Your check-in is always anonymous.</strong> NearBase never shares individual responses. Your name, contact info, and identity are never collected or stored. What you share becomes aggregated community data — not a personal review.</div>
+  </div>
+</div>
+
+
+<section class="nbcap">
+  <div class="nbcap-in">
+    <div>
+      <h3>PCS orders coming? <em>Hear it first.</em></h3>
+      <p>New schools, waitlist changes, and military discounts near your next base — one short email when it matters, never spam.</p>
+    </div>
+    <form name="nearbase-updates" method="POST" action="thanks.html" data-netlify="true">
+      <input type="hidden" name="form-name" value="nearbase-updates">
+      <input type="hidden" name="page" value="checkin">
+      <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address">
+      <button type="submit">Keep me posted</button>
+    </form>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Near<span>Base</span></div>
+    <div class="footer-links">
+      <a href='/find'>Find schools</a>
+      <a href='/families'>For families</a>
+      <a href='/checkin'>Pay it forward</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/quiz'>Preference Quiz</a>
+      <a href='/about'>About</a>
+    </div>
+    <div class="footer-copy">© 2026 NearBase · kellybrown@nearbase.net</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="schools.js"></script>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const TYPE_LABEL={montessori:"Montessori",free:"Free / charter",mil:"Military-friendly",toddler:"Infant & toddler",bilingual:"Bilingual",church:"Faith-based",nature:"Nature"};
+const SCHOOLS=(window.SCHOOLS||[]).map(s=>({id:s.id,name:s.name,loc:s.loc,type:(s.badges&&s.badges[0]&&s.badges[0].t)||TYPE_LABEL[(s.tags||[])[0]]||"Preschool"}));
+
+let data={school_id:null,school_name:null,replied:null,response_time:null,waitlist:null,tuition:'',mccyn:false,efmp:false,mil_discount:false,sibling:false,quick_note:null,note:'',ts:null};
+let submissions=[];
+let selectedSchool=null;
+let currentStep=0;
+
+try{const s=localStorage.getItem('nb_checkins');if(s)submissions=JSON.parse(s);}catch(e){}
+
+function renderSchools(filter=''){
+  const list=document.getElementById('schoolListEl');
+  const filtered=filter?SCHOOLS.filter(s=>s.name.toLowerCase().includes(filter.toLowerCase())||s.loc.toLowerCase().includes(filter.toLowerCase())):SCHOOLS;
+  list.innerHTML=filtered.map(s=>`<button type="button" class="school-opt" onclick="selectSchool(${Number(s.id)})"><div><div class="school-opt-name">${esc(s.name)}</div><div class="school-opt-loc">${esc(s.loc)}</div></div><div class="school-opt-type">${esc(s.type)}</div></button>`).join('') || '<p style="padding:1rem;color:#6b6b67;font-size:.85rem">No schools match that search.</p>';
+}
+function filterSchools(v){renderSchools(v);}
+function selectSchool(id){
+  selectedSchool=SCHOOLS.find(s=>s.id===id);
+  data.school_id=selectedSchool.id;data.school_name=selectedSchool.name;
+  document.getElementById('schoolSelector').style.display='none';
+  document.getElementById('surveyHeader').style.display='block';
+  document.getElementById('progBarWrap').style.display='block';
+  document.getElementById('stepsWrap').style.display='block';
+  document.getElementById('shName').textContent=selectedSchool.name;
+  document.getElementById('shLoc').textContent=selectedSchool.loc+' · '+selectedSchool.type;
+  goStep(1);
+}
+function goStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('step'+n);
+  if(el)el.classList.add('active');
+  currentStep=n;
+  document.getElementById('progBar').style.width=((n-1)/5*100)+'%';
+  if(n===2)adaptStep2();
+}
+function adaptStep2(){
+  if(['waiting','no','voicemail'].includes(data.replied)){
+    document.getElementById('step2q').textContent='How long have you been waiting?';
+    document.getElementById('step2sub').textContent='This helps us flag schools slow to respond to military families.';
+    document.getElementById('step2opts').innerHTML=`
+      <button class="opt-btn" onclick="sel(this,'response_time','today')"><span class="opt-icon">🕐</span>Just today</button>
+      <button class="opt-btn" onclick="sel(this,'response_time','2_3')"><span class="opt-icon">📅</span>2–3 days</button>
+      <button class="opt-btn" onclick="sel(this,'response_time','week')"><span class="opt-icon">🗓️</span>About a week</button>
+      <button class="opt-btn" onclick="sel(this,'response_time','over_week')"><span class="opt-icon">🐢</span>Over a week — nothing</button>`;
+    document.getElementById('next2').disabled=true;
+  }
+}
+function sel(btn,field,val){
+  const group=btn.closest('.opts');
+  if(group)group.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  data[field]=val;
+  const map={replied:'next1',response_time:'next2',waitlist:'next3'};
+  if(map[field]){const nb=document.getElementById(map[field]);if(nb)nb.disabled=false;}
+}
+function tog(field){
+  data[field]=!data[field];
+  document.getElementById('tog_'+field).classList.toggle('on',data[field]);
+}
+function quickNote(btn,val){
+  btn.closest('.opts').querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  data.quick_note=val;
+}
+function updateChar(el){document.getElementById('charCount').textContent=el.value.length;}
+function submit(){
+  data.note=document.getElementById('freeNote').value;
+  data.ts=new Date().toISOString();
+  submissions.push({...data});
+  try{localStorage.setItem('nb_checkins',JSON.stringify(submissions));}catch(e){}
+  document.getElementById('subCount').textContent=submissions.length;
+  showThankyou();
+}
+function showThankyou(){
+  document.getElementById('stepsWrap').style.display='none';
+  document.getElementById('surveyHeader').style.display='none';
+  document.getElementById('progBarWrap').style.display='none';
+  const labels={
+    replied:{yes:'✅ Replied',waiting:'⏳ Still waiting',no:'🚫 No response',voicemail:'📱 Voicemail only'},
+    response_time:{same_day:'⚡ Same day',today:'🕐 Just today','1_3_days':'📅 1–3 days',week:'🗓️ ~1 week',slow:'🐢 Over a week',na:'—',over_week:'🐢 Over a week','2_3':'📅 2–3 days'},
+    waitlist:{open:'🟢 Open — spots now',short:'🟡 Under 3 months',medium:'🟠 3–9 months',long:'🔴 9+ months',closed:'🚫 Closed',unclear:'❓ Unclear'},
+  };
+  const rows=[
+    ['School',data.school_name],
+    ['Response',labels.replied[data.replied]||'—'],
+    ['Speed',labels.response_time[data.response_time]||'—'],
+    ['Waitlist',labels.waitlist[data.waitlist]||'—'],
+    data.tuition?['Tuition',data.tuition.replace(/_/g,' ')]:null,
+    data.mccyn?['MCCYN','✓ Accepted']:null,
+    data.efmp?['EFMP','✓ Available']:null,
+  ].filter(Boolean);
+  document.getElementById('tyDataRows').innerHTML=rows.map(r=>`<div class="ty-data-row"><span class="ty-data-key">${esc(r[0])}</span><span class="ty-data-val">${esc(r[1])}</span></div>`).join('');
+  document.getElementById('tySchool').textContent=data.school_name;
+  const impacts={
+    open:`🟢 This is huge — you just flagged an open spot at ${data.school_name}. The next family searching this school will see it immediately.`,
+    long:`🔴 Real talk recorded. The next family won't waste a phone call on a 9+ month wait if it doesn't fit their PCS timeline.`,
+    no:`⚠️ Flagged. A school that doesn't respond to military families is data NearBase needs. This will show in their responsiveness score.`,
+    closed:`🚫 Closed waitlist recorded. Families will be redirected to open alternatives immediately.`,
+  };
+  document.getElementById('tyImpact').textContent=impacts[data.waitlist]||impacts[data.replied]||`✓ Check-in #${submissions.length} recorded. Your intel joins ${submissions.length-1} other family reports building the NearBase database.`;
+  document.getElementById('thankyou').classList.add('show');
+  document.getElementById('progBar').style.width='100%';
+}
+function rateAnother(){
+  data={school_id:null,school_name:null,replied:null,response_time:null,waitlist:null,tuition:'',mccyn:false,efmp:false,mil_discount:false,sibling:false,quick_note:null,note:'',ts:null};
+  document.getElementById('thankyou').classList.remove('show');
+  document.getElementById('schoolSelector').style.display='block';
+  document.getElementById('surveyHeader').style.display='none';
+  document.getElementById('progBarWrap').style.display='none';
+  document.getElementById('stepsWrap').style.display='none';
+  document.getElementById('schoolSearch').value='';
+  document.getElementById('progBar').style.width='0%';
+  document.getElementById('freeNote').value='';
+  document.getElementById('charCount').textContent='0';
+  ['mccyn','efmp','mil_discount','sibling'].forEach(f=>document.getElementById('tog_'+f).classList.remove('on'));
+  document.getElementById('tuitionRange').value='';
+  renderSchools();
+}
+function exportCSV(){
+  if(!submissions.length){alert('No check-ins yet.');return;}
+  const hdrs=['ts','school_id','school_name','replied','response_time','waitlist','tuition','mccyn','efmp','mil_discount','sibling','quick_note','note'];
+  const rows=submissions.map(s=>hdrs.map(h=>`"${s[h]??''}"`).join(','));
+  const csv=[hdrs.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`nearbase_checkins_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+let toastTimer;
+function showToast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2000);}
+
+// URL param auto-select
+renderSchools();
+document.getElementById('subCount').textContent=submissions.length;
+const params=new URLSearchParams(window.location.search);
+const sp=params.get('school');
+if(sp){const f=SCHOOLS.find(s=>s.id===parseInt(sp)||s.name.toLowerCase().includes(sp.toLowerCase()));if(f)selectSchool(f.id);}
+</script>
+</body>
+</html>
