@@ -1,0 +1,26 @@
+# The public website is the site/ folder. The founder dashboard is not in
+# that folder; Netlify serves it only through the password-checked function.
+[build]
+  publish = "site"
+
+[functions]
+  directory = "netlify/functions"
+  included_files = ["netlify/functions/admin.html"]
+
+[[redirects]]
+  from = "/admin"
+  to = "/.netlify/functions/admin"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/"
+  to = "/.netlify/functions/admin"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin.html"
+  to = "/.netlify/functions/admin"
+  status = 200
+  force = true

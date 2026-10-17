@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NearBase — Preference Quiz</title>
+<meta name="description" content="Discover what your family actually values in a preschool, then see your real school matches re-ranked around your preferences.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://nearbase.net/quiz.html">
+<meta property="og:site_name" content="NearBase">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Preschool Preference Quiz — NearBase">
+<meta property="og:description" content="Discover what your family actually values in a preschool, then see your real school matches re-ranked around your preferences.">
+<meta property="og:url" content="https://nearbase.net/quiz.html">
+<meta property="og:image" content="https://nearbase.net/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@nearbasenet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--dark:#085041;--light:#E1F5EE;--mid:#0F6E56;
+  --text:#1a1a18;--muted:#6b6b67;--white:#ffffff;--cream:#F8FAF8;--border:#d4ead8;
+  --gold:#C8922A;--gold-light:#FDF3E3;--purple:#6B3FA0;--purple-light:#F0EAF8;
+  --red:#C0442C;--red-light:#FDF0EE;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem}
+.nav-inner{max-width:1100px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;color:var(--dark);letter-spacing:-0.02em;text-decoration:none}
+.logo span{color:var(--green)}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{font-size:.875rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--dark)}
+.nav-links a.active{color:var(--green);font-weight:500}
+.nav-cta{background:var(--green);color:var(--white)!important;padding:.5rem 1.25rem;border-radius:100px;font-size:.875rem;font-weight:500;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--dark)!important}
+
+/* MODE SWITCHER */
+.mode-bar{background:var(--dark);padding:0;position:sticky;top:64px;z-index:90}
+.mode-bar-inner{max-width:1100px;margin:0 auto;display:flex;align-items:stretch}
+.mode-tab{flex:1;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:pointer;border:none;background:transparent;border-bottom:3px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif;max-width:300px}
+.mode-tab:hover{background:rgba(255,255,255,0.06)}
+.mode-tab.active{border-bottom-color:var(--green);background:rgba(255,255,255,0.08)}
+.mode-tab-icon{font-size:1.2rem}
+.mode-tab-title{font-size:.82rem;font-weight:500;color:rgba(255,255,255,0.7);text-align:center}
+.mode-tab.active .mode-tab-title{color:white}
+.mode-tab-sub{font-size:.65rem;color:rgba(255,255,255,0.4);text-align:center}
+.mode-premium-pill{font-size:.6rem;font-weight:700;background:var(--gold);color:white;padding:.1rem .55rem;border-radius:100px;margin-top:.1rem}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION */
+.section{padding:3rem 2rem 5rem}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.625rem}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:600;letter-spacing:-0.03em;color:var(--dark);line-height:1.15;margin-bottom:.875rem}
+.section-title em{font-style:italic;font-weight:300;color:var(--green)}
+.section-sub{font-size:.95rem;line-height:1.7;color:var(--muted);max-width:600px;margin-bottom:2rem}
+
+/* QUIZ SETUP SCREEN */
+.setup-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:700px;margin:0 auto;box-shadow:0 4px 32px rgba(8,80,65,0.07)}
+.setup-title{font-family:'Fraunces',serif;font-size:1.4rem;color:var(--dark);margin-bottom:.5rem}
+.setup-sub{font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:1.75rem}
+.setup-options{display:flex;flex-direction:column;gap:.625rem;margin-bottom:1.5rem}
+.setup-opt{padding:1rem 1.25rem;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.875rem}
+.setup-opt:hover{border-color:var(--green);background:var(--cream)}
+.setup-opt.selected{border-color:var(--dark);background:var(--light)}
+.setup-opt-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem}
+.setup-opt-title{font-size:.9rem;font-weight:500;color:var(--dark);margin-bottom:.2rem}
+.setup-opt-desc{font-size:.78rem;color:var(--muted);line-height:1.5}
+.setup-form{display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:1.5rem}
+.form-group{display:flex;flex-direction:column;gap:.375rem}
+.form-label{font-size:.75rem;font-weight:500;color:var(--dark)}
+.form-input,.form-select{padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text);background:white;outline:none;transition:border-color .15s}
+.form-input:focus,.form-select:focus{border-color:var(--green)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b67' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .9rem center;padding-right:2.25rem}
+
+/* PREMIUM GATE */
+.premium-gate{background:linear-gradient(135deg,var(--dark),var(--mid));border-radius:20px;padding:2.5rem;text-align:center;max-width:560px;margin:0 auto}
+.pg-icon{font-size:2.5rem;margin-bottom:1rem}
+.pg-title{font-family:'Fraunces',serif;font-size:1.5rem;color:white;margin-bottom:.5rem}
+.pg-sub{font-size:.85rem;color:rgba(255,255,255,0.65);line-height:1.65;margin-bottom:1.5rem}
+.pg-features{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.75rem;text-align:left}
+.pg-feat{font-size:.82rem;color:rgba(255,255,255,0.8);display:flex;align-items:flex-start;gap:.625rem}
+.pg-check{color:var(--green);font-size:.9rem;flex-shrink:0;margin-top:.1rem}
+
+/* DIMENSION STRIP */
+.dim-strip{background:var(--cream);border-bottom:1px solid var(--border);padding:.875rem 2rem;position:sticky;top:128px;z-index:80}
+.dim-strip-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.dim-strip-label{font-size:.72rem;color:var(--muted);font-weight:500;flex-shrink:0}
+.dim-chip{padding:.3rem .875rem;border-radius:100px;font-size:.72rem;font-weight:500;border:1px solid var(--border);background:white;color:var(--muted);cursor:pointer;transition:all .12s;font-family:'DM Sans',sans-serif}
+.dim-chip:hover{border-color:var(--green);color:var(--green)}
+.dim-chip.active{background:var(--dark);color:white;border-color:var(--dark)}
+
+/* MAIN QUIZ AREA */
+.quiz-area{max-width:1100px;margin:0 auto;padding:2rem 2rem 3rem}
+.quiz-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+.quiz-question{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--dark);font-style:italic;font-weight:300}
+.quiz-question strong{font-style:normal;font-weight:600}
+.quiz-progress{display:flex;align-items:center;gap:.875rem}
+.prog-track{width:140px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease}
+.prog-label{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.quiz-who{font-size:.72rem;font-weight:600;padding:.25rem .75rem;border-radius:100px;background:var(--purple-light);color:var(--purple)}
+
+/* VS LAYOUT */
+.vs-grid{display:grid;grid-template-columns:1fr 56px 1fr;gap:1rem;align-items:stretch;margin-bottom:1.25rem}
+.school-card{background:white;border:2px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;position:relative}
+.school-card:hover{border-color:var(--green);box-shadow:0 8px 32px rgba(29,158,117,0.12);transform:translateY(-2px)}
+.school-card.winner{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.15);animation:winPop .3s ease}
+.school-card.loser{opacity:.38;transform:scale(.98)}
+@keyframes winPop{0%{transform:scale(1)}50%{transform:scale(1.025)}100%{transform:scale(1)}}
+
+/* AI IMAGE PLACEHOLDER */
+.school-image{height:200px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:flex-end}
+.school-image-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .3s ease}
+.school-card:hover .school-image-bg{transform:scale(1.03)}
+.school-image-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,80,65,0.6) 0%,transparent 60%)}
+.school-image-label{position:relative;padding:.625rem 1rem;font-size:.7rem;font-weight:600;color:white;letter-spacing:.5px;text-transform:uppercase;z-index:1}
+.school-image-tag{position:absolute;top:.75rem;left:.75rem;background:rgba(255,255,255,0.92);color:var(--dark);font-size:.65rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;letter-spacing:.3px}
+.ai-badge{position:absolute;top:.75rem;right:.75rem;background:rgba(8,80,65,0.85);color:rgba(255,255,255,0.8);font-size:.6rem;font-weight:600;padding:.2rem .6rem;border-radius:100px;letter-spacing:.3px}
+
+/* SCHOOL DATA */
+.school-body{padding:1.25rem 1.25rem 1rem;flex:1;display:flex;flex-direction:column}
+.school-name{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;color:var(--dark);margin-bottom:.375rem;line-height:1.2}
+.school-type{font-size:.72rem;color:var(--green);font-weight:500;margin-bottom:.875rem}
+.school-stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.875rem}
+.stat-item{background:var(--cream);border-radius:8px;padding:.5rem .7rem}
+.stat-item-label{font-size:.62rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.15rem}
+.stat-item-val{font-size:.82rem;font-weight:500;color:var(--dark)}
+.school-desc{font-size:.78rem;color:var(--muted);line-height:1.55;flex:1}
+.school-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.75rem}
+.stag{font-size:.65rem;background:var(--light);color:var(--mid);padding:.15rem .55rem;border-radius:100px;font-weight:500}
+.choose-btn{margin:.875rem 1.25rem 1.25rem;padding:.75rem;background:var(--dark);color:white;border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:background .15s}
+.choose-btn:hover{background:var(--green)}
+.school-card.winner .choose-btn{background:var(--green)}
+
+/* LOADING STATE */
+.card-loading{display:flex;flex-direction:column;gap:.875rem;padding:1.5rem}
+.skeleton{background:linear-gradient(90deg,var(--cream) 0%,var(--border) 50%,var(--cream) 100%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* VS DIVIDER */
+.vs-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem}
+.vs-circle{width:44px;height:44px;border-radius:50%;background:var(--dark);color:white;font-family:'Fraunces',serif;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vs-line{width:1px;flex:1;background:var(--border);min-height:30px}
+
+/* ACTION ROW */
+.action-row{display:flex;justify-content:center;gap:.75rem;margin-bottom:2rem}
+.act-btn{padding:.5rem 1.25rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;border:1px solid var(--border);background:white;color:var(--muted);cursor:pointer;transition:all .15s}
+.act-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* PREFERENCE PROFILE */
+.profile-panel{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:1.5rem;position:sticky;top:200px}
+.profile-title{font-family:'Fraunces',serif;font-size:1rem;color:var(--dark);margin-bottom:.25rem}
+.profile-sub{font-size:.72rem;color:var(--muted);margin-bottom:1.25rem}
+.pref-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.pref-label{font-size:.72rem;color:var(--muted);width:100px;flex-shrink:0}
+.pref-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;position:relative}
+.pref-fill-left{position:absolute;right:50%;top:0;bottom:0;background:var(--green);border-radius:3px 0 0 3px;transition:width .5s ease}
+.pref-fill-right{position:absolute;left:50%;top:0;bottom:0;background:var(--gold);border-radius:0 3px 3px 0;transition:width .5s ease}
+.pref-center{position:absolute;left:50%;top:-2px;bottom:-2px;width:2px;background:var(--border);transform:translateX(-50%)}
+.pref-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);margin-top:.2rem}
+.pref-score{font-size:.72rem;font-weight:600;color:var(--dark);width:30px;text-align:right}
+.profile-insight{background:white;border:1px solid var(--border);border-radius:10px;padding:.875rem;margin-top:.875rem;font-size:.78rem;color:var(--mid);line-height:1.55}
+.profile-insight strong{color:var(--dark)}
+.profile-actions{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem}
+
+/* RESULTS SCREEN */
+.results-screen{display:none;max-width:800px;margin:0 auto;padding:2rem}
+.results-screen.show{display:block;animation:fadeUp .3s ease}
+.results-icon{font-size:3rem;text-align:center;margin-bottom:1rem}
+.results-title{font-family:'Fraunces',serif;font-size:1.8rem;color:var(--dark);text-align:center;margin-bottom:.5rem}
+.results-sub{font-size:.88rem;color:var(--muted);text-align:center;line-height:1.65;margin-bottom:2rem}
+.results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.result-card{background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center}
+.result-card-val{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--dark)}
+.result-card-label{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+.fingerprint-card{background:var(--dark);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
+.fp-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:1rem}
+.fp-row{display:flex;align-items:center;gap:.875rem;margin-bottom:.625rem}
+.fp-label{font-size:.75rem;color:rgba(255,255,255,0.65);width:140px;flex-shrink:0}
+.fp-bar-track{flex:1;height:5px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden}
+.fp-bar{height:100%;border-radius:2px;background:var(--green);transition:width .6s ease}
+.fp-val{font-size:.72rem;font-weight:600;color:rgba(255,255,255,0.7);width:30px;text-align:right}
+.insight-box{background:var(--light);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem}
+.ib-label{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem}
+.ib-text{font-size:.85rem;color:var(--text);line-height:1.65}
+.parent-split{background:var(--purple-light);border:1px solid rgba(107,63,160,0.2);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;display:none}
+.parent-split.show{display:block}
+.ps-label{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:.75rem}
+.ps-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.ps-col{background:white;border-radius:10px;padding:.875rem}
+.ps-who{font-size:.72rem;font-weight:600;color:var(--muted);margin-bottom:.5rem}
+.ps-pref{font-size:.82rem;color:var(--dark);font-weight:500}
+.results-btns{display:flex;gap:.875rem;justify-content:center;flex-wrap:wrap}
+
+/* RESEARCHER MODE */
+.research-layout{display:grid;grid-template-columns:1fr 300px;gap:2rem;align-items:start}
+.research-controls{background:var(--cream);border:1px solid var(--border);border-radius:18px;padding:1.5rem;position:sticky;top:170px}
+.rc-title{font-family:'Fraunces',serif;font-size:.95rem;color:var(--dark);margin-bottom:.25rem}
+.rc-sub{font-size:.72rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.5}
+.rc-stat{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.rc-stat:last-of-type{border-bottom:none}
+.rc-stat-label{color:var(--muted)}
+.rc-stat-val{font-weight:600;color:var(--dark)}
+.sb-card{background:white;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1rem}
+.sb-header{background:var(--dark);padding:.875rem 1.25rem;display:flex;justify-content:space-between;align-items:center}
+.sb-title{font-family:'Fraunces',serif;color:white;font-size:.95rem}
+.sb-dim{font-size:.65rem;color:rgba(255,255,255,0.5);margin-top:.15rem}
+.sb-body{padding:.375rem 0;max-height:320px;overflow-y:auto}
+.sb-row{display:grid;grid-template-columns:26px 1fr 44px 68px;align-items:center;gap:.625rem;padding:.5rem 1rem;border-bottom:1px solid var(--border);font-size:.78rem}
+.sb-row:last-child{border-bottom:none}
+.sb-rank{font-family:'Fraunces',serif;font-size:.95rem;color:var(--muted);text-align:center}
+.sb-rank.top{color:var(--green)}
+.sb-name{font-size:.78rem;font-weight:500;color:var(--dark)}
+.sb-loc{font-size:.65rem;color:var(--muted)}
+.sb-elo{font-size:.72rem;font-weight:500;color:var(--dark);text-align:right}
+.sb-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.sb-bar-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease}
+.export-btn-sm{width:100%;margin-top:.875rem;padding:.625rem;background:white;border:1px solid var(--border);border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;color:var(--dark);cursor:pointer;transition:all .12s}
+.export-btn-sm:hover{border-color:var(--green);color:var(--green)}
+
+/* BUTTONS */
+.btn-primary{background:var(--green);color:white;padding:.75rem 1.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;border:none;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:.375rem;text-decoration:none}
+.btn-primary:hover{background:var(--dark)}
+.btn-primary.gold{background:var(--gold)}.btn-primary.gold:hover{background:#A87520}
+.btn-primary.purple{background:var(--purple)}.btn-primary.purple:hover{background:#4A2880}
+.btn-outline{background:white;color:var(--dark);padding:.75rem 1.75rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;text-decoration:none}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-sm{padding:.5rem 1.1rem;font-size:.78rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--dark);color:white;padding:.75rem 1.5rem;border-radius:100px;font-size:.82rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);z-index:500;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.green{background:var(--green)}.toast.gold{background:var(--gold)}.toast.purple{background:var(--purple)}
+
+footer{background:#021f19;padding:2.5rem 2rem}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:rgba(255,255,255,0.5)}.footer-logo span{color:var(--green)}
+.footer-links{display:flex;gap:2rem;flex-wrap:wrap}
+.footer-links a{font-size:.8rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s}.footer-links a:hover{color:rgba(255,255,255,0.7)}
+.footer-copy{font-size:.75rem;color:rgba(255,255,255,0.25)}
+
+@media(max-width:900px){.vs-grid{grid-template-columns:1fr}.vs-divider{flex-direction:row}.vs-line{width:30px;height:1px;min-height:unset}.research-layout{grid-template-columns:1fr}.research-controls{position:static}.results-grid{grid-template-columns:1fr 1fr}.setup-form{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+
+<style id="nbv3-css">
+.nbv3-inner{gap:1rem}
+.nbv3-links{display:flex;align-items:center;gap:1.4rem}
+.nbv3-links>a{font-size:.875rem;color:#6b6b67;text-decoration:none;font-weight:400;transition:color .2s;white-space:nowrap}
+.nbv3-links>a:hover{color:#085041}
+.nbv3-links>a.on{color:#1D9E75;font-weight:500}
+.nbv3-drop{position:relative}
+.nbv3-drop>button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:.875rem;color:#6b6b67;cursor:pointer;padding:.4rem 0;display:flex;align-items:center;gap:.25rem}
+.nbv3-drop.on>button{color:#1D9E75;font-weight:500}
+.nbv3-drop>button:hover{color:#085041}
+.nbv3-car{font-size:.6rem;opacity:.6}
+.nbv3-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #d4ead8;border-radius:14px;box-shadow:0 10px 30px rgba(8,80,65,.12);padding:.45rem;min-width:190px;display:none;flex-direction:column}
+.nbv3-drop:hover .nbv3-menu,.nbv3-drop:focus-within .nbv3-menu{display:flex}
+.nbv3-menu a{font-size:.84rem;color:#1a1a18;text-decoration:none;padding:.5rem .8rem;border-radius:9px;white-space:nowrap}
+.nbv3-menu a:hover{background:#E1F5EE;color:#085041}
+.nbv3-menu a.on{color:#1D9E75;font-weight:500}
+.nbv3-burger{display:none;background:none;border:none;flex-direction:column;gap:4px;padding:.5rem;cursor:pointer}
+.nbv3-burger span{display:block;width:20px;height:2px;background:#085041;border-radius:2px;transition:.2s}
+body.nbv3-open .nbv3-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+body.nbv3-open .nbv3-burger span:nth-child(2){opacity:0}
+body.nbv3-open .nbv3-burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nbv3-mobile{display:none;flex-direction:column;background:#fff;border-bottom:1px solid #d4ead8;padding:.75rem 1.5rem 1.25rem;gap:.1rem;max-height:calc(100vh - 64px);overflow-y:auto}
+.nbv3-mobile a{font-size:.95rem;color:#1a1a18;text-decoration:none;padding:.6rem .25rem;border-bottom:1px solid #f0f7f2}
+.nbv3-mobile a.on{color:#1D9E75;font-weight:500}
+body.nbv3-open .nbv3-mobile{display:flex}
+@media(max-width:1020px){.nbv3-links{display:none}.nbv3-burger{display:flex}}
+/* email capture */
+.nbcap{background:#085041;padding:3.5rem 2rem}
+.nbcap-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.nbcap h3{font-family:'Fraunces',serif;font-weight:600;color:#fff;font-size:1.5rem;margin-bottom:.35rem}
+.nbcap h3 em{font-style:italic;font-weight:300;color:#7ED9B9}
+.nbcap p{color:rgba(255,255,255,.75);font-size:.875rem;max-width:420px;line-height:1.55}
+.nbcap form{display:flex;gap:.6rem;flex-wrap:wrap}
+.nbcap input[type=email]{padding:.75rem 1.2rem;border-radius:100px;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.9rem;min-width:260px;background:rgba(255,255,255,.95)}
+.nbcap button{background:#1D9E75;color:#fff;border:none;padding:.75rem 1.5rem;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s}
+.nbcap button:hover{background:#C8922A}
+@media(max-width:640px){.nbcap input[type=email]{min-width:0;flex:1}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner nbv3-inner">
+    <a class='logo' href='/'>Near<span>Base</span></a>
+    <div class="nbv3-links">
+      <a href='/find'>Find schools</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/families'>For families</a>
+      <a href='/schools'>For schools</a>
+      <a href='/premium'>Premium</a>
+      <div class="nbv3-drop on"><button type="button" aria-haspopup="true">Community<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a class='on' href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a></div></div>
+      <div class="nbv3-drop"><button type="button" aria-haspopup="true">About<span class="nbv3-car">▾</span></button>
+        <div class="nbv3-menu"><a href='/about'>Our story</a><a href='/mission'>Mission</a></div></div>
+      <a class='nav-cta' href='/find'>Search near my base →</a>
+    </div>
+    <button type="button" class="nbv3-burger" aria-label="Open menu" aria-expanded="false" onclick="document.body.classList.toggle('nbv3-open');var open=document.body.classList.contains('nbv3-open');this.setAttribute('aria-expanded',open?'true':'false');this.setAttribute('aria-label',open?'Close menu':'Open menu')"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nbv3-mobile">
+    <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/schools'>For schools</a><a href='/premium'>Premium</a><a class='on' href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a><a href='/about'>Our story</a><a href='/mission'>Mission</a>
+    <a class='nav-cta' href='/find' style='text-align:center;margin-top:.5rem'>Search near my base →</a>
+  </div>
+</nav>
+
+<div class="mode-bar">
+  <div class="mode-bar-inner">
+    <button class="mode-tab active" onclick="setMode('quiz')">
+      <div class="mode-tab-icon">🎯</div>
+      <div class="mode-tab-title">Family Preference Quiz</div>
+      <div class="mode-tab-sub">Personalize your school matches</div>
+      <div class="mode-premium-pill">Premium</div>
+    </button>
+    <button class="mode-tab" onclick="setMode('research')">
+      <div class="mode-tab-icon">🔬</div>
+      <div class="mode-tab-title">Research Mode</div>
+      <div class="mode-tab-sub">Rank real NCR schools for the community</div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- FAMILY QUIZ MODE                       -->
+<!-- ══════════════════════════════════════ -->
+<div class="page active" id="page-quiz">
+
+  <!-- SETUP SCREEN -->
+  <div class="section" id="setupScreen">
+    <div class="section-inner" style="max-width:760px;margin:0 auto">
+      <div class="section-label">Premium feature · Preference quiz</div>
+      <div class="section-title">Help us understand<br><em>what your family values.</em></div>
+      <div class="section-sub">We'll show you pairs of AI-generated schools — never real schools in your area. Your choices reveal your family's true preferences. We use that fingerprint to re-rank your real matches.</div>
+
+      <div class="setup-card">
+        <div class="setup-title">Who's taking this quiz?</div>
+        <div class="setup-sub">Start with a family quiz, then each parent can add their own perspective. When parents disagree, NearBase tells you — and finds schools that work for both.</div>
+
+        <div class="setup-options">
+          <div class="setup-opt selected" id="opt-family" onclick="selectSetup('family')">
+            <div class="setup-opt-icon">👨‍👩‍👧</div>
+            <div><div class="setup-opt-title">Family quiz — take it together</div><div class="setup-opt-desc">One set of choices that represents your family. Best for when you generally agree on priorities. Takes about 5 minutes.</div></div>
+          </div>
+          <div class="setup-opt" id="opt-parent1" onclick="selectSetup('parent1')">
+            <div class="setup-opt-icon">👤</div>
+            <div><div class="setup-opt-title">Parent 1 — my perspective</div><div class="setup-opt-desc">Take the quiz individually. Your partner takes it separately. NearBase compares your fingerprints and finds schools that satisfy both.</div></div>
+          </div>
+          <div class="setup-opt" id="opt-parent2" onclick="selectSetup('parent2')">
+            <div class="setup-opt-icon">👤</div>
+            <div><div class="setup-opt-title">Parent 2 — my perspective</div><div class="setup-opt-desc">Continue after Parent 1 has completed their quiz. Results will be combined and any disagreements flagged warmly.</div></div>
+          </div>
+        </div>
+
+        <div class="setup-form">
+          <div class="form-group">
+            <label class="form-label">Child's age</label>
+            <select class="form-select" id="childAge">
+              <option value="">Select age</option>
+              <option>Infant (0–12 months)</option>
+              <option>Toddler (12–24 months)</option>
+              <option>2 years old</option>
+              <option>3 years old</option>
+              <option>4 years old</option>
+              <option>5 years old</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duty station / area</label>
+            <select class="form-select" id="dutyStation">
+              <option value="">Select base</option>
+              <option>Pentagon / Arlington VA</option>
+              <option>Fort Belvoir VA</option>
+              <option>JBAB / Bolling DC</option>
+              <option>Joint Base Andrews MD</option>
+              <option>Fort Meade / NSA MD</option>
+              <option>Naval Academy / Annapolis MD</option>
+              <option>Quantico MCB VA</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PCS report date</label>
+            <input class="form-input" type="month" id="pcsDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Number of children searching</label>
+            <select class="form-select" id="numChildren">
+              <option>1 child</option>
+              <option>2 children</option>
+              <option>3+ children</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:.875rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-primary" onclick="startQuiz()">Start preference quiz →</button>
+          <span style="font-size:.78rem;color:var(--muted)">~15 pairs · 5 minutes · retakeable anytime</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" style="display:none">
+    <div class="dim-strip">
+      <div class="dim-strip-inner">
+        <span class="dim-strip-label">Dimension:</span>
+        <div id="dimChips"></div>
+        <span style="margin-left:auto;font-size:.72rem;color:var(--muted)" id="quizWhoLabel">Family quiz</span>
+      </div>
+    </div>
+
+    <div class="quiz-area">
+      <div class="quiz-meta">
+        <div class="quiz-question" id="quizQuestion">Which school <strong>feels like the right fit</strong> for your family?</div>
+        <div class="quiz-progress">
+          <div class="prog-track"><div class="prog-fill" id="quizProgFill" style="width:0%"></div></div>
+          <div class="prog-label" id="quizProgLabel">0 / 15</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start">
+        <div>
+          <div class="vs-grid" id="vsGrid">
+            <!-- Cards injected by JS -->
+            <div id="cardA-wrap"></div>
+            <div class="vs-divider">
+              <div class="vs-line"></div>
+              <div class="vs-circle">VS</div>
+              <div class="vs-line"></div>
+            </div>
+            <div id="cardB-wrap"></div>
+          </div>
+
+          <div class="action-row">
+            <button class="act-btn" onclick="skipQuizPair()">⟳ Skip this pair</button>
+            <button class="act-btn" onclick="markQuizTie()">≈ Both equally good</button>
+            <button class="act-btn" onclick="nextQuizDim()">Switch dimension ↕</button>
+          </div>
+        </div>
+
+        <!-- LIVE PREFERENCE PROFILE -->
+        <div class="profile-panel" id="profilePanel">
+          <div class="profile-title">Your preference fingerprint</div>
+          <div class="profile-sub">Builds as you choose. Used to re-rank your real school matches.</div>
+
+          <div id="prefBars"></div>
+
+          <div class="profile-insight" id="profileInsight">
+            Make a few choices and we'll start building your family's profile.
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn-primary btn-sm" onclick="finishQuiz()" style="justify-content:center">See my results →</button>
+            <button class="btn-outline btn-sm" onclick="document.getElementById('setupScreen').style.display='block';document.getElementById('quizScreen').style.display='none'" style="justify-content:center">← Change settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-icon">🌱</div>
+    <div class="results-title">Your preference fingerprint</div>
+    <div class="results-sub">Based on your choices, here's what your family values most — and how we've re-ranked your real school matches in the NCR.</div>
+
+    <div class="results-grid" id="resultsGrid"></div>
+
+    <div class="fingerprint-card" id="fingerprintCard"></div>
+
+    <div class="insight-box" id="insightBox"></div>
+
+    <div class="parent-split" id="parentSplit">
+      <div class="ps-label">⚠ Parent priorities differ — here's how we balanced them</div>
+      <div class="ps-row" id="psSplit"></div>
+    </div>
+
+    <div class="results-btns">
+      <button class="btn-primary" onclick="retakeQuiz()">Retake quiz to sharpen results</button>
+      <button class="btn-primary gold" onclick="showToast('🔍 Applying fingerprint to your search…','gold')">Apply to my school search</button>
+      <button class="btn-outline" onclick="exportFingerprint()">Export fingerprint JSON</button>
+    </div>
+  </div>
+
+</div><!-- /page-quiz -->
+
+<!-- ══════════════════════════════════════ -->
+<!-- RESEARCH MODE                          -->
+<!-- ══════════════════════════════════════ -->
+<div class="page" id="page-research">
+  <div class="section">
+    <div class="section-inner">
+      <div class="section-label">Community research tool</div>
+      <div class="section-title">Help rank real NCR schools<br><em>for every military family.</em></div>
+      <div class="section-sub" style="margin-bottom:1.5rem">You're rating actual preschools on specific dimensions. Your votes are aggregated anonymously and feed the community rankings visible at <a href='/rankings' style='color:var(--green)'>rankings.html</a>. No family quiz data is used here — these are two completely separate systems.</div>
+
+      <div id="researchDimStrip" style="display:flex;gap:.625rem;flex-wrap:wrap;margin-bottom:1.5rem"></div>
+
+      <div class="research-layout">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem">
+            <div class="quiz-question" id="researchQuestion">Which school has <strong>better facilities?</strong></div>
+            <div class="quiz-progress">
+              <div class="prog-track"><div class="prog-fill" id="resProg" style="width:0%"></div></div>
+              <div class="prog-label" id="resProgLabel">0 rated today</div>
+            </div>
+          </div>
+
+          <div class="vs-grid" id="resVsGrid">
+            <div id="resCardA-wrap"></div>
+            <div class="vs-divider"><div class="vs-line"></div><div class="vs-circle">VS</div><div class="vs-line"></div></div>
+            <div id="resCardB-wrap"></div>
+          </div>
+
+          <div class="action-row">
+            <button class="act-btn" onclick="skipRes()">⟳ Skip this pair</button>
+            <button class="act-btn" onclick="tieRes()">≈ Too close to call</button>
+            <button class="act-btn" onclick="nextResDim()">Switch dimension ↕</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="research-controls">
+            <div class="rc-title">Your session</div>
+            <div class="rc-sub">Volunteer raters help build the most honest preschool rankings that exist for military families.</div>
+            <div class="rc-stat"><span class="rc-stat-label">Rated this session</span><span class="rc-stat-val" id="resCount">0</span></div>
+            <div class="rc-stat"><span class="rc-stat-label">Total comparisons</span><span class="rc-stat-val" id="resTotalCount">0</span></div>
+            <div class="rc-stat"><span class="rc-stat-label">Dimension</span><span class="rc-stat-val" id="resDimLabel">Facilities</span></div>
+            <div class="rc-stat"><span class="rc-stat-label">Your weight</span><span class="rc-stat-val">0.8×</span></div>
+            <button class="export-btn-sm" onclick="exportResCSV()">Export to Airtable CSV</button>
+          </div>
+
+          <div class="sb-card" style="margin-top:1rem">
+            <div class="sb-header">
+              <div><div class="sb-title">Live community rankings</div><div class="sb-dim" id="sbResLabel">By Facilities</div></div>
+            </div>
+            <div class="sb-body" id="resSbBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /page-research -->
+
+
+<!-- Static form so Netlify detects research-mode votes. Each comparison is posted in the background. -->
+<form name="research-vote" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="research-vote">
+  <p hidden><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
+  <input type="text" name="ts">
+  <input type="text" name="dim">
+  <input type="text" name="winner">
+  <input type="text" name="loser">
+  <input type="text" name="winner_elo">
+  <input type="text" name="loser_elo">
+</form>
+
+<section class="nbcap">
+  <div class="nbcap-in">
+    <div>
+      <h3>PCS orders coming? <em>Hear it first.</em></h3>
+      <p>New schools, waitlist changes, and military discounts near your next base — one short email when it matters, never spam.</p>
+    </div>
+    <form name="nearbase-updates" method="POST" action="thanks.html" data-netlify="true">
+      <input type="hidden" name="form-name" value="nearbase-updates">
+      <input type="hidden" name="page" value="quiz">
+      <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address">
+      <button type="submit">Keep me posted</button>
+    </form>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Near<span>Base</span></div>
+    <div class="footer-links">
+      <a href='/find'>Find schools</a>
+      <a href='/families'>For families</a>
+      <a href='/premium'>Premium</a>
+      <a href='/rankings'>Rankings</a>
+      <a href='/checkin'>Pay it forward</a>
+      <a href='/about'>About</a>
+    </div>
+    <div class="footer-copy">© 2026 NearBase · kellybrown@nearbase.net</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DIMENSIONS
+// ═══════════════════════════════════════════════
+const DIMS = [
+  { id:'vibe',   label:'Overall Vibe',     q:'Which school <strong>feels like the right fit</strong> for your family?' },
+  { id:'campus', label:'Campus & Setting',  q:'Which school has a more <strong>appealing campus and physical environment?</strong>' },
+  { id:'program',label:'Program Philosophy',q:'Which school\'s <strong>educational approach</strong> resonates more with you?' },
+  { id:'community',label:'Community Feel', q:'Which school seems to have a <strong>stronger family community?</strong>' },
+  { id:'practical',label:'Practical Fit',  q:'Which school seems more <strong>practical for your military family life?</strong>' },
+];
+
+// ═══════════════════════════════════════════════
+// AI SCHOOL GENERATOR — synthetic profiles
+// ═══════════════════════════════════════════════
+const SCHOOL_TEMPLATES = {
+  urban: {
+    settings: ['Downtown Arts District','Urban Core','City Center','Near Transit Hub','Historic Neighborhood'],
+    images: [
+      'linear-gradient(160deg,#2C3E50 0%,#3498DB 100%)',
+      'linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',
+      'linear-gradient(160deg,#2d3436 0%,#636e72 100%)',
+      'linear-gradient(160deg,#192a56 0%,#273c75 100%)',
+    ],
+    imageLabels: ['Urban campus','City location','Downtown setting','Urban neighborhood'],
+    nameTypes: ['Academy','Institute','Center for Early Learning','Children\'s House','Learning Studio'],
+    adjectives: ['Metropolitan','Civic','Urban','City','Progressive','Contemporary'],
+    facts: ['Walking distance to transit','Multi-story building with rooftop garden','Urban nature integration program','City community partnerships'],
+  },
+  suburban: {
+    settings: ['Tree-lined suburb','Quiet neighborhood','Established suburb','Near community park','Residential area'],
+    images: [
+      'linear-gradient(160deg,#27ae60 0%,#2ecc71 100%)',
+      'linear-gradient(160deg,#1e8449 0%,#27ae60 100%)',
+      'linear-gradient(160deg,#145a32 0%,#1e8449 50%,#27ae60 100%)',
+      'linear-gradient(160deg,#0B5345 0%,#148F77 100%)',
+    ],
+    imageLabels: ['Suburban campus','Treeline setting','Neighborhood school','Residential campus'],
+    nameTypes: ['Montessori School','Academy','Learning Village','Children\'s Garden','Discovery School'],
+    adjectives: ['Meadow','Willow','Oak','Cedar','Maple','Birch','Sunrise'],
+    facts: ['Large fenced playground','Dedicated nature trail on campus','Parking + drop-off loop','Family garden program'],
+  },
+  rural: {
+    settings: ['Rural property','Farm setting','Nature preserve area','Wooded campus','Open countryside'],
+    images: [
+      'linear-gradient(160deg,#7D6608 0%,#B7950B 100%)',
+      'linear-gradient(160deg,#4A235A 0%,#6C3483 100%)',
+      'linear-gradient(160deg,#1B4F72 0%,#2E86C1 100%)',
+      'linear-gradient(160deg,#117A65 0%,#1ABC9C 100%)',
+    ],
+    imageLabels: ['Rural campus','Farm setting','Nature campus','Country school'],
+    nameTypes: ['Farm School','Nature School','Waldorf School','Forest Academy','Country Montessori'],
+    adjectives: ['Harvest','Meadow','Sunrise','Woodland','Country','Heritage','Pioneer'],
+    facts: ['5-acre campus with animals','Forest classroom used daily','Organic school garden','No screen time policy'],
+  },
+};
+
+const CURRICULUMS = [
+  { type:'Montessori AMI', tags:['AMI-certified','Mixed age','Child-led'], ratio:'1:8', desc:'Authentic Montessori method with AMI-certified lead teachers. Mixed-age classrooms, 3-year cycles, child-directed learning environment.' },
+  { type:'Reggio Emilia', tags:['Project-based','Studio art','Documentation'], ratio:'1:7', desc:'Reggio-inspired project-based learning. Strong arts integration, teacher as researcher, beautiful prepared environment.' },
+  { type:'Play-based', tags:['Unstructured play','Social-emotional','Child-led'], ratio:'1:8', desc:'Child-directed play with rich materials. Emphasis on social-emotional development, creative expression, and joyful learning.' },
+  { type:'Waldorf', tags:['Rhythmic day','Arts','No screens'], ratio:'1:10', desc:'Steiner-inspired curriculum with daily rhythms, seasonal celebrations, handwork, and artistic integration throughout.' },
+  { type:'Academic prep', tags:['Structured','Phonics','Math readiness'], ratio:'1:12', desc:'Structured literacy and numeracy preparation. Daily circle time, small group instruction, clear kindergarten readiness goals.' },
+  { type:'Nature-based', tags:['Outdoor learning','Forest school','Seasonal'], ratio:'1:6', desc:'Outdoor learning as the primary classroom. Rain or shine, children learn through direct experience with the natural world.' },
+  { type:'Bilingual',tags:['Dual language','Immersion','Cultural'], ratio:'1:9', desc:'Dual language immersion from day one. Both languages used equally throughout the school day by native-speaking teachers.' },
+];
+
+const TUITION_BANDS = ['$900–$1,200/mo','$1,200–$1,600/mo','$1,600–$2,000/mo','$2,000–$2,500/mo','$2,500+/mo','Free (public charter)'];
+const ENROLLMENTS = ['18 children total','24 children total','32 children total','48 children total','60 children total','80+ children total'];
+const HOURS = ['7:30am–5:30pm','7am–6pm','8am–5pm','8:30am–3pm (+ aftercare)','7am–5pm'];
+const SPECIALS = ['On-site speech therapy','Spanish enrichment','Music & movement daily','Yoga & mindfulness','Cooking class weekly','Sign language integration','STEM maker space','Artist in residence'];
+const MILITARY_FLAGS = [['🪖 MCCYN accepted','🎖️ Mid-year enrollment welcome'],['✅ DoD fee assistance','📋 PCS portfolio transfer'],['🪖 Military family discount','⚡ Flexible enrollment windows'],[],[]];
+
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function randN(arr,n){ const s=[...arr].sort(()=>Math.random()-.5); return s.slice(0,n); }
+
+function generateSchool(idx){
+  const settingType = rand(['urban','suburban','suburban','rural']);
+  const tmpl = SCHOOL_TEMPLATES[settingType];
+  const curr = rand(CURRICULUMS);
+  const adj = rand(tmpl.adjectives);
+  const nameType = rand(tmpl.nameTypes);
+  const name = `${adj} ${nameType}`;
+  const setting = rand(tmpl.settings);
+  const imgBg = rand(tmpl.images);
+  const imgLabel = rand(tmpl.imageLabels);
+  const milFlags = rand(MILITARY_FLAGS);
+  const specials = randN(SPECIALS,2);
+  const facts = [...tmpl.facts.slice(0,2), ...specials.slice(0,1)];
+  if(milFlags.length) facts.push(milFlags[0]);
+
+  return {
+    name, settingType, setting, imgBg, imgLabel,
+    curriculum: curr.type, currDesc: curr.desc,
+    tags: curr.tags, ratio: curr.ratio,
+    tuition: rand(TUITION_BANDS),
+    enrollment: rand(ENROLLMENTS),
+    hours: rand(HOURS),
+    facts,
+    milFlags,
+  };
+}
+
+function buildCard(school, side, mode='quiz'){
+  const chooseLabel = mode==='quiz' ? 'This school fits us better →' : 'This school wins →';
+  const onclick = mode==='quiz' ? `quizChoose('${side}')` : `resChoose('${side}')`;
+  return `<div class="school-card" id="card${side}" onclick="${onclick}">
+    <div class="school-image" style="background:${school.imgBg}">
+      <div class="school-image-overlay"></div>
+      <div class="school-image-tag">${school.settingType.charAt(0).toUpperCase()+school.settingType.slice(1)} setting</div>
+      <div class="ai-badge">AI generated</div>
+      <div class="school-image-label">📍 ${school.setting}</div>
+    </div>
+    <div class="school-body">
+      <div class="school-name">${school.name}</div>
+      <div class="school-type">${school.curriculum}</div>
+      <div class="school-stats">
+        <div class="stat-item"><div class="stat-item-label">Enrollment</div><div class="stat-item-val">${school.enrollment}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Ratio</div><div class="stat-item-val">${school.ratio}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Tuition</div><div class="stat-item-val">${school.tuition}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Hours</div><div class="stat-item-val">${school.hours}</div></div>
+      </div>
+      <div class="school-desc">${school.currDesc}</div>
+      <div class="school-tags">
+        ${school.tags.map(t=>`<span class="stag">${t}</span>`).join('')}
+        ${school.milFlags.slice(0,1).map(f=>`<span class="stag">${f}</span>`).join('')}
+      </div>
+    </div>
+    <button class="choose-btn" onclick="${onclick};event.stopPropagation()">${chooseLabel}</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// QUIZ STATE
+// ═══════════════════════════════════════════════
+let quizState = {
+  mode: 'quiz', who: 'family', dimIdx: 0,
+  count: 0, total: 15,
+  prefs: { vibe:{urban:0,suburban:0,rural:0}, campus:{urban:0,suburban:0,rural:0}, program:{}, community:{}, practical:{} },
+  currA: null, currB: null, choosing: false,
+  votes: { urban:0, suburban:0, rural:0, montessori:0, reggio:0, play:0, waldorf:0, academic:0, nature:0, bilingual:0, small:0, large:0, free:0, structured:0 },
+  choices: [],
+};
+let setupMode = 'family';
+
+function selectSetup(m){
+  setupMode = m;
+  document.querySelectorAll('.setup-opt').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('opt-'+m).classList.add('selected');
+}
+
+function startQuiz(){
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='block';
+  quizState.who = setupMode;
+  quizState.count = 0;
+  quizState.choices = [];
+  renderDimChips();
+  loadQuizPair();
+  updateQuizProgress();
+  renderPrefBars();
+}
+
+function renderDimChips(){
+  document.getElementById('dimChips').innerHTML = DIMS.map((d,i)=>
+    `<button class="dim-chip ${i===quizState.dimIdx?'active':''}" onclick="setQuizDim(${i})">${d.label}</button>`
+  ).join('');
+  document.getElementById('quizWhoLabel').textContent =
+    quizState.who==='family'?'👨‍👩‍👧 Family quiz':quizState.who==='parent1'?'👤 Parent 1':'👤 Parent 2';
+  document.getElementById('quizQuestion').innerHTML = DIMS[quizState.dimIdx].q;
+}
+
+function loadQuizPair(){
+  if(quizState.count >= quizState.total){ finishQuiz(); return; }
+  quizState.currA = generateSchool('A');
+  quizState.currB = generateSchool('B');
+  // Ensure they're different setting types for meaningful choices
+  let attempts = 0;
+  while(quizState.currA.settingType === quizState.currB.settingType && attempts < 5){
+    quizState.currB = generateSchool('B'); attempts++;
+  }
+  document.getElementById('cardA-wrap').innerHTML = buildCard(quizState.currA,'A','quiz');
+  document.getElementById('cardB-wrap').innerHTML = buildCard(quizState.currB,'B','quiz');
+  quizState.choosing = false;
+}
+
+function quizChoose(side){
+  if(quizState.choosing) return;
+  quizState.choosing = true;
+  const winner = side==='A' ? quizState.currA : quizState.currB;
+  const loser  = side==='A' ? quizState.currB : quizState.currA;
+
+  // Record preference signals
+  quizState.votes[winner.settingType] = (quizState.votes[winner.settingType]||0) + 1;
+  const currKey = winner.curriculum.toLowerCase().replace(/\s+/g,'').replace(/ami/,'').replace(/-/g,'').replace(/emilia/,'').replace(/based/,'').replace('nature','nature');
+  quizState.votes[currKey] = (quizState.votes[currKey]||0) + 1;
+  const enroll = parseInt(winner.enrollment);
+  if(!isNaN(enroll)) quizState.votes[enroll <= 32 ? 'small' : 'large'] = (quizState.votes[enroll<=32?'small':'large']||0)+1;
+
+  quizState.choices.push({ dim: DIMS[quizState.dimIdx].id, winner: winner.name, loser: loser.name, winnerType: winner.settingType, winnerCurr: winner.curriculum });
+  quizState.count++;
+
+  document.getElementById('card'+side).classList.add('winner');
+  document.getElementById('card'+(side==='A'?'B':'A')).classList.add('loser');
+  showToast(`✓ ${winner.name} resonates more`,'green');
+
+  updateQuizProgress();
+  renderPrefBars();
+  updateInsight();
+
+  setTimeout(()=>{ loadQuizPair(); }, 680);
+}
+
+function skipQuizPair(){ quizState.count++; updateQuizProgress(); loadQuizPair(); }
+function markQuizTie(){ quizState.count++; updateQuizProgress(); loadQuizPair(); }
+function nextQuizDim(){ quizState.dimIdx=(quizState.dimIdx+1)%DIMS.length; renderDimChips(); loadQuizPair(); }
+function setQuizDim(i){ quizState.dimIdx=i; renderDimChips(); loadQuizPair(); }
+
+function updateQuizProgress(){
+  const pct=(quizState.count/quizState.total)*100;
+  document.getElementById('quizProgFill').style.width=pct+'%';
+  document.getElementById('quizProgLabel').textContent=`${quizState.count} / ${quizState.total}`;
+}
+
+function renderPrefBars(){
+  const v = quizState.votes;
+  const total = Math.max(quizState.count,1);
+  const dims = [
+    {label:'Setting',left:'Urban',right:'Suburban/Rural',score:Math.round(((v.suburban||0)+(v.rural||0)-((v.urban||0)))/total*50+50)},
+    {label:'Campus size',left:'Large',right:'Small & intimate',score:Math.round(((v.small||0)-(v.large||0))/total*50+50)},
+    {label:'Structure',left:'Child-led',right:'Teacher-led',score:Math.round(((v.academic||0)-(v.play||0)-(v.montessori||0))/total*50+50)},
+    {label:'Outdoors',left:'Indoor focus',right:'Outdoor/nature',score:Math.round(((v.nature||0))/total*100)},
+  ];
+  document.getElementById('prefBars').innerHTML = dims.map(d=>{
+    const s=Math.max(5,Math.min(95,d.score));
+    const leftPct = s<50 ? (50-s)+'%' : '0%';
+    const rightPct = s>50 ? (s-50)+'%' : '0%';
+    return `<div class="pref-row">
+      <div class="pref-label">${d.label}</div>
+      <div style="flex:1">
+        <div class="pref-track">
+          <div class="pref-center"></div>
+          <div class="pref-fill-left" style="width:${leftPct}"></div>
+          <div class="pref-fill-right" style="width:${rightPct}"></div>
+        </div>
+        <div class="pref-labels"><span>${d.left}</span><span>${d.right}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateInsight(){
+  const v = quizState.votes;
+  const total = Math.max(quizState.count,1);
+  const topSetting = ['urban','suburban','rural'].sort((a,b)=>(v[b]||0)-(v[a]||0))[0];
+  const topCurr = ['montessori','reggio','play','waldorf','academic','nature','bilingual'].sort((a,b)=>(v[b]||0)-(v[a]||0))[0];
+  const insights = {
+    urban: `Your choices suggest you're comfortable with urban settings — density, accessibility, and city-integrated learning environments resonate with your family.`,
+    suburban: `You're gravitating toward suburban campuses — tree-lined streets, outdoor space, and neighborhood community feel like the right context for your child.`,
+    rural: `Nature and space matter to your family. Rural and farm-based settings are emerging as a clear preference in your choices.`,
+  };
+  document.getElementById('profileInsight').innerHTML = `<strong>Early signal:</strong> ${insights[topSetting]||'Keep choosing to build your profile.'}`;
+}
+
+// ═══════════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════════
+function finishQuiz(){
+  document.getElementById('quizScreen').style.display='none';
+  document.getElementById('resultsScreen').classList.add('show');
+
+  const v = quizState.votes;
+  const total = Math.max(quizState.count,1);
+
+  // Stats
+  document.getElementById('resultsGrid').innerHTML = [
+    {val:quizState.count,label:'Pairs compared'},
+    {val:DIMS[quizState.dimIdx].label,label:'Final dimension'},
+    {val:`${Math.round(quizState.count/quizState.total*100)}%`,label:'Quiz complete'},
+  ].map(s=>`<div class="result-card"><div class="result-card-val">${s.val}</div><div class="result-card-label">${s.label}</div></div>`).join('');
+
+  // Fingerprint
+  const topSetting = ['urban','suburban','rural'].sort((a,b)=>(v[b]||0)-(v[a]||0))[0];
+  const topCurr = ['montessori','reggio','play','waldorf','academic','nature','bilingual'].sort((a,b)=>(v[b]||0)-(v[a]||0))[0];
+  const dimScores = [
+    {label:'Suburban / outdoor campus',score:Math.min(100,Math.round(((v.suburban||0)+(v.rural||0))/total*160))},
+    {label:'Small enrollment (< 32)',score:Math.min(100,Math.round((v.small||0)/total*200))},
+    {label:'Child-led learning',score:Math.min(100,Math.round(((v.montessori||0)+(v.play||0)+(v.reggio||0))/total*140))},
+    {label:'Nature / outdoor access',score:Math.min(100,Math.round((v.nature||0)/total*250))},
+    {label:'Military-aware program',score:65},
+  ];
+
+  document.getElementById('fingerprintCard').innerHTML=`<div class="fp-title">Preference fingerprint — used to re-rank your NCR matches</div>`+
+    dimScores.map(d=>`<div class="fp-row"><div class="fp-label">${d.label}</div><div class="fp-bar-track"><div class="fp-bar" style="width:${d.score}%"></div></div><div class="fp-val">${d.score}%</div></div>`).join('');
+
+  const insightMap = {
+    urban:`Your fingerprint shows a family drawn to urban settings — walkable campuses, city-integrated learning, and proximity to cultural resources. In your NCR search, we've boosted schools in DC Core (Zone 1) and Close-In NoVA (Zone 2).`,
+    suburban:`You gravitate toward suburban campuses with outdoor space and neighborhood community. We've boosted Fairfax/Herndon (Zone 3) and Montgomery County (Zone 4) schools in your results.`,
+    rural:`Space and nature are priorities. We've surfaced rural and nature-based programs — Mater Amoris, Montessori Country School, and forest school programs — higher in your personalized list.`,
+  };
+  document.getElementById('insightBox').innerHTML=`<div class="ib-label">How this re-ranks your NCR results</div><div class="ib-text">${insightMap[topSetting]||insightMap.suburban}</div>`;
+
+  // Simulate parent split if parent mode
+  if(quizState.who !== 'family'){
+    document.getElementById('parentSplit').classList.add('show');
+    document.getElementById('psSplit').innerHTML=`
+      <div class="ps-col"><div class="ps-who">Parent 1</div><div class="ps-pref">Prefers: ${topSetting} settings, ${topCurr} curriculum, small enrollment</div></div>
+      <div class="ps-col"><div class="ps-who">Parent 2</div><div class="ps-pref">Prefers: suburban settings, play-based curriculum, mid-size enrollment</div></div>`;
+  }
+}
+
+function retakeQuiz(){
+  document.getElementById('resultsScreen').classList.remove('show');
+  quizState.count=0; quizState.votes={urban:0,suburban:0,rural:0,montessori:0,reggio:0,play:0,waldorf:0,academic:0,nature:0,bilingual:0,small:0,large:0,free:0,structured:0};
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='block';
+  renderDimChips(); loadQuizPair(); updateQuizProgress(); renderPrefBars();
+}
+
+function exportFingerprint(){
+  const fp = { generated: new Date().toISOString(), who: quizState.who, comparisons: quizState.count, votes: quizState.votes, choices: quizState.choices };
+  const blob = new Blob([JSON.stringify(fp,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`nearbase_preference_${new Date().toISOString().split('T')[0]}.json`; a.click();
+}
+
+// ═══════════════════════════════════════════════
+// RESEARCHER MODE — REAL SCHOOLS
+// ═══════════════════════════════════════════════
+const REAL_SCHOOLS = [
+  {id:0,name:"Toddlers on the Hill",loc:"Navy Yard, DC",type:"Montessori AMI",facts:["👶 Nido from 3 months","✅ MCCYN accepted","🎖️ Military-friendly"]},
+  {id:1,name:"Fiore Montessori",loc:"Vienna, VA",type:"Montessori AMI",facts:["🏛️ AMI-certified","🛡️ Pentagon corridor","🌿 Large outdoor areas"]},
+  {id:2,name:"Nido Nurturing Center",loc:"Brookland, DC",type:"Infant/Toddler",facts:["📚 Harvard-inspired","🌍 Spanish + sign language","👶 Infant specialists"]},
+  {id:3,name:"MICH Annapolis",loc:"Annapolis, MD",type:"Montessori AMI",facts:["⚓ USNA corridor","📖 Infant to 6th grade","🎖️ Military specialists"]},
+  {id:4,name:"Full Circle Montessori",loc:"Arlington, VA",type:"Montessori",facts:["🛡️ 1.2mi from Pentagon","✈️ PCS specialists","📋 Portfolio on PCS out"]},
+  {id:5,name:"LAMB PCS",loc:"NW Washington DC",type:"Public Montessori",facts:["💰 Free","🎲 Dec lottery","🏛️ Montessori PK3-K"]},
+  {id:6,name:"Lee Montessori PCS",loc:"Brookland, DC",type:"Public Montessori",facts:["💰 Free","🌍 Diverse Ward 5","🎲 Dec lottery"]},
+  {id:7,name:"Butler Montessori",loc:"Germantown, MD",type:"Montessori",facts:["✅ Mid-year OK","👶 18mo sibling priority","⏳ Pre-K 6-12mo wait"]},
+  {id:8,name:"Breakthrough Montessori",loc:"Capitol Hill, DC",type:"Public Montessori",facts:["💰 Free","⚠️ No on-site play","🎲 Competitive lottery"]},
+  {id:9,name:"Mater Amoris Montessori",loc:"Ashton, MD",type:"Montessori AMI",facts:["🌲 Forest school","🏡 Rural campus","📚 Strong AMI"]},
+  {id:10,name:"Shining Stars Montessori",loc:"Washington DC",type:"Montessori",facts:["🪖 MCCYN accepted","👶 Strong infant program","🌍 Diverse enrollment"]},
+  {id:11,name:"The Riverseed School",loc:"Washington DC",type:"Progressive",facts:["🌿 Nature-based","👩‍🏫 Small classes","🎯 Strong SPED support"]},
+  {id:12,name:"Reston Montessori",loc:"Reston, VA",type:"Montessori",facts:["🛫 Dulles/NRO corridor","📚 Established","🏘️ Active parent community"]},
+  {id:13,name:"Herndon Montessori",loc:"Herndon, VA",type:"Montessori",facts:["🛡️ MCCYN accepted","📍 NRO corridor","👶 Infant-to-primary"]},
+  {id:14,name:"Blue Montessori",loc:"Ward 8 DC",type:"Montessori",facts:["🤝 Ward 8 community","💰 Sliding scale","🌍 Community focus"]},
+  {id:15,name:"The Key School",loc:"Annapolis, MD",type:"Independent",facts:["⚓ USNA community","🎓 PK-12 continuum","🏆 Strong extracurriculars"]},
+];
+
+const RES_DIMS = [
+  {id:'facilities',label:'Facilities',q:'Which school has <strong>better facilities</strong> — classrooms, outdoor space, cleanliness?'},
+  {id:'military',label:'Military Awareness',q:'Which school is more <strong>military-family friendly</strong> — EFMP, mid-year, deployment?'},
+  {id:'infant',label:'Infant / Toddler',q:'Which school offers a <strong>better infant and toddler program?</strong>'},
+  {id:'staff',label:'Teaching Staff',q:'Which school has <strong>stronger teaching credentials and warmth?</strong>'},
+  {id:'outdoor',label:'Outdoor / Nature',q:'Which school has <strong>better outdoor and nature access?</strong>'},
+];
+
+let resState = { dimIdx:0, count:0, eloScores:{}, comparisons:[], currA:null, currB:null, choosing:false };
+
+function initResElo(){ REAL_SCHOOLS.forEach(s=>{ RES_DIMS.forEach(d=>{ const k=`${s.id}_${d.id}`; if(!resState.eloScores[k]) resState.eloScores[k]=1200; }); }); }
+function getResElo(sid,did){ return resState.eloScores[`${sid}_${did}`]||1200; }
+function updateResElo(wid,lid,did,K=32){ const Ra=getResElo(wid,did),Rb=getResElo(lid,did),Ea=1/(1+Math.pow(10,(Rb-Ra)/400)); resState.eloScores[`${wid}_${did}`]=Math.round(Ra+K*(1-Ea)); resState.eloScores[`${lid}_${did}`]=Math.round(Rb+K*(0-(1-Ea))); }
+
+function buildRealCard(school, side){
+  const bgColors = ['linear-gradient(135deg,#C8E6D8,#85C1A3)','linear-gradient(135deg,#D0E8D8,#7FB89A)','linear-gradient(135deg,#C8DFD0,#79AE90)','linear-gradient(135deg,#CCE4D4,#83B898)','linear-gradient(135deg,#C8E2D0,#7DB99A)'];
+  const bg = bgColors[school.id % bgColors.length];
+  return `<div class="school-card" id="resCard${side}" onclick="resChoose('${side}')">
+    <div class="school-image" style="background:${bg}">
+      <div class="school-image-overlay"></div>
+      <div class="school-image-tag">${school.type}</div>
+      <div class="school-image-label">🏫 ${school.name}</div>
+    </div>
+    <div class="school-body">
+      <div class="school-name">${school.name}</div>
+      <div class="school-type">${school.type} · ${school.loc}</div>
+      <div class="school-desc" style="margin-top:.5rem">${school.facts.map(f=>`<div style="margin-bottom:.25rem">${f}</div>`).join('')}</div>
+      <div style="margin-top:.75rem;font-size:.72rem;color:var(--green);font-weight:500">Elo: ${getResElo(school.id,RES_DIMS[resState.dimIdx].id)}</div>
+    </div>
+    <button class="choose-btn" onclick="resChoose('${side}');event.stopPropagation()">This school ranks higher →</button>
+  </div>`;
+}
+
+function loadResPair(){
+  const dim = RES_DIMS[resState.dimIdx].id;
+  const sorted = [...REAL_SCHOOLS].sort((a,b)=>getResElo(b.id,dim)-getResElo(a.id,dim));
+  const offset = Math.floor(Math.random()*(sorted.length-1));
+  resState.currA = sorted[offset]; resState.currB = sorted[offset+1];
+  if(Math.random()>.5){ const t=resState.currA; resState.currA=resState.currB; resState.currB=t; }
+  document.getElementById('resCardA-wrap').innerHTML = buildRealCard(resState.currA,'A');
+  document.getElementById('resCardB-wrap').innerHTML = buildRealCard(resState.currB,'B');
+  resState.choosing = false;
+}
+
+function postNetlify(formName, fields){
+  try{
+    const body=new URLSearchParams();
+    body.set('form-name', formName);
+    Object.keys(fields).forEach(function(k){
+      const v=fields[k];
+      body.set(k, v==null?'':String(v));
+    });
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString(),keepalive:true}).catch(function(){});
+  }catch(e){}
+}
+function resChoose(side){
+  if(resState.choosing) return;
+  resState.choosing=true;
+  const winner=side==='A'?resState.currA:resState.currB,loser=side==='A'?resState.currB:resState.currA;
+  const dim=RES_DIMS[resState.dimIdx].id;
+  updateResElo(winner.id,loser.id,dim);
+  const row={ts:new Date().toISOString(),dim,winner:winner.name,loser:loser.name,winner_elo:getResElo(winner.id,dim),loser_elo:getResElo(loser.id,dim)};
+  resState.comparisons.push(row);
+  postNetlify('research-vote', row);
+  resState.count++;
+  document.getElementById('resCount').textContent=resState.count;
+  document.getElementById('resTotalCount').textContent=resState.comparisons.length;
+  document.getElementById('resCard'+side).classList.add('winner');
+  document.getElementById('resCard'+(side==='A'?'B':'A')).classList.add('loser');
+  showToast(`✓ ${winner.name} ranked higher`,'green');
+  renderResSb();
+  const pct=Math.min(100,(resState.count/30)*100);
+  document.getElementById('resProg').style.width=pct+'%';
+  document.getElementById('resProgLabel').textContent=`${resState.count} rated today`;
+  setTimeout(()=>loadResPair(),650);
+}
+
+function skipRes(){ loadResPair(); }
+function tieRes(){ resState.count++; document.getElementById('resCount').textContent=resState.count; loadResPair(); }
+function nextResDim(){ resState.dimIdx=(resState.dimIdx+1)%RES_DIMS.length; renderResDimStrip(); renderResSb(); loadResPair(); }
+
+function renderResDimStrip(){
+  document.getElementById('researchDimStrip').innerHTML = RES_DIMS.map((d,i)=>
+    `<button class="dim-chip ${i===resState.dimIdx?'active':''}" onclick="setResDim(${i})">${d.label}</button>`
+  ).join('');
+  document.getElementById('researchQuestion').innerHTML = RES_DIMS[resState.dimIdx].q;
+  document.getElementById('resDimLabel').textContent = RES_DIMS[resState.dimIdx].label;
+  document.getElementById('sbResLabel').textContent = `By ${RES_DIMS[resState.dimIdx].label}`;
+}
+function setResDim(i){ resState.dimIdx=i; renderResDimStrip(); renderResSb(); loadResPair(); }
+
+function renderResSb(){
+  const dim=RES_DIMS[resState.dimIdx].id;
+  const ranked=[...REAL_SCHOOLS].sort((a,b)=>getResElo(b.id,dim)-getResElo(a.id,dim));
+  const maxE=getResElo(ranked[0].id,dim),minE=getResElo(ranked[ranked.length-1].id,dim),range=maxE-minE||1;
+  document.getElementById('resSbBody').innerHTML=ranked.map((s,i)=>{
+    const elo=getResElo(s.id,dim),pct=Math.round(((elo-minE)/range)*100);
+    return`<div class="sb-row"><div class="sb-rank ${i<3?'top':''}">${i+1}</div><div><div class="sb-name">${s.name}</div><div class="sb-loc">${s.loc}</div></div><div class="sb-elo">${elo}</div><div><div class="sb-bar"><div class="sb-bar-fill" style="width:${pct}%"></div></div></div></div>`;
+  }).join('');
+}
+
+function exportResCSV(){
+  if(!resState.comparisons.length){alert('No comparisons yet.');return;}
+  const hdrs=['ts','dim','winner','loser','winner_elo','loser_elo'];
+  const rows=resState.comparisons.map(c=>hdrs.map(h=>`"${c[h]??''}"`).join(','));
+  const csv=[hdrs.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`nearbase_research_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+// ═══════════════════════════════════════════════
+// MODE SWITCHING
+// ═══════════════════════════════════════════════
+function setMode(mode){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+mode).classList.add('active');
+  document.querySelectorAll('.mode-tab')[mode==='quiz'?0:1].classList.add('active');
+}
+
+let toastTimer;
+function showToast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2000);}
+
+// INIT
+initResElo();
+renderResDimStrip();
+renderResSb();
+loadResPair();
+</script>
+</body>
+</html>
