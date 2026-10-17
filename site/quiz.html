@@ -558,6 +558,18 @@ body.nbv3-open .nbv3-mobile{display:flex}
 </div><!-- /page-research -->
 
 
+<!-- Static form so Netlify detects research-mode votes. Each comparison is posted in the background. -->
+<form name="research-vote" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="research-vote">
+  <p hidden><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
+  <input type="text" name="ts">
+  <input type="text" name="dim">
+  <input type="text" name="winner">
+  <input type="text" name="loser">
+  <input type="text" name="winner_elo">
+  <input type="text" name="loser_elo">
+</form>
+
 <section class="nbcap">
   <div class="nbcap-in">
     <div>
@@ -775,46 +787,6 @@ function loadQuizPair(){
   quizState.choosing = false;
 }
 
-// ── AI GENERATION via Anthropic API ──
-async function generateSchoolWithAI(prompt){
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:`You generate realistic but completely fictional preschool profiles for a preference quiz tool. 
-Return ONLY a JSON object with these exact fields:
-{
-  "name": "fictional school name",
-  "settingType": "urban|suburban|rural",
-  "setting": "specific location description",
-  "imgBg": "CSS gradient string",
-  "imgLabel": "short image caption",
-  "curriculum": "curriculum type",
-  "currDesc": "2-sentence description",
-  "tags": ["tag1","tag2","tag3"],
-  "ratio": "1:N",
-  "tuition": "$X–$Y/mo",
-  "enrollment": "N children total",
-  "hours": "Xam–Ypm",
-  "facts": ["fact1","fact2","fact3"],
-  "milFlags": ["military feature if any"]
-}
-Never use real school names or real locations. Be creative and realistic. Vary setting types.`,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.find(c=>c.type==='text')?.text || '';
-    const clean = text.replace(/```json|```/g,'').trim();
-    return JSON.parse(clean);
-  } catch(e) {
-    return null; // fallback to template generation
-  }
-}
-
 function quizChoose(side){
   if(quizState.choosing) return;
   quizState.choosing = true;
@@ -1021,13 +993,26 @@ function loadResPair(){
   resState.choosing = false;
 }
 
+function postNetlify(formName, fields){
+  try{
+    const body=new URLSearchParams();
+    body.set('form-name', formName);
+    Object.keys(fields).forEach(function(k){
+      const v=fields[k];
+      body.set(k, v==null?'':String(v));
+    });
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString(),keepalive:true}).catch(function(){});
+  }catch(e){}
+}
 function resChoose(side){
   if(resState.choosing) return;
   resState.choosing=true;
   const winner=side==='A'?resState.currA:resState.currB,loser=side==='A'?resState.currB:resState.currA;
   const dim=RES_DIMS[resState.dimIdx].id;
   updateResElo(winner.id,loser.id,dim);
-  resState.comparisons.push({ts:new Date().toISOString(),dim,winner:winner.name,loser:loser.name,winner_elo:getResElo(winner.id,dim),loser_elo:getResElo(loser.id,dim)});
+  const row={ts:new Date().toISOString(),dim,winner:winner.name,loser:loser.name,winner_elo:getResElo(winner.id,dim),loser_elo:getResElo(loser.id,dim)};
+  resState.comparisons.push(row);
+  postNetlify('research-vote', row);
   resState.count++;
   document.getElementById('resCount').textContent=resState.count;
   document.getElementById('resTotalCount').textContent=resState.comparisons.length;

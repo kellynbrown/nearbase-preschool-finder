@@ -361,6 +361,20 @@ body.nbv3-open .nbv3-mobile{display:flex}
 </div>
 
 
+<!-- Static form so Netlify detects ranking votes. Each comparison is posted in the background. -->
+<form name="ranking-vote" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="ranking-vote">
+  <p hidden><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
+  <input type="text" name="ts">
+  <input type="text" name="dim">
+  <input type="text" name="winner_name">
+  <input type="text" name="loser_name">
+  <input type="text" name="winner_id">
+  <input type="text" name="loser_id">
+  <input type="text" name="winner_elo">
+  <input type="text" name="loser_elo">
+</form>
+
 <section class="nbcap">
   <div class="nbcap-in">
     <div>
@@ -432,6 +446,20 @@ const DIMS=[
 let eloScores={},comparisons=[],sessionCount=0,currentDimIdx=0,currentA=null,currentB=null,choosing=false,sessionMax=25;
 function initElo(){SCHOOLS.forEach(s=>{DIMS.forEach(d=>{const k=`${s.id}_${d.id}`;if(!eloScores[k])eloScores[k]=1200;});});try{const sv=localStorage.getItem('nb_elo'),sc=localStorage.getItem('nb_comps');if(sv)eloScores=JSON.parse(sv);if(sc)comparisons=JSON.parse(sc);}catch(e){}}
 function saveState(){try{localStorage.setItem('nb_elo',JSON.stringify(eloScores));localStorage.setItem('nb_comps',JSON.stringify(comparisons));}catch(e){}}
+function postNetlify(formName, fields){
+  try{
+    const body=new URLSearchParams();
+    body.set('form-name', formName);
+    Object.keys(fields).forEach(function(k){
+      const v=fields[k];
+      body.set(k, v==null?'':String(v));
+    });
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString(),keepalive:true}).catch(function(){});
+  }catch(e){}
+}
+function postRanking(row){
+  postNetlify('ranking-vote',{ts:row.ts,dim:row.dim,winner_name:row.winner_name,loser_name:row.loser_name,winner_id:row.winner_id,loser_id:row.loser_id,winner_elo:row.winner_elo,loser_elo:row.loser_elo});
+}
 function getElo(sid,did){return eloScores[`${sid}_${did}`]||1200;}
 function updateElo(wid,lid,did,K=32){const Ra=getElo(wid,did),Rb=getElo(lid,did),Ea=1/(1+Math.pow(10,(Rb-Ra)/400));eloScores[`${wid}_${did}`]=Math.round(Ra+K*(1-Ea));eloScores[`${lid}_${did}`]=Math.round(Rb+K*(0-(1-Ea)));}
 function pickPair(){const dim=DIMS[currentDimIdx].id;const sorted=[...SCHOOLS].sort((a,b)=>getElo(b.id,dim)-getElo(a.id,dim));const offset=Math.floor(Math.random()*(sorted.length-1));const a=sorted[offset],b=sorted[offset+1];return Math.random()>.5?[a,b]:[b,a];}
@@ -440,9 +468,9 @@ function renderQuestion(){const d=DIMS[currentDimIdx];document.getElementById('d
 function renderCard(side,s){document.getElementById(`name${side}`).textContent=s.name;document.getElementById(`loc${side}`).textContent=`📍 ${s.loc} · ${s.zone}`;document.getElementById(`tag${side}`).textContent=s.type;document.getElementById(`photo${side}`).style.background=`linear-gradient(135deg,${s.bg},#b8e0ce)`;document.getElementById(`facts${side}`).innerHTML=s.facts.map(f=>`<div class="card-fact">${f}</div>`).join('');document.getElementById(`tags${side}`).innerHTML=s.tags.map(t=>`<div class="ctag">${t}</div>`).join('');document.getElementById(`card${side}`).classList.remove('winner','loser');}
 function renderScoreboard(){const dim=DIMS[currentDimIdx].id;const ranked=[...SCHOOLS].sort((a,b)=>getElo(b.id,dim)-getElo(a.id,dim));const maxE=getElo(ranked[0].id,dim),minE=getElo(ranked[ranked.length-1].id,dim),range=maxE-minE||1;document.getElementById('sbBody').innerHTML=ranked.map((s,i)=>{const elo=getElo(s.id,dim),pct=Math.round(((elo-minE)/range)*100);return`<div class="sb-row"><div class="sb-rank ${i<3?'top':''}">${i+1}</div><div><div class="sb-name">${s.name}</div><div class="sb-loc">${s.loc}</div></div><div class="sb-elo">${elo}</div><div><div class="sb-bar"><div class="sb-bar-fill" style="width:${pct}%"></div></div></div></div>`;}).join('');}
 function loadPair(){if(sessionCount>=sessionMax){showComplete();return;}[currentA,currentB]=pickPair();renderCard('A',currentA);renderCard('B',currentB);choosing=false;}
-function choose(side){if(choosing)return;choosing=true;const winner=side==='A'?currentA:currentB,loser=side==='A'?currentB:currentA,dim=DIMS[currentDimIdx].id;updateElo(winner.id,loser.id,dim);comparisons.push({ts:new Date().toISOString(),dim,winner_name:winner.name,loser_name:loser.name,winner_id:winner.id,loser_id:loser.id,winner_elo:getElo(winner.id,dim),loser_elo:getElo(loser.id,dim)});sessionCount++;saveState();updateProgress();renderScoreboard();document.getElementById(`card${side}`).classList.add('winner');document.getElementById(`card${side==='A'?'B':'A'}`).classList.add('loser');showToast(`✓ ${winner.name} wins`,'green');setTimeout(()=>loadPair(),650);}
+function choose(side){if(choosing)return;choosing=true;const winner=side==='A'?currentA:currentB,loser=side==='A'?currentB:currentA,dim=DIMS[currentDimIdx].id;updateElo(winner.id,loser.id,dim);const row={ts:new Date().toISOString(),dim,winner_name:winner.name,loser_name:loser.name,winner_id:winner.id,loser_id:loser.id,winner_elo:getElo(winner.id,dim),loser_elo:getElo(loser.id,dim)};comparisons.push(row);sessionCount++;saveState();postRanking(row);updateProgress();renderScoreboard();document.getElementById(`card${side}`).classList.add('winner');document.getElementById(`card${side==='A'?'B':'A'}`).classList.add('loser');showToast(`✓ ${winner.name} wins`,'green');setTimeout(()=>loadPair(),650);}
 function skipPair(){loadPair();}
-function markTie(){comparisons.push({ts:new Date().toISOString(),dim:DIMS[currentDimIdx].id,winner_name:'TIE',loser_name:`${currentA.name} vs ${currentB.name}`,winner_id:null,loser_id:null});sessionCount++;saveState();updateProgress();showToast('Marked as too close to call','');setTimeout(()=>loadPair(),400);}
+function markTie(){const row={ts:new Date().toISOString(),dim:DIMS[currentDimIdx].id,winner_name:'TIE',loser_name:`${currentA.name} vs ${currentB.name}`,winner_id:null,loser_id:null,winner_elo:'',loser_elo:''};comparisons.push(row);sessionCount++;saveState();postRanking(row);updateProgress();showToast('Marked as too close to call','');setTimeout(()=>loadPair(),400);}
 function nextDim(){currentDimIdx=(currentDimIdx+1)%DIMS.length;renderDimTabs();renderQuestion();renderScoreboard();loadPair();}
 function setDim(i){currentDimIdx=i;renderDimTabs();renderQuestion();renderScoreboard();loadPair();}
 function updateProgress(){const pct=(sessionCount/sessionMax)*100;document.getElementById('progFill').style.width=pct+'%';document.getElementById('progLabel').textContent=`${sessionCount} / ${sessionMax} this session`;}

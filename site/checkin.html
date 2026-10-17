@@ -413,6 +413,25 @@ body.nbv3-open .nbv3-mobile{display:flex}
 </div>
 
 
+<!-- Static form so Netlify detects check-in fields. The survey posts this in the background. -->
+<form name="checkin" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="checkin">
+  <p hidden><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
+  <input type="text" name="school_id">
+  <input type="text" name="school_name">
+  <input type="text" name="replied">
+  <input type="text" name="response_time">
+  <input type="text" name="waitlist">
+  <input type="text" name="tuition">
+  <input type="text" name="mccyn">
+  <input type="text" name="efmp">
+  <input type="text" name="mil_discount">
+  <input type="text" name="sibling">
+  <input type="text" name="quick_note">
+  <textarea name="note"></textarea>
+  <input type="text" name="ts">
+</form>
+
 <section class="nbcap">
   <div class="nbcap-in">
     <div>
@@ -512,12 +531,28 @@ function quickNote(btn,val){
   data.quick_note=val;
 }
 function updateChar(el){document.getElementById('charCount').textContent=el.value.length;}
+function postNetlify(formName, fields){
+  try{
+    const body=new URLSearchParams();
+    body.set('form-name', formName);
+    Object.keys(fields).forEach(function(k){
+      const v=fields[k];
+      body.set(k, v==null?'':String(v));
+    });
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString(),keepalive:true}).catch(function(){});
+  }catch(e){}
+}
 function submit(){
   data.note=document.getElementById('freeNote').value;
   data.ts=new Date().toISOString();
   submissions.push({...data});
   try{localStorage.setItem('nb_checkins',JSON.stringify(submissions));}catch(e){}
   document.getElementById('subCount').textContent=submissions.length;
+  postNetlify('checkin',{
+    school_id:data.school_id,school_name:data.school_name,replied:data.replied,response_time:data.response_time,waitlist:data.waitlist,tuition:data.tuition,
+    mccyn:data.mccyn?'yes':'no',efmp:data.efmp?'yes':'no',mil_discount:data.mil_discount?'yes':'no',sibling:data.sibling?'yes':'no',
+    quick_note:data.quick_note,note:data.note,ts:data.ts
+  });
   showThankyou();
 }
 function showThankyou(){
