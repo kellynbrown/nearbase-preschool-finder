@@ -122,14 +122,33 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .school-card.loser{opacity:.38;transform:scale(.98)}
 @keyframes winPop{0%{transform:scale(1)}50%{transform:scale(1.025)}100%{transform:scale(1)}}
 
-/* AI IMAGE PLACEHOLDER */
-.school-image{height:200px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:flex-end}
-.school-image-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .3s ease}
+/* TOUR-STYLE PHOTO */
+.school-image{height:220px;position:relative;overflow:hidden;flex-shrink:0;background:#d7ebe3}
+.school-image-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .3s ease}
+.school-image-bg.pos-montessori,.school-image-bg.pos-play{object-position:center 42%}
+.school-image-bg.pos-waldorf{object-position:center 28%}
+.school-image-bg.pos-nature{object-position:center 58%}
 .school-card:hover .school-image-bg{transform:scale(1.03)}
-.school-image-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,80,65,0.6) 0%,transparent 60%)}
-.school-image-label{position:relative;padding:.625rem 1rem;font-size:.7rem;font-weight:600;color:white;letter-spacing:.5px;text-transform:uppercase;z-index:1}
-.school-image-tag{position:absolute;top:.75rem;left:.75rem;background:rgba(255,255,255,0.92);color:var(--dark);font-size:.65rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;letter-spacing:.3px}
-.ai-badge{position:absolute;top:.75rem;right:.75rem;background:rgba(8,80,65,0.85);color:rgba(255,255,255,0.8);font-size:.6rem;font-weight:600;padding:.2rem .6rem;border-radius:100px;letter-spacing:.3px}
+.school-image-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,80,65,0.62) 0%,transparent 58%);z-index:1}
+.school-image-label{position:absolute;left:.75rem;bottom:.55rem;right:7.2rem;font-size:.7rem;font-weight:600;color:white;letter-spacing:.4px;text-transform:uppercase;z-index:2}
+.school-image-tag{position:absolute;top:.75rem;left:.75rem;background:rgba(255,255,255,0.92);color:var(--dark);font-size:.65rem;font-weight:700;padding:.25rem .7rem;border-radius:100px;letter-spacing:.3px;z-index:2}
+.ai-badge{position:absolute;top:.75rem;right:.75rem;background:rgba(8,80,65,0.85);color:rgba(255,255,255,0.8);font-size:.6rem;font-weight:600;padding:.2rem .6rem;border-radius:100px;letter-spacing:.3px;z-index:2}
+.photo-cap{position:absolute;right:.6rem;bottom:.55rem;z-index:2;background:rgba(8,80,65,.82);color:#fff;font-size:.62rem;font-weight:600;padding:.16rem .5rem;border-radius:100px}
+.cost-hours{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
+.cost-hours > div{background:var(--light);border-radius:10px;padding:.55rem .65rem}
+.cost-hours strong{display:block;font-size:.84rem;color:var(--dark);line-height:1.25}
+.cost-hours em{display:block;font-style:normal;font-size:.68rem;color:var(--muted);line-height:1.35;margin-top:.12rem}
+.photo-credit{font-size:.72rem;color:var(--muted);text-align:center;margin:0 0 1.1rem;line-height:1.45}
+.photo-credit a{color:var(--green)}
+.live-patterns{display:grid;gap:.45rem;margin-bottom:.9rem}
+.live-patterns div{background:#fff;border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem}
+.live-patterns span{display:block;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--green);font-weight:700}
+.live-patterns strong{display:block;font-size:.78rem;color:var(--dark);font-weight:500;line-height:1.35;margin-top:.12rem}
+.fp-head{display:grid;gap:.6rem;margin-bottom:.85rem}
+.fp-chip{background:rgba(255,255,255,.08);border-radius:12px;padding:.8rem .95rem}
+.fp-chip span{display:block;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:.22rem}
+.fp-chip strong{display:block;font-size:.98rem;font-weight:500;color:#fff;line-height:1.35}
+.fp-note{font-size:.78rem;color:rgba(255,255,255,.75);line-height:1.45;margin:0 0 1rem}
 
 /* SCHOOL DATA */
 .school-body{padding:1.25rem 1.25rem 1rem;flex:1;display:flex;flex-direction:column}
@@ -162,6 +181,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .act-btn:hover{border-color:var(--green);color:var(--green)}
 
 /* PREFERENCE PROFILE */
+.quiz-layout{display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start}
 .profile-panel{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:1.5rem;position:sticky;top:200px}
 .profile-title{font-family:'Fraunces',serif;font-size:1rem;color:var(--dark);margin-bottom:.25rem}
 .profile-sub{font-size:.72rem;color:var(--muted);margin-bottom:1.25rem}
@@ -253,7 +273,8 @@ footer{background:#021f19;padding:2.5rem 2rem}
 .footer-links a{font-size:.8rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s}.footer-links a:hover{color:rgba(255,255,255,0.7)}
 .footer-copy{font-size:.75rem;color:rgba(255,255,255,0.25)}
 
-@media(max-width:900px){.vs-grid{grid-template-columns:1fr}.vs-divider{flex-direction:row}.vs-line{width:30px;height:1px;min-height:unset}.research-layout{grid-template-columns:1fr}.research-controls{position:static}.results-grid{grid-template-columns:1fr 1fr}.setup-form{grid-template-columns:1fr}.nav-links{display:none}}
+@media(max-width:900px){.quiz-layout{grid-template-columns:1fr}.profile-panel{position:static}.vs-grid{grid-template-columns:1fr}.vs-divider{flex-direction:row}.vs-line{width:30px;height:1px;min-height:unset}.research-layout{grid-template-columns:1fr}.research-controls{position:static}.results-grid{grid-template-columns:1fr 1fr}.setup-form{grid-template-columns:1fr}.nav-links{display:none}.school-image{height:200px}.fp-label{width:108px}}
+@media(max-width:640px){.school-image{height:188px}.cost-hours{grid-template-columns:1fr}.quiz-area{padding:1.25rem 1rem 2rem}.school-image-label{right:6.6rem}}
 </style>
 
 <style id="nbv3-css">
@@ -346,7 +367,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
     <div class="section-inner" style="max-width:760px;margin:0 auto">
       <div class="section-label">Premium feature · Preference quiz</div>
       <div class="section-title">Help us understand<br><em>what your family values.</em></div>
-      <div class="section-sub">We'll show you pairs of AI-generated schools — never real schools in your area. Your choices reveal your family's true preferences. We use that fingerprint to re-rank your real matches.</div>
+      <div class="section-sub">We'll show you pairs of example schools — never real schools in your area. Photos are from a school tour, not of a named school. Your choices reveal what your family keeps picking, including cost and hours. We use that fingerprint to re-rank your real matches.</div>
 
       <div class="setup-card">
         <div class="setup-title">Who's taking this quiz?</div>
@@ -400,6 +421,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
               <option value="any">Flexible</option>
               <option value="early">Open by 6:30am</option>
               <option value="duty">Duty day, about 7am–6pm</option>
+              <option value="school">School day, about 8:30am–3pm</option>
               <option value="half">Half day is fine</option>
             </select>
           </div>
@@ -440,7 +462,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start">
+      <div class="quiz-layout">
         <div>
           <div class="vs-grid" id="vsGrid">
             <!-- Cards injected by JS -->
@@ -458,6 +480,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
             <button class="act-btn" onclick="markQuizTie()">≈ Both equally good</button>
             <button class="act-btn" onclick="nextQuizDim()">Switch dimension ↕</button>
           </div>
+          <p class="photo-credit">Photos: Unsplash / Pexels. Illustrative only — not pictures of these schools. <a href="img/quiz/CREDITS.md">Photo credits</a></p>
         </div>
 
         <!-- LIVE PREFERENCE PROFILE -->
@@ -498,6 +521,8 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <div class="ps-row" id="psSplit"></div>
     </div>
 
+    <p class="photo-credit">Photos: Unsplash / Pexels. Illustrative only — not pictures of these schools. <a href="img/quiz/CREDITS.md">Photo credits</a></p>
+
     <div class="results-btns">
       <button class="btn-primary" onclick="retakeQuiz()">Retake quiz to sharpen results</button>
       <button class="btn-primary gold" onclick="location.href='/find'">See these matches on the map</button>
@@ -516,6 +541,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <div class="section-label">Community research tool</div>
       <div class="section-title">Help rank real NCR schools<br><em>for every military family.</em></div>
       <div class="section-sub" style="margin-bottom:1.5rem">You're rating actual preschools on specific dimensions. Your votes are aggregated anonymously and feed the community rankings visible at <a href='/rankings' style='color:var(--green)'>rankings.html</a>. No family quiz data is used here — these are two completely separate systems.</div>
+      <p class="photo-credit">Photos: Unsplash / Pexels. Illustrative only — not pictures of these schools. <a href="img/quiz/CREDITS.md">Photo credits</a></p>
 
       <div id="researchDimStrip" style="display:flex;gap:.625rem;flex-wrap:wrap;margin-bottom:1.5rem"></div>
 
@@ -603,7 +629,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <a href='/checkin'>Pay it forward</a>
       <a href='/about'>About</a>
     </div>
-    <div class="footer-copy">© 2026 NearBase · kellybrown@nearbase.net</div>
+    <div class="footer-copy">© 2026 NearBase · kelly@nearbase.net</div>
   </div>
 </footer>
 
@@ -625,124 +651,153 @@ const DIMS = [
 ];
 
 // ═══════════════════════════════════════════════
-// AI SCHOOL GENERATOR — synthetic profiles
+// EXAMPLE SCHOOLS — fictional profiles, real photos
 // ═══════════════════════════════════════════════
-const SCHOOL_TEMPLATES = {
-  urban: {
-    settings: ['Downtown Arts District','Urban Core','City Center','Near Transit Hub','Historic Neighborhood'],
-    images: [
-      'linear-gradient(160deg,#2C3E50 0%,#3498DB 100%)',
-      'linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',
-      'linear-gradient(160deg,#2d3436 0%,#636e72 100%)',
-      'linear-gradient(160deg,#192a56 0%,#273c75 100%)',
-    ],
-    imageLabels: ['Urban campus','City location','Downtown setting','Urban neighborhood'],
-    nameTypes: ['Academy','Institute','Center for Early Learning','Children\'s House','Learning Studio'],
-    adjectives: ['Metropolitan','Civic','Urban','City','Progressive','Contemporary'],
-    facts: ['Walking distance to transit','Multi-story building with rooftop garden','Urban nature integration program','City community partnerships'],
-  },
-  suburban: {
-    settings: ['Tree-lined suburb','Quiet neighborhood','Established suburb','Near community park','Residential area'],
-    images: [
-      'linear-gradient(160deg,#27ae60 0%,#2ecc71 100%)',
-      'linear-gradient(160deg,#1e8449 0%,#27ae60 100%)',
-      'linear-gradient(160deg,#145a32 0%,#1e8449 50%,#27ae60 100%)',
-      'linear-gradient(160deg,#0B5345 0%,#148F77 100%)',
-    ],
-    imageLabels: ['Suburban campus','Treeline setting','Neighborhood school','Residential campus'],
-    nameTypes: ['Montessori School','Academy','Learning Village','Children\'s Garden','Discovery School'],
-    adjectives: ['Meadow','Willow','Oak','Cedar','Maple','Birch','Sunrise'],
-    facts: ['Large fenced playground','Dedicated nature trail on campus','Parking + drop-off loop','Family garden program'],
-  },
-  rural: {
-    settings: ['Rural property','Farm setting','Nature preserve area','Wooded campus','Open countryside'],
-    images: [
-      'linear-gradient(160deg,#7D6608 0%,#B7950B 100%)',
-      'linear-gradient(160deg,#4A235A 0%,#6C3483 100%)',
-      'linear-gradient(160deg,#1B4F72 0%,#2E86C1 100%)',
-      'linear-gradient(160deg,#117A65 0%,#1ABC9C 100%)',
-    ],
-    imageLabels: ['Rural campus','Farm setting','Nature campus','Country school'],
-    nameTypes: ['Farm School','Nature School','Waldorf School','Forest Academy','Country Montessori'],
-    adjectives: ['Harvest','Meadow','Sunrise','Woodland','Country','Heritage','Pioneer'],
-    facts: ['5-acre campus with animals','Forest classroom used daily','Organic school garden','No screen time policy'],
-  },
+const QUIZ_PHOTOS = {
+  montessori: { file:'montessori', w:1200, h:1800, alt:'Low wooden shelves of puzzles and blocks in a quiet classroom, beside a window and a small rug.' },
+  reggio: { file:'reggio', w:1200, h:800, alt:'Child-sized tables and a wooden play kitchen in a calm, uncluttered classroom.' },
+  play: { file:'play', w:1200, h:1800, alt:'Hands stacking wooden blocks on a wood floor.' },
+  waldorf: { file:'waldorf', w:1200, h:1800, alt:'An outdoor wooden reading corner with crates of books and a folding chair.' },
+  academic: { file:'academic', w:1200, h:800, alt:'A preschool room with a chalkboard, low tables, and a row of small green chairs.' },
+  nature: { file:'nature', w:1200, h:1600, alt:'A log climbing structure in a gravel yard under tall trees.' },
+  center: { file:'center', w:1200, h:801, alt:'A bright classroom with picture books, low shelves, and wooden nap cots.' },
+  home: { file:'home', w:1200, h:801, alt:'A caregiver and children playing with blocks on a rug beside a large window.' },
+  yard: { file:'yard', w:1200, h:900, alt:'A wooden swing set and climbing fort in a grassy fenced yard.' },
+  urban: { file:'urban', w:1200, h:800, alt:'Children playing in a brick schoolyard, seen across the court.' }
 };
 
-const CURRICULUMS = [
-  { type:'Montessori AMI', tags:['AMI-certified','Mixed age','Child-led'], ratio:'1:8', desc:'Authentic Montessori method with AMI-certified lead teachers. Mixed-age classrooms, 3-year cycles, child-directed learning environment.' },
-  { type:'Reggio Emilia', tags:['Project-based','Studio art','Documentation'], ratio:'1:7', desc:'Reggio-inspired project-based learning. Strong arts integration, teacher as researcher, beautiful prepared environment.' },
-  { type:'Play-based', tags:['Unstructured play','Social-emotional','Child-led'], ratio:'1:8', desc:'Child-directed play with rich materials. Emphasis on social-emotional development, creative expression, and joyful learning.' },
-  { type:'Waldorf', tags:['Rhythmic day','Arts','No screens'], ratio:'1:10', desc:'Steiner-inspired curriculum with daily rhythms, seasonal celebrations, handwork, and artistic integration throughout.' },
-  { type:'Academic prep', tags:['Structured','Phonics','Math readiness'], ratio:'1:12', desc:'Structured literacy and numeracy preparation. Daily circle time, small group instruction, clear kindergarten readiness goals.' },
-  { type:'Nature-based', tags:['Outdoor learning','Forest school','Seasonal'], ratio:'1:6', desc:'Outdoor learning as the primary classroom. Rain or shine, children learn through direct experience with the natural world.' },
-  { type:'Bilingual',tags:['Dual language','Immersion','Cultural'], ratio:'1:9', desc:'Dual language immersion from day one. Both languages used equally throughout the school day by native-speaking teachers.' },
+const COST_OPTIONS = {
+  free: { id:'free', label:'Free', detail:'Public Pre-K, charter, or Head Start' },
+  assist: { id:'assist', label:'Fee assistance', detail:'MCCYN or subsidy, if you qualify' },
+  mid: { id:'mid', label:'About $900–$1,600/mo', detail:'Typical full-day range, not a quote' },
+  high: { id:'high', label:'About $2,000+/mo', detail:'Higher private range, not a quote' }
+};
+const HOUR_OPTIONS = {
+  half: { id:'half', label:'Half day', detail:'9:00am–12:30pm' },
+  school: { id:'school', label:'School day', detail:'8:30am–3:00pm' },
+  full: { id:'full', label:'Full day', detail:'7:30am–5:30pm' },
+  extended: { id:'extended', label:'Extended day', detail:'6:30am–6:00pm' }
+};
+
+const PROGRAMS = [
+  { id:'montessori', type:'Montessori AMI', photo:'montessori', setting:'suburban', tags:['AMI-style','Mixed age','Child-led'], ratio:'1:8', desc:'A calm Montessori-style room: low shelves, mixed ages, and work the child chooses. The cost line is a tier, not a bill from a real school.', costs:['high','mid'], hours:['school','full'] },
+  { id:'reggio', type:'Reggio Emilia', photo:'reggio', setting:'urban', tags:['Project-based','Studio','Prepared space'], ratio:'1:7', desc:'A prepared environment with light, art materials, and small-group projects. The cost line is a tier, not a quote.', costs:['high','mid'], hours:['school','full'] },
+  { id:'play', type:'Play-based', photo:'play', setting:'suburban', tags:['Open-ended play','Blocks','Hands-on'], ratio:'1:8', desc:'A play-based room full of blocks and materials children can reach themselves. The cost line is a tier, not a quote.', costs:['mid','high'], hours:['full','extended'] },
+  { id:'waldorf', type:'Waldorf', photo:'waldorf', setting:'rural', tags:['Rhythm','Outdoors','Reading nook'], ratio:'1:10', desc:'A slower day with time outside and a wooden reading corner. The cost line is a tier, not a quote.', costs:['mid','high'], hours:['half','school'] },
+  { id:'academic', type:'Academic prep', photo:'academic', setting:'suburban', tags:['Circle time','Letters','Small groups'], ratio:'1:12', desc:'A structured classroom with a chalkboard, small tables, and a clear morning routine. The cost line is a tier, not a quote.', costs:['mid'], hours:['school','full'] },
+  { id:'nature', type:'Nature-based', photo:'nature', setting:'rural', tags:['Outdoor learning','Logs and gravel','Rain or shine'], ratio:'1:6', desc:'Most of the day is outside, with climbing logs under trees. The cost line is a tier, not a quote.', costs:['mid','high'], hours:['school','half'] },
+  { id:'bilingual', type:'Bilingual', photo:'center', setting:'urban', tags:['Two languages','Books','Group care'], ratio:'1:9', desc:'Two languages through the day, in a bright room with books children can reach. The cost line is a tier, not a quote.', costs:['mid','assist'], hours:['full','school'] },
+  { id:'center', type:'Center-style day', photo:'center', setting:'suburban', tags:['Group care','Nap cots','Long hours'], ratio:'1:8', desc:'A center-style full day with a nap room and long coverage. Fee help may apply if you qualify. This is not a photo of a base CDC.', costs:['assist','free'], hours:['extended','full'] },
+  { id:'home', type:'Home-based care', photo:'home', setting:'suburban', tags:['Small group','Caregiver nearby','Family setting'], ratio:'1:4', desc:'Care in a home, with a small group and a caregiver close by. Hours and cost are examples, not a listing.', costs:['mid','assist'], hours:['full','extended'] },
+  { id:'public', type:'Public Pre-K', photo:'academic', setting:'urban', tags:['Free seat','School day','Lottery'], ratio:'1:10', desc:'A free public seat, such as Pre-K or Head Start, on a school-day schedule. Illustrative only.', costs:['free'], hours:['school','half'] },
+  { id:'yard', type:'Play-yard program', photo:'yard', setting:'suburban', tags:['Swings','Fenced yard','Full day'], ratio:'1:8', desc:'A grassy fenced yard with a wooden fort and swings, and a full day inside when the weather turns. The cost line is a tier, not a quote.', costs:['mid'], hours:['full','extended'] },
+  { id:'urban', type:'City schoolyard', photo:'urban', setting:'urban', tags:['Brick school','Schoolyard','Neighborhood'], ratio:'1:10', desc:'A neighborhood school with a brick schoolyard. The cost tier is an example, not a bill from a real school.', costs:['assist','mid'], hours:['school','full'] }
 ];
 
-const TUITION_BANDS = ['$900–$1,200/mo','$1,200–$1,600/mo','$1,600–$2,000/mo','$2,000–$2,500/mo','$2,500+/mo','Free (public charter)'];
-const ENROLLMENTS = ['18 children total','24 children total','32 children total','48 children total','60 children total','80+ children total'];
-const HOURS = ['7:30am–5:30pm','7am–6pm','8am–5pm','8:30am–3pm (+ aftercare)','7am–5pm'];
-const SPECIALS = ['On-site speech therapy','Spanish enrichment','Music & movement daily','Yoga & mindfulness','Cooking class weekly','Sign language integration','STEM maker space','Artist in residence'];
-const MILITARY_FLAGS = [['🪖 MCCYN accepted','🎖️ Mid-year enrollment welcome'],['✅ DoD fee assistance','📋 PCS portfolio transfer'],['🪖 Military family discount','⚡ Flexible enrollment windows'],[],[]];
+const SETTINGS = {
+  urban: ['Downtown neighborhood','Near a transit stop','City block'],
+  suburban: ['Tree-lined suburb','Quiet residential street','Near a community park'],
+  rural: ['Wooded edge of town','Open countryside','Farm-road setting']
+};
+const NAME_BITS = {
+  montessori: ["Willow Children's House",'Cedar Prepared Room','Maple Work Cycle'],
+  reggio: ['Atelier Studio','North Light Atelier','Paper and Clay Studio'],
+  play: ['Block and Blanket Room','Open Play House','Toy Shelf Co-op'],
+  waldorf: ['Harvest Rhythm School','Lantern Day School','Birch Circle'],
+  academic: ['Ready Readers Room','Letter Table School','Circle Time House'],
+  nature: ['Log Yard Forest School','Rain-or-Shine Woods','Pebble Path School'],
+  bilingual: ['Two-Language Room','Story Bridge School','Hello and Hola House'],
+  center: ["Long-Day Children's Center",'Nap Room Center','All-Day Center'],
+  home: ['Front-Porch Family Care','Kitchen-Table Care','Little House Care'],
+  public: ['Neighborhood Pre-K','Free Seat Classroom','Public Early Room'],
+  yard: ['Swing-Set Yard School','Fort and Grass School','Back-Field Play School'],
+  urban: ['Brick Schoolyard','Corner-Lot Early School','Stoop and Schoolyard']
+};
+const ENROLLMENTS = ['18 children','24 children','32 children','48 children','60 children'];
+const PHILOSOPHY_VOTE_IDS = ['montessori','reggio','play','waldorf','academic','nature','bilingual'];
 
 function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function randN(arr,n){ const s=[...arr].sort(()=>Math.random()-.5); return s.slice(0,n); }
 
-function generateSchool(idx){
-  const settingType = rand(['urban','suburban','suburban','rural']);
-  const tmpl = SCHOOL_TEMPLATES[settingType];
-  const curr = rand(CURRICULUMS);
-  const adj = rand(tmpl.adjectives);
-  const nameType = rand(tmpl.nameTypes);
-  const name = `${adj} ${nameType}`;
-  const setting = rand(tmpl.settings);
-  const imgBg = rand(tmpl.images);
-  const imgLabel = rand(tmpl.imageLabels);
-  const milFlags = rand(MILITARY_FLAGS);
-  const specials = randN(SPECIALS,2);
-  const facts = [...tmpl.facts.slice(0,2), ...specials.slice(0,1)];
-  if(milFlags.length) facts.push(milFlags[0]);
-
+function emptyVotes(){
   return {
-    name, settingType, setting, imgBg, imgLabel,
-    curriculum: curr.type, currDesc: curr.desc,
-    tags: curr.tags, ratio: curr.ratio,
-    tuition: rand(TUITION_BANDS),
-    enrollment: rand(ENROLLMENTS),
-    hours: rand(HOURS),
-    facts,
-    milFlags,
+    urban:0, suburban:0, rural:0,
+    montessori:0, reggio:0, play:0, waldorf:0, academic:0, nature:0, bilingual:0,
+    small:0, large:0,
+    cost_free:0, cost_assist:0, cost_mid:0, cost_high:0,
+    hours_half:0, hours_school:0, hours_full:0, hours_extended:0
   };
 }
 
+function generateSchool(program){
+  const cost = COST_OPTIONS[rand(program.costs)];
+  const hours = HOUR_OPTIONS[rand(program.hours)];
+  return {
+    name: rand(NAME_BITS[program.id]),
+    settingType: program.setting,
+    setting: rand(SETTINGS[program.setting]),
+    programId: program.id,
+    photo: QUIZ_PHOTOS[program.photo],
+    curriculum: program.type,
+    currDesc: program.desc,
+    tags: program.tags.slice(),
+    ratio: program.ratio,
+    cost: cost,
+    hours: hours,
+    enrollment: rand(ENROLLMENTS)
+  };
+}
+
+function generatePair(){
+  const aProg = rand(PROGRAMS);
+  let pool = PROGRAMS.filter(p => p.id !== aProg.id && p.photo !== aProg.photo);
+  if(!pool.length) pool = PROGRAMS.filter(p => p.id !== aProg.id);
+  const bProg = rand(pool);
+  const a = generateSchool(aProg);
+  const b = generateSchool(bProg);
+  if(a.cost.id === b.cost.id && a.hours.id === b.hours.id){
+    const otherHour = bProg.hours.find(id => id !== a.hours.id);
+    if(otherHour) b.hours = HOUR_OPTIONS[otherHour];
+    else {
+      const otherCost = ['free','assist','mid','high'].find(id => id !== a.cost.id);
+      b.cost = COST_OPTIONS[otherCost];
+    }
+  }
+  if(a.name === b.name) b.name = NAME_BITS[bProg.id].find(n => n !== a.name) || b.name;
+  return [a, b];
+}
+
 function buildCard(school, side, mode='quiz'){
+  const esc = NearBaseMatch.esc;
   const chooseLabel = mode==='quiz' ? 'This school fits us better →' : 'This school wins →';
   const onclick = mode==='quiz' ? `quizChoose('${side}')` : `resChoose('${side}')`;
+  const photo = school.photo;
   return `<div class="school-card" id="card${side}" onclick="${onclick}">
-    <div class="school-image" style="background:${school.imgBg}">
+    <div class="school-image">
+      <img class="school-image-bg pos-${photo.file}" src="img/quiz/${photo.file}-640.webp" srcset="img/quiz/${photo.file}-640.webp 640w, img/quiz/${photo.file}-1200.webp 1200w" sizes="(max-width:700px) 100vw, 480px" width="${photo.w}" height="${photo.h}" alt="${esc(photo.alt)}" loading="lazy" decoding="async">
       <div class="school-image-overlay"></div>
-      <div class="school-image-tag">${school.settingType.charAt(0).toUpperCase()+school.settingType.slice(1)} setting</div>
-      <div class="ai-badge">AI generated</div>
-      <div class="school-image-label">📍 ${school.setting}</div>
+      <div class="school-image-tag">${esc(school.settingType)} setting</div>
+      <div class="ai-badge">Example</div>
+      <div class="school-image-label">${esc(school.setting)}</div>
+      <span class="photo-cap">Illustrative photo</span>
     </div>
     <div class="school-body">
-      <div class="school-name">${school.name}</div>
-      <div class="school-type">${school.curriculum}</div>
+      <div class="school-name">${esc(school.name)}</div>
+      <div class="school-type">${esc(school.curriculum)}</div>
+      <div class="cost-hours">
+        <div><div class="stat-item-label">Cost</div><strong>${esc(school.cost.label)}</strong><em>${esc(school.cost.detail)}</em></div>
+        <div><div class="stat-item-label">Hours</div><strong>${esc(school.hours.label)}</strong><em>${esc(school.hours.detail)}</em></div>
+      </div>
       <div class="school-stats">
-        <div class="stat-item"><div class="stat-item-label">Enrollment</div><div class="stat-item-val">${school.enrollment}</div></div>
-        <div class="stat-item"><div class="stat-item-label">Ratio</div><div class="stat-item-val">${school.ratio}</div></div>
-        <div class="stat-item"><div class="stat-item-label">Tuition</div><div class="stat-item-val">${school.tuition}</div></div>
-        <div class="stat-item"><div class="stat-item-label">Hours</div><div class="stat-item-val">${school.hours}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Enrollment</div><div class="stat-item-val">${esc(school.enrollment)}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Ratio</div><div class="stat-item-val">${esc(school.ratio)}</div></div>
       </div>
-      <div class="school-desc">${school.currDesc}</div>
-      <div class="school-tags">
-        ${school.tags.map(t=>`<span class="stag">${t}</span>`).join('')}
-        ${school.milFlags.slice(0,1).map(f=>`<span class="stag">${f}</span>`).join('')}
-      </div>
+      <div class="school-desc">${esc(school.currDesc)}</div>
+      <div class="school-tags">${school.tags.map(t=>`<span class="stag">${esc(t)}</span>`).join('')}</div>
     </div>
     <button class="choose-btn" onclick="${onclick};event.stopPropagation()">${chooseLabel}</button>
   </div>`;
 }
+
 
 // ═══════════════════════════════════════════════
 // QUIZ STATE
@@ -752,7 +807,7 @@ let quizState = {
   count: 0, total: 15,
   prefs: { vibe:{urban:0,suburban:0,rural:0}, campus:{urban:0,suburban:0,rural:0}, program:{}, community:{}, practical:{} },
   currA: null, currB: null, choosing: false,
-  votes: { urban:0, suburban:0, rural:0, montessori:0, reggio:0, play:0, waldorf:0, academic:0, nature:0, bilingual:0, small:0, large:0, free:0, structured:0 },
+  votes: emptyVotes(),
   situation: null,
   choices: [],
 };
@@ -801,13 +856,9 @@ function renderDimChips(){
 
 function loadQuizPair(){
   if(quizState.count >= quizState.total){ finishQuiz(); return; }
-  quizState.currA = generateSchool('A');
-  quizState.currB = generateSchool('B');
-  // Ensure they're different setting types for meaningful choices
-  let attempts = 0;
-  while(quizState.currA.settingType === quizState.currB.settingType && attempts < 5){
-    quizState.currB = generateSchool('B'); attempts++;
-  }
+  const pair = generatePair();
+  quizState.currA = pair[0];
+  quizState.currB = pair[1];
   document.getElementById('cardA-wrap').innerHTML = buildCard(quizState.currA,'A','quiz');
   document.getElementById('cardB-wrap').innerHTML = buildCard(quizState.currB,'B','quiz');
   quizState.choosing = false;
@@ -819,11 +870,13 @@ function quizChoose(side){
   const winner = side==='A' ? quizState.currA : quizState.currB;
   const loser  = side==='A' ? quizState.currB : quizState.currA;
 
-  // Record preference signals
+  // Record preference signals, including the cost tier and hours line on the card.
   quizState.votes[winner.settingType] = (quizState.votes[winner.settingType]||0) + 1;
-  const currMap = {'Montessori AMI':'montessori','Reggio Emilia':'reggio','Play-based':'play','Waldorf':'waldorf','Academic prep':'academic','Nature-based':'nature','Bilingual':'bilingual'};
-  const currKey = currMap[winner.curriculum] || '';
-  if(currKey) quizState.votes[currKey] = (quizState.votes[currKey]||0) + 1;
+  if(PHILOSOPHY_VOTE_IDS.indexOf(winner.programId) !== -1){
+    quizState.votes[winner.programId] = (quizState.votes[winner.programId]||0) + 1;
+  }
+  quizState.votes['cost_'+winner.cost.id] = (quizState.votes['cost_'+winner.cost.id]||0) + 1;
+  quizState.votes['hours_'+winner.hours.id] = (quizState.votes['hours_'+winner.hours.id]||0) + 1;
   const enroll = parseInt(winner.enrollment);
   if(!isNaN(enroll)) quizState.votes[enroll <= 32 ? 'small' : 'large'] = (quizState.votes[enroll<=32?'small':'large']||0)+1;
 
@@ -852,6 +905,33 @@ function updateQuizProgress(){
   document.getElementById('quizProgLabel').textContent=`${quizState.count} / ${quizState.total}`;
 }
 
+function describePractical(votes, profile){
+  const pattern = NearBaseMatch.patternFromVotes(votes);
+  const hoursCopy = {
+    early: 'full-day 6:30–6:00 coverage needed',
+    duty: 'full day, about 7:30am–5:30pm',
+    school: 'school day, about 8:30am–3:00pm',
+    half: 'a half day is enough'
+  };
+  let costLabel = pattern.costLabel;
+  let hoursLabel = pattern.hoursLabel;
+  if(profile){
+    if(profile.costCeiling === 'assist' || profile.costCeiling === 'free'){
+      costLabel = 'free/subsidized-first (MCCYN, Pre-K, Head Start)';
+    }
+    if(hoursCopy[profile.hours]) hoursLabel = hoursCopy[profile.hours];
+  }
+  return { costLabel: costLabel, hoursLabel: hoursLabel };
+}
+function patternChipHtml(){
+  const profile = quizState.situation ? NearBaseMatch.withQuiz(quizState.situation, quizState.votes, quizState.who) : null;
+  const shown = describePractical(quizState.votes, profile);
+  const esc = NearBaseMatch.esc;
+  return `<div class="live-patterns">
+    <div><span>Your cost pattern</span><strong>${esc(shown.costLabel)}</strong></div>
+    <div><span>Your hours pattern</span><strong>${esc(shown.hoursLabel)}</strong></div>
+  </div>`;
+}
 function renderPrefBars(){
   const v = quizState.votes;
   const total = Math.max(quizState.count,1);
@@ -861,7 +941,7 @@ function renderPrefBars(){
     {label:'Structure',left:'Child-led',right:'Teacher-led',score:Math.round(((v.academic||0)-(v.play||0)-(v.montessori||0))/total*50+50)},
     {label:'Outdoors',left:'Indoor focus',right:'Outdoor/nature',score:Math.round(((v.nature||0))/total*100)},
   ];
-  document.getElementById('prefBars').innerHTML = dims.map(d=>{
+  document.getElementById('prefBars').innerHTML = patternChipHtml() + dims.map(d=>{
     const s=Math.max(5,Math.min(95,d.score));
     const leftPct = s<50 ? (50-s)+'%' : '0%';
     const rightPct = s>50 ? (s-50)+'%' : '0%';
@@ -917,9 +997,6 @@ function finishQuiz(){
     {label:'Child-led learning',score:Math.min(100,Math.round(((v.montessori||0)+(v.play||0)+(v.reggio||0))/total*140))},
     {label:'Nature / outdoor access',score:Math.min(100,Math.round((v.nature||0)/total*250))},
   ];
-  document.getElementById('fingerprintCard').innerHTML=`<div class="fp-title">Preference fingerprint — philosophies re-rank real schools</div>`+
-    dimScores.map(d=>`<div class="fp-row"><div class="fp-label">${d.label}</div><div class="fp-bar-track"><div class="fp-bar" style="width:${d.score}%"></div></div><div class="fp-val">${d.score}%</div></div>`).join('');
-
   NearBaseMatch.saveQuiz(quizState.who, v);
   let votesForMatch = v;
   const split = document.getElementById('parentSplit');
@@ -944,11 +1021,23 @@ function finishQuiz(){
   const situation = quizState.situation || readQuizSituation();
   const profile = NearBaseMatch.withQuiz(situation, votesForMatch, quizState.who);
   NearBaseMatch.saveProfile(profile);
-  const ranked = NearBaseMatch.rankSchools(window.SCHOOLS||[], profile).slice(0,5);
+  const shown = describePractical(votesForMatch, profile);
+  document.getElementById('fingerprintCard').innerHTML=
+    `<div class="fp-head">
+      <div class="fp-chip"><span>Your cost pattern</span><strong>${esc(shown.costLabel)}</strong></div>
+      <div class="fp-chip"><span>Your hours pattern</span><strong>${esc(shown.hoursLabel)}</strong></div>
+    </div>
+    <p class="fp-note">Money talk is hard — this keeps your list to schools that fit. Hours and tuition limits come before curriculum or location.</p>
+    <div class="fp-title">Also in your choices</div>`+
+    dimScores.map(d=>`<div class="fp-row"><div class="fp-label">${d.label}</div><div class="fp-bar-track"><div class="fp-bar" style="width:${d.score}%"></div></div><div class="fp-val">${d.score}%</div></div>`).join('');
+  const rankedAll = NearBaseMatch.rankSchools(window.SCHOOLS||[], profile);
+  const ranked = rankedAll.filter(row => row.match.group !== 'outside').slice(0,5);
+  const outsideCount = rankedAll.filter(row => row.match.group === 'outside').length;
   const timeline = NearBaseInsights.pcsTimeline(profile);
   const settingNote = topSetting ? ` Your pairs leaned ${topSetting}. That setting preference is a quiz signal, not a fact about any school.` : '';
+  const outsideNote = outsideCount ? ` ${outsideCount} listings are under Outside your hours or budget, because the listing's hours or cost notes do not match the pattern you kept choosing.` : '';
   document.getElementById('insightBox').innerHTML =
-    `<div class="ib-label">Real schools, re-ranked</div><div class="ib-text">These five use your base, ages, hours, and the philosophies you actually picked.${esc(settingNote)} Each line is from the school listing.</div>`;
+    `<div class="ib-label">Real schools, re-ranked</div><div class="ib-text">These use your base, ages, and the cost and hours pattern from the pairs you picked.${esc(settingNote)}${esc(outsideNote)} Each line is from the school listing. Dollar amounts on the example cards are tiers, not prices for these schools.</div>`;
   document.getElementById('realMatches').innerHTML = ranked.map((row,i)=>{
     const s = row.school;
     const miles = row.match.distanceMiles==null ? '' : ` · ${row.match.distanceMiles.toFixed(1)} mi`;
@@ -965,7 +1054,7 @@ function finishQuiz(){
 
 function retakeQuiz(){
   document.getElementById('resultsScreen').classList.remove('show');
-  quizState.count=0; quizState.votes={urban:0,suburban:0,rural:0,montessori:0,reggio:0,play:0,waldorf:0,academic:0,nature:0,bilingual:0,small:0,large:0,free:0,structured:0};
+  quizState.count=0; quizState.votes=emptyVotes();
   document.getElementById('setupScreen').style.display='none';
   document.getElementById('quizScreen').style.display='block';
   renderDimChips(); loadQuizPair(); updateQuizProgress(); renderPrefBars();
@@ -1014,14 +1103,25 @@ function initResElo(){ REAL_SCHOOLS.forEach(s=>{ RES_DIMS.forEach(d=>{ const k=`
 function getResElo(sid,did){ return resState.eloScores[`${sid}_${did}`]||1200; }
 function updateResElo(wid,lid,did,K=32){ const Ra=getResElo(wid,did),Rb=getResElo(lid,did),Ea=1/(1+Math.pow(10,(Rb-Ra)/400)); resState.eloScores[`${wid}_${did}`]=Math.round(Ra+K*(1-Ea)); resState.eloScores[`${lid}_${did}`]=Math.round(Rb+K*(0-(1-Ea))); }
 
+function photoForReal(school){
+  const t = (school.type + ' ' + (school.facts||[]).join(' ')).toLowerCase();
+  if(/forest|nature|rural/.test(t)) return QUIZ_PHOTOS.nature;
+  if(/free|public/.test(t)) return QUIZ_PHOTOS.academic;
+  if(/infant/.test(t)) return QUIZ_PHOTOS.home;
+  if(/montessori/.test(t)) return QUIZ_PHOTOS.montessori;
+  return QUIZ_PHOTOS.reggio;
+}
 function buildRealCard(school, side){
-  const bgColors = ['linear-gradient(135deg,#C8E6D8,#85C1A3)','linear-gradient(135deg,#D0E8D8,#7FB89A)','linear-gradient(135deg,#C8DFD0,#79AE90)','linear-gradient(135deg,#CCE4D4,#83B898)','linear-gradient(135deg,#C8E2D0,#7DB99A)'];
-  const bg = bgColors[school.id % bgColors.length];
+  const esc = NearBaseMatch.esc;
+  const photo = photoForReal(school);
+  const alt = 'Illustrative photo, not a picture of ' + school.name + '. ' + photo.alt;
   return `<div class="school-card" id="resCard${side}" onclick="resChoose('${side}')">
-    <div class="school-image" style="background:${bg}">
+    <div class="school-image">
+      <img class="school-image-bg pos-${photo.file}" src="img/quiz/${photo.file}-640.webp" srcset="img/quiz/${photo.file}-640.webp 640w, img/quiz/${photo.file}-1200.webp 1200w" sizes="(max-width:700px) 100vw, 480px" width="${photo.w}" height="${photo.h}" alt="${esc(alt)}" loading="lazy" decoding="async">
       <div class="school-image-overlay"></div>
-      <div class="school-image-tag">${school.type}</div>
-      <div class="school-image-label">🏫 ${school.name}</div>
+      <div class="school-image-tag">${esc(school.type)}</div>
+      <div class="school-image-label">${esc(school.loc)}</div>
+      <span class="photo-cap">Illustrative photo</span>
     </div>
     <div class="school-body">
       <div class="school-name">${school.name}</div>
@@ -1123,11 +1223,52 @@ function setMode(mode){
 let toastTimer;
 function showToast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2000);}
 
+
+function applyQuizPreview(){
+  const mode = new URLSearchParams(location.search).get('preview');
+  if(mode !== 'cards' && mode !== 'fingerprint') return;
+  document.getElementById('setupScreen').style.display = 'none';
+  if(mode === 'cards'){
+    document.getElementById('quizScreen').style.display = 'block';
+    quizState.situation = { baseId:'belvoir', ages:['toddler'], hours:'any', timing:'unsure', mccyn:false, subsidy:false, efmp:false };
+    quizState.votes = Object.assign(emptyVotes(), { cost_free:3, cost_assist:2, hours_extended:4, hours_full:1, montessori:2, suburban:3 });
+    quizState.count = 5;
+    const center = PROGRAMS.find(p => p.id === 'center');
+    const mont = PROGRAMS.find(p => p.id === 'montessori');
+    const a = generateSchool(center);
+    a.cost = COST_OPTIONS.assist;
+    a.hours = HOUR_OPTIONS.extended;
+    a.name = "Long-Day Children's Center";
+    const b = generateSchool(mont);
+    b.cost = COST_OPTIONS.high;
+    b.hours = HOUR_OPTIONS.school;
+    b.name = "Willow Children's House";
+    quizState.currA = a;
+    quizState.currB = b;
+    renderDimChips();
+    document.getElementById('cardA-wrap').innerHTML = buildCard(a,'A','quiz');
+    document.getElementById('cardB-wrap').innerHTML = buildCard(b,'B','quiz');
+    updateQuizProgress();
+    renderPrefBars();
+    return;
+  }
+  quizState.situation = { baseId:'pentagon', ages:['toddler'], hours:'any', timing:'now', mccyn:true, subsidy:false, efmp:false };
+  quizState.count = 12;
+  quizState.who = 'family';
+  quizState.votes = Object.assign(emptyVotes(), {
+    cost_free:5, cost_assist:4, cost_mid:1,
+    hours_extended:7, hours_full:2, hours_school:1,
+    montessori:4, play:1, suburban:5, urban:2, small:4
+  });
+  finishQuiz();
+}
+
 // INIT
 initResElo();
 renderResDimStrip();
 renderResSb();
 loadResPair();
+applyQuizPreview();
 </script>
 </body>
 </html>

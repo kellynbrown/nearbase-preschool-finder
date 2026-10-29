@@ -26,7 +26,8 @@
 
   var AGE_IDS = ["infant", "toddler", "pk"];
   var PHILOSOPHY_IDS = ["montessori", "play", "reggio", "waldorf", "academic", "nature", "bilingual"];
-  var HOURS_IDS = ["any", "early", "duty", "half"];
+  var HOURS_IDS = ["any", "early", "duty", "school", "half"];
+  var COST_IDS = ["any", "assist", "free"];
   var TIMING_IDS = ["now", "summer", "planning", "unsure"];
 
   var AGE_LABEL = { infant: "infant (under 18 months)", toddler: "toddler (18 months–3)", pk: "preschool (3–5)" };
@@ -43,6 +44,7 @@
       philosophies: [],
       hours: "any",
       timing: "unsure",
+      costCeiling: "any",
       mccyn: false,
       subsidy: false,
       efmp: false,
@@ -76,8 +78,65 @@
     p.mccyn = !!src.mccyn;
     p.subsidy = !!src.subsidy;
     p.efmp = !!src.efmp;
+    p.costCeiling = COST_IDS.indexOf(src.costCeiling) !== -1 ? src.costCeiling : "any";
+    // Checking MCCYN or a subsidized seat is itself a money boundary.
+    if (p.costCeiling === "any" && (p.mccyn || p.subsidy)) p.costCeiling = "assist";
     p.quiz = src.quiz || null;
     return p;
+  }
+
+  var HOURS_RANK = { any: 0, half: 1, school: 2, duty: 3, early: 4 };
+  var COST_RANK = { any: 0, assist: 1, free: 2 };
+
+  function stricterHours(a, b) {
+    return (HOURS_RANK[a] || 0) >= (HOURS_RANK[b] || 0) ? a : b;
+  }
+
+  function stricterCost(a, b) {
+    return (COST_RANK[a] || 0) >= (COST_RANK[b] || 0) ? a : b;
+  }
+
+  function patternFromVotes(votes) {
+    var v = votes || {};
+    function n(key) { return Number(v[key]) || 0; }
+    var aid = n("cost_free") + n("cost_assist");
+    var paid = n("cost_mid") + n("cost_high");
+    var costTotal = aid + paid;
+    var costCeiling = "any";
+    var costLabel = "Cost is still mixed, so it is not filtering the list.";
+    if (costTotal >= 3 && aid > paid && aid / costTotal >= 0.6) {
+      costCeiling = "assist";
+      costLabel = "free/subsidized-first (MCCYN, Pre-K, Head Start)";
+    } else if (costTotal >= 3 && paid > aid && paid / costTotal >= 0.6) {
+      costLabel = "Private tuition ranges showed up most. Real listings rarely publish a price, so this is not a dollar cutoff.";
+    }
+    var hourRows = [
+      ["half", n("hours_half")],
+      ["school", n("hours_school")],
+      ["full", n("hours_full")],
+      ["extended", n("hours_extended")]
+    ].sort(function (a, b) { return b[1] - a[1]; });
+    var hourTotal = hourRows.reduce(function (sum, row) { return sum + row[1]; }, 0);
+    var hours = "any";
+    var hoursLabel = "Hours are still mixed, so they are not filtering the list.";
+    var hourCopy = {
+      extended: ["early", "full-day 6:30–6:00 coverage needed"],
+      full: ["duty", "full day, about 7:30am–5:30pm"],
+      school: ["school", "school day, about 8:30am–3:00pm"],
+      half: ["half", "a half day is enough"]
+    };
+    if (hourTotal >= 3 && hourRows[0][1] > hourTotal / 2 && hourCopy[hourRows[0][0]]) {
+      hours = hourCopy[hourRows[0][0]][0];
+      hoursLabel = hourCopy[hourRows[0][0]][1];
+    }
+    return {
+      costCeiling: costCeiling,
+      hours: hours,
+      costLabel: costLabel,
+      hoursLabel: hoursLabel,
+      costTotal: costTotal,
+      hourTotal: hourTotal
+    };
   }
 
   function timingFromMonth(ym, now) {
@@ -126,7 +185,16 @@
     var p = normalizeProfile(profile);
     var philosophies = philosophiesFromVotes(votes);
     if (philosophies.length) p.philosophies = philosophies;
-    p.quiz = { who: who || "family", votes: votes || {}, at: new Date().toISOString() };
+    var pattern = patternFromVotes(votes);
+    if (pattern.hours !== "any") p.hours = stricterHours(p.hours, pattern.hours);
+    if (pattern.costCeiling !== "any") p.costCeiling = stricterCost(p.costCeiling, pattern.costCeiling);
+    p.quiz = {
+      who: who || "family",
+      votes: votes || {},
+      at: new Date().toISOString(),
+      costCeiling: p.costCeiling,
+      hours: p.hours
+    };
     return p;
   }
 
@@ -478,11 +546,44 @@
       else if (h.open <= 480 && (h.close == null || h.close >= 1020)) score = 74;
       else score = 42;
       extra = "You need a duty-day span. Listing: " + (h.evidence || clockLabel(h.open)) + ".";
+    } else if (need === "school") {
+      if (h.open != null && h.open <= 540 && (h.close == null || h.close >= 900)) score = h.close == null ? 78 : 92;
+      else if (h.open != null && h.open <= 570) score = 70;
+      else score = 48;
+      extra = "You need a school day. Listing: " + (h.evidence || clockLabel(h.open)) + ".";
     } else if (need === "half") {
       score = 74;
       extra = "A half day would work for you. This listing shows a longer day" + (h.evidence ? " (" + h.evidence + ")" : "") + ", which can still fit.";
     }
     return known("hours", "Hours", weight, score, extra);
+  }
+
+  // Hard-ish gates. Unknown hours stay in the main list. A missing price is not treated as a dollar amount.
+  function hoursOutside(signals, hours) {
+    if (!hours || hours === "any" || hours === "half") return "";
+    var h = signals.hours;
+    if (!h.known) return "";
+    if (h.half) return "This listing describes a half day, which is outside the hours you kept choosing.";
+    if (h.open == null) return "";
+    if (hours === "early") {
+      if (h.open > 450) return "Open time is later than a 7:30am start. You leaned toward early, extended coverage.";
+      if (h.close != null && h.close < 1020) return "Close time is before 5:00pm, short of an extended day.";
+    } else if (hours === "duty") {
+      if (h.open > 480) return "Opens after 8:00am, outside a full duty day.";
+      if (h.close != null && h.close < 960) return "Closes before 4:00pm, outside a full duty day.";
+    }
+    return "";
+  }
+
+  function costOutside(signals, ceiling) {
+    if (!ceiling || ceiling === "any") return "";
+    if (ceiling === "free") {
+      if (signals.subsidy) return "";
+      return "This listing does not show a free seat. Money talk is hard — this keeps your list to schools that fit what you kept choosing.";
+    }
+    // Fee-assistance first: a free seat, subsidy, MCCYN, or on-post care fits. A small military discount does not.
+    if (signals.subsidy || signals.mccyn || signals.onPost) return "";
+    return "This listing does not show a free seat, subsidy, or MCCYN. Money talk is hard — this keeps your list to schools that fit what you kept choosing.";
   }
 
   function scoreMilitary(signals, profile, weight) {
@@ -600,6 +701,7 @@
       .sort(function (a, b) { return a.score - b.score; });
     var gaps = factors.filter(function (f) { return f.status === "unknown" && f.weight; });
     var headline = (reasons[0] || knownFactors[0] || gaps[0] || {}).detail || "Not enough listing data to explain this score.";
+    var outsideBits = [hoursOutside(signals, p.hours), costOutside(signals, p.costCeiling)].filter(Boolean);
     return {
       score: blended.score,
       confidence: blended.confidence,
@@ -613,7 +715,9 @@
       base: base,
       signals: signals,
       weights: w,
-      profile: p
+      profile: p,
+      group: outsideBits.length ? "outside" : "match",
+      outsideReason: outsideBits.join(" ")
     };
   }
 
@@ -621,6 +725,9 @@
     return asArray(schools).map(function (school) {
       return { school: school, match: scoreSchool(school, profile) };
     }).sort(function (a, b) {
+      var ga = a.match.group === "outside" ? 1 : 0;
+      var gb = b.match.group === "outside" ? 1 : 0;
+      if (ga !== gb) return ga - gb;
       var ds = (b.match.score || 0) - (a.match.score || 0);
       if (ds) return ds;
       var dc = (b.match.confidence || 0) - (a.match.confidence || 0);
@@ -690,6 +797,7 @@
     normalizeProfile: normalizeProfile,
     timingFromMonth: timingFromMonth,
     philosophiesFromVotes: philosophiesFromVotes,
+    patternFromVotes: patternFromVotes,
     mergeVotes: mergeVotes,
     voteDisagreements: voteDisagreements,
     withQuiz: withQuiz,

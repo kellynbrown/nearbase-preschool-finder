@@ -216,6 +216,79 @@ check("PCS timeline is general guidance", function () {
   });
 });
 
+check("extended hours keep a 7am-6pm listing and set a half day aside", function () {
+  var half = { id: 1, slug: "half", name: "Half Day Room", loc: "Arlington, VA", lat: 38.88, lng: -77.06, score: "90", tier: "hi", badges: [{ t: "Half day" }, { t: "MCCYN" }], tags: [], quote: "" };
+  var full = { id: 2, slug: "full", name: "Full Day Room", loc: "Arlington, VA", lat: 38.89, lng: -77.07, score: "80", tier: "hi", badges: [{ t: "6:30am–6:00pm" }, { t: "MCCYN" }], tags: [], quote: "" };
+  var unknown = { id: 3, slug: "unk", name: "Hours Not Listed", loc: "Arlington, VA", lat: 38.87, lng: -77.05, score: "70", tier: "hi", badges: [{ t: "MCCYN" }], tags: [], quote: "" };
+  var late = { id: 4, slug: "late", name: "Late Open", loc: "Arlington, VA", lat: 38.875, lng: -77.06, score: "88", tier: "hi", badges: [{ t: "8:30am–3:00pm" }, { t: "MCCYN" }], tags: [], quote: "" };
+  var ranked = match.rankSchools([half, late, unknown, full], profile({ hours: "early", ages: [], philosophies: [], timing: "unsure" }));
+  function row(slug) { return ranked.find(function (r) { return r.school.slug === slug; }); }
+  assert.strictEqual(row("full").match.group, "match");
+  assert.strictEqual(row("unk").match.group, "match");
+  assert.strictEqual(row("half").match.group, "outside");
+  assert.strictEqual(row("late").match.group, "outside");
+  assert.ok(/half day/i.test(row("half").match.outsideReason));
+  assert.ok(/7:30am/.test(row("late").match.outsideReason));
+  assert.ok(ranked.indexOf(row("full")) < ranked.indexOf(row("half")));
+  assert.ok(ranked.indexOf(row("unk")) < ranked.indexOf(row("late")));
+  var gardner = match.scoreSchool(bySlug("the-gardner-school-arlington"), profile({ hours: "early" }));
+  assert.strictEqual(gardner.group, "match", "7am–6pm stays inside an extended-day pattern");
+});
+
+check("fee-assistance pattern sets aside listings with no aid signal", function () {
+  var aided = { id: 1, slug: "aid", name: "Aided", loc: "Arlington, VA", lat: 38.88, lng: -77.06, score: "FREE", tier: "fr", badges: [{ t: "Head Start" }], tags: [], quote: "" };
+  var mccyn = { id: 2, slug: "mcc", name: "Mccyn School", loc: "Arlington, VA", lat: 38.89, lng: -77.05, score: "80", tier: "hi", badges: [{ t: "MCCYN" }, { t: "7am–6pm" }], tags: [], quote: "" };
+  var plain = { id: 3, slug: "plain", name: "Plain Private", loc: "Arlington, VA", lat: 38.87, lng: -77.06, score: "99", tier: "hi", badges: [{ t: "Montessori" }, { t: "7am–6pm" }], tags: ["montessori"], quote: "Lovely program." };
+  var discount = { id: 4, slug: "disc", name: "Discount Only", loc: "Arlington, VA", lat: 38.86, lng: -77.05, score: "95", tier: "hi", badges: [{ t: "5% mil discount" }, { t: "7am–6pm" }], tags: [], quote: "" };
+  var onPost = match.scoreSchool(bySlug("fort-belvoir-cdc"), profile({ mccyn: false, subsidy: false, hours: "any", ages: [], philosophies: [], costCeiling: "assist", baseId: "belvoir" }));
+  var ranked = match.rankSchools([plain, discount, aided, mccyn], profile({ mccyn: false, subsidy: false, hours: "any", ages: [], philosophies: [], timing: "unsure", costCeiling: "assist" }));
+  function row(slug) { return ranked.find(function (r) { return r.school.slug === slug; }); }
+  assert.strictEqual(row("aid").match.group, "match");
+  assert.strictEqual(row("mcc").match.group, "match");
+  assert.strictEqual(row("plain").match.group, "outside");
+  assert.strictEqual(row("disc").match.group, "outside");
+  assert.strictEqual(onPost.group, "match");
+  assert.ok(/Money talk is hard/.test(row("plain").match.outsideReason));
+  assert.ok(!/\$\d/.test(row("plain").match.outsideReason));
+  assert.ok(ranked.indexOf(row("plain")) > ranked.indexOf(row("aid")));
+  assert.ok(ranked.indexOf(row("disc")) > ranked.indexOf(row("mcc")));
+});
+
+check("a flexible cost ceiling does not set a private school aside", function () {
+  var plain = { id: 9, slug: "plain", name: "Plain", loc: "VA", lat: 38.87, lng: -77.06, score: "80", tier: "hi", badges: [{ t: "7am–6pm" }], tags: [], quote: "" };
+  var result = match.scoreSchool(plain, profile({ mccyn: false, subsidy: false, hours: "any", ages: [], philosophies: [], costCeiling: "any" }));
+  assert.strictEqual(result.group, "match");
+  assert.strictEqual(result.outsideReason, "");
+});
+
+check("quiz cost and hours votes become a pattern and a filter", function () {
+  var votes = { cost_free: 5, cost_assist: 4, cost_mid: 1, cost_high: 0, hours_extended: 6, hours_full: 2, hours_school: 1, hours_half: 0, montessori: 2 };
+  var pattern = match.patternFromVotes(votes);
+  assert.strictEqual(pattern.costCeiling, "assist");
+  assert.strictEqual(pattern.hours, "early");
+  assert.ok(/free\/subsidized-first/.test(pattern.costLabel));
+  assert.ok(/6:30/.test(pattern.hoursLabel));
+  var saved = match.withQuiz(profile({ philosophies: [], mccyn: false, subsidy: false, hours: "any" }), votes, "family");
+  assert.strictEqual(saved.costCeiling, "assist");
+  assert.strictEqual(saved.hours, "early");
+  var half = { id: 1, slug: "half", name: "Half", loc: "Arlington, VA", lat: 38.88, lng: -77.06, score: "99", tier: "hi", badges: [{ t: "Half day" }], tags: ["montessori"], quote: "" };
+  var fit = { id: 2, slug: "fit", name: "Fit", loc: "Arlington, VA", lat: 38.873, lng: -77.056, score: "80", tier: "fr", badges: [{ t: "6:30am–6pm" }, { t: "FREE charter" }], tags: ["montessori"], quote: "" };
+  var ranked = match.rankSchools([half, fit], saved);
+  assert.strictEqual(ranked[0].school.slug, "fit");
+  assert.strictEqual(ranked[0].match.group, "match");
+  assert.strictEqual(ranked[1].match.group, "outside");
+  var pricey = match.patternFromVotes({ cost_high: 4, cost_mid: 3, hours_half: 2, hours_full: 2 });
+  assert.strictEqual(pricey.costCeiling, "any");
+  assert.ok(/not a dollar cutoff/.test(pricey.costLabel));
+  assert.strictEqual(pricey.hours, "any");
+});
+
+check("checking MCCYN keeps an assistance ceiling even when quiz votes are mixed", function () {
+  var saved = match.withQuiz(profile({ mccyn: true, hours: "early", philosophies: [] }), { cost_high: 4, hours_half: 4 }, "family");
+  assert.strictEqual(saved.costCeiling, "assist");
+  assert.strictEqual(saved.hours, "early");
+});
+
 check("parent disagreements come from saved votes only", function () {
   var diff = match.voteDisagreements({ montessori: 4, play: 0 }, { montessori: 0, play: 4 });
   assert.ok(diff.indexOf("montessori") !== -1 && diff.indexOf("play") !== -1);
