@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your account — NearBase</title>
-<meta name="description" content="Sign in with an email link. See your NearBase plan, saved schools, and quiz fingerprint.">
+<meta name="description" content="Sign in with an email link. The free waitlist tracker, your plan, and saved schools live here.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/account.html">
 <meta name="robots" content="noindex">
@@ -39,7 +39,32 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
 .chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem}
 .notice{font-size:.84rem;color:var(--mid);margin-top:.55rem}
 .actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
-@media(max-width:640px){h1{font-size:1.5rem}header{padding:.85rem 1rem}}
+.sub{font-family:'Fraunces',serif;font-size:.95rem;color:var(--dark);margin:1rem 0 .35rem}
+.disclaimer{background:var(--light);border-radius:12px;padding:.75rem .85rem;font-size:.84rem;color:var(--dark);margin:.55rem 0 .75rem}
+.track-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem .7rem;margin-top:.55rem}
+.track-grid label,.name-field{display:flex;flex-direction:column;gap:.2rem;font-size:.75rem;color:var(--muted)}
+.track-grid input,.track-grid select,.track-grid textarea,.name-field input{font:inherit;color:var(--text);padding:.5rem .65rem;border-radius:10px;border:1px solid var(--border);width:100%;background:#fff}
+.track-grid textarea{min-height:68px;margin-top:0}
+.span-2{grid-column:1 / -1}
+.flag{background:#FAEEDA;color:#633806;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.55rem}
+.timeline{list-style:none;margin:.35rem 0 0;padding:0 0 0 .2rem;border-left:3px solid var(--border)}
+.timeline li{padding:.35rem 0 .35rem .75rem;font-size:.84rem}
+.timeline .after{color:#633806}
+.entry{border-top:1px solid var(--border);margin-top:.9rem;padding-top:.9rem}
+.worth{background:var(--cream);border-radius:12px;padding:.7rem .8rem;margin-top:.65rem}
+.worth h3{font-family:'Fraunces',serif;font-size:.95rem;color:var(--dark);margin-bottom:.2rem}
+.worth ul{margin:.4rem 0 0;padding-left:1.1rem}
+.worth li{font-size:.82rem;margin:.28rem 0}
+.name-field{flex:1;min-width:180px}
+@media(max-width:640px){
+  h1{font-size:1.5rem}
+  header{padding:.85rem 1rem}
+  .track-grid{grid-template-columns:1fr}
+  .span-2{grid-column:auto}
+  .name-field{min-width:0;width:100%}
+  .entry .row{flex-direction:column;align-items:stretch}
+  .entry .row label{width:100%}
+}
 </style>
 </head>
 <body>
@@ -54,12 +79,15 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
   <div id="accountApp"></div>
 </main>
 <script src="billing-config.js"></script>
+<script src="schools.js"></script>
 <script src="match.js"></script>
+<script src="tracker.js"></script>
 <script src="account.js"></script>
 <script>
 (function () {
   var app = document.getElementById("accountApp");
   var params = new URLSearchParams(location.search);
+  var previewData = null;
 
   function esc(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
@@ -67,27 +95,98 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
     });
   }
 
+  function isPreview() {
+    var mode = params.get("preview");
+    return mode === "signed-in" || mode === "tracker";
+  }
+
   function mock() {
+    var Tracker = window.NearBaseTracker;
+    var free = params.get("preview") === "tracker";
     return {
       email: "family@example.com",
-      plan: { plan: "monthly", status: "active", current_period_end: "2026-11-29T00:00:00.000Z" },
+      plan: free ? null : { plan: "monthly", status: "active", current_period_end: "2026-11-29T00:00:00.000Z" },
       preferences: {
         base_id: "belvoir",
         hours: "early",
         cost_ceiling: "assist",
         ages: ["toddler"],
+        timing: "planning",
         quiz_votes: { cost_free: 5, cost_assist: 4, hours_extended: 7, montessori: 4 },
         spot_alerts: { enabled: true, slugs: ["the-gardner-school-arlington"] }
       },
       favorites: [
         { school_slug: "the-gardner-school-arlington", school_name: "The Gardner School Arlington" },
         { school_slug: "the-vine-preschool", school_name: "The Vine Preschool" }
-      ]
+      ],
+      tracker: Tracker.sampleModel(Tracker.todayISO())
+    };
+  }
+
+  function fitsFor(entries, prefs) {
+    var map = {};
+    if (!window.NearBaseMatch || !window.SCHOOLS || !window.NearBaseTracker) return map;
+    var saved = window.NearBaseMatch.loadProfile();
+    var profile = prefs ? window.NearBaseMatch.normalizeProfile({
+      baseId: prefs.base_id || saved.baseId,
+      hours: prefs.hours || saved.hours,
+      costCeiling: prefs.cost_ceiling || saved.costCeiling,
+      ages: prefs.ages || saved.ages,
+      philosophies: prefs.philosophies || saved.philosophies,
+      mccyn: !!prefs.mccyn,
+      subsidy: !!prefs.subsidy,
+      efmp: !!prefs.efmp,
+      timing: prefs.timing || saved.timing
+    }) : saved;
+    (entries || []).forEach(function (entry) {
+      if (!entry.school_slug) return;
+      var school = null;
+      for (var i = 0; i < window.SCHOOLS.length; i++) {
+        if (window.SCHOOLS[i].slug === entry.school_slug) school = window.SCHOOLS[i];
+      }
+      if (!school) return;
+      map[entry.id] = window.NearBaseTracker.fitFactors(window.NearBaseMatch.scoreSchool(school, profile));
+    });
+    return map;
+  }
+
+  function trackerModel(data) {
+    var tracker = (data && data.tracker) || {};
+    var prefs = (data && data.preferences) || {};
+    var entries = tracker.entries || [];
+    var pcs = tracker.moveDate || tracker.pcsDate || "";
+    if (!pcs && prefs.pcs_date) pcs = String(prefs.pcs_date).slice(0, 10);
+    return {
+      entries: entries,
+      moveDate: pcs,
+      today: window.NearBaseTracker.todayISO(),
+      timing: tracker.timing || prefs.timing || "",
+      fits: fitsFor(entries, prefs)
+    };
+  }
+
+  function entryFromForm(form) {
+    function val(name) {
+      var el = form.elements[name];
+      return el ? el.value : "";
+    }
+    return {
+      id: form.getAttribute("data-id") || "",
+      school_slug: form.getAttribute("data-slug") || "",
+      school_name: val("school_name"),
+      applied_date: val("applied_date"),
+      fees_paid: val("fees_paid"),
+      desired_start_date: val("desired_start_date"),
+      status: val("status"),
+      notes: val("notes"),
+      stated_process: val("stated_process"),
+      follow_up_date: val("follow_up_date"),
+      contacts: val("contacts")
     };
   }
 
   function planLabel(plan) {
-    if (!plan || !plan.status) return "No paid plan yet";
+    if (!plan || !plan.status || plan.status === "canceled") return "Free account";
     var name = plan.plan === "weekly" ? "Weekly pass" : plan.plan === "monthly" ? "Premium monthly" : (plan.plan || "Plan");
     var when = plan.current_period_end ? " · renews " + plan.current_period_end.slice(0, 10) : "";
     return name + " · " + plan.status + when;
@@ -106,20 +205,22 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
     var follow = checkout === "success"
       ? '<div class="card"><h2>You are subscribed</h2><p class="muted">Cancel anytime from Manage billing.</p></div>'
       : "";
+    var trackerHtml = '<div class="card">' + window.NearBaseTracker.renderTracker(trackerModel(data)) + '</div>';
     app.innerHTML = follow +
-      '<div class="card"><div class="row"><div><h2>' + esc(data.email) + '</h2><p class="muted">Email magic link. No password is stored.</p></div><span class="pill">' + esc(planLabel(data.plan)) + '</span></div><div class="actions"><button type="button" class="btn" id="portalBtn">Manage billing</button><a class="btn ghost" href="/premium.html">See plans</a></div><p class="muted" style="margin-top:.55rem">Cancel anytime. Card numbers stay at Stripe. NearBase never sees them.</p></div>' +
+      '<div class="card"><div class="row"><div><h2>' + esc(data.email) + '</h2><p class="muted">Email magic link. No password is stored. The tracker is included.</p></div><span class="pill">' + esc(planLabel(data.plan)) + '</span></div><div class="actions"><button type="button" class="btn" id="portalBtn">Manage billing</button><a class="btn ghost" href="/premium.html">See plans</a></div><p class="muted" style="margin-top:.55rem">Premium is optional. Cancel anytime. Card numbers stay at Stripe. NearBase never sees them.</p></div>' +
+      trackerHtml +
       '<div class="card"><h2>Saved preferences</h2><p class="muted">Base, hours, cost, and ages from Find and the quiz.</p><div class="chips"><span class="pill">' + esc(prefs.base_id || "No base yet") + '</span><span class="pill">' + esc(hoursLabel(prefs.hours)) + '</span><span class="pill">' + esc(prefs.cost_ceiling === "assist" || prefs.cost_ceiling === "free" ? "Free / fee assistance first" : "Cost still open") + '</span>' + (prefs.ages || []).map(function (age) { return '<span class="pill">' + esc(age) + '</span>'; }).join("") + '</div></div>' +
       '<div class="card"><h2>Quiz fingerprint</h2><p class="muted">Votes saved with the profile. Cost votes ' + esc(String((votes.cost_free || 0) + (votes.cost_assist || 0))) + ' toward free or assistance. Extended-hours votes ' + esc(String(votes.hours_extended || 0)) + '.</p></div>' +
       '<div class="card"><h2>Saved schools</h2><ul class="clean">' + (favorites.length ? favorites.map(function (school) {
         var watched = (alerts.slugs || []).indexOf(school.school_slug) !== -1;
         return '<li class="row"><span>' + esc(school.school_name) + '</span><span class="pill">' + (watched && alerts.enabled ? "Spot alert on" : "Saved") + '</span></li>';
       }).join("") : '<li>No saved schools yet. Use Save school on a listing.</li>') + '</ul></div>' +
-      '<div class="card"><h2>Delete this account</h2><p class="muted">This removes the email, plan record, saved schools, and fingerprint. Pay-it-forward check-ins are not part of the account and are not deleted here.</p><div class="actions"><button type="button" class="btn danger" id="deleteBtn">Delete my account</button><button type="button" class="btn ghost" id="signOutBtn">Sign out</button></div></div>';
+      '<div class="card"><h2>Delete this account</h2><p class="muted">This removes the email, plan record, saved schools, fingerprint, and waitlist tracker. Pay-it-forward check-ins are not part of the account and are not deleted here.</p><div class="actions"><button type="button" class="btn danger" id="deleteBtn">Delete my account</button><button type="button" class="btn ghost" id="signOutBtn">Sign out</button></div></div>';
     var portal = document.getElementById("portalBtn");
     var del = document.getElementById("deleteBtn");
     var out = document.getElementById("signOutBtn");
     if (portal) portal.onclick = function () {
-      if (params.get("preview") === "signed-in") {
+      if (isPreview()) {
         document.getElementById("accountNotice").textContent = "Manage billing opens Stripe once a real subscription is connected.";
         return;
       }
@@ -128,22 +229,118 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
     if (out) out.onclick = function () { window.NearBaseAccount.signOut(); };
     if (del) del.onclick = function () {
       if (!confirm("Delete this NearBase account?")) return;
-      if (params.get("preview") === "signed-in") {
-        document.getElementById("accountNotice").textContent = "On the live site this deletes the account. Check-ins stay anonymous and are not tied to it.";
+      if (isPreview()) {
+        document.getElementById("accountNotice").textContent = "On the live site this deletes the account and the tracker. Check-ins stay anonymous and are not tied to it.";
         return;
       }
       window.NearBaseAccount.deleteAccount();
     };
+    bindTracker(data);
+  }
+
+  function bindTracker(data) {
+    var preview = isPreview();
+    var pcs = document.getElementById("pcsForm");
+    if (pcs) pcs.onsubmit = function (event) {
+      event.preventDefault();
+      var value = document.getElementById("pcsDateInput").value;
+      if (preview) {
+        data.tracker.moveDate = value;
+        data.tracker.pcsDate = value;
+        renderAccount(data);
+        document.getElementById("accountNotice").textContent = "Move date saved in this preview.";
+        return;
+      }
+      window.NearBaseAccount.savePcsDate(value).then(function () {
+        document.getElementById("accountNotice").textContent = "Move date saved on your account.";
+        window.NearBaseAccountPage.render(window.NearBaseAccount.state());
+      });
+    };
+    var add = document.getElementById("trackerAddForm");
+    if (add) add.onsubmit = function (event) {
+      event.preventDefault();
+      var raw = entryFromForm(add);
+      if (preview) {
+        var prepared = window.NearBaseTracker.prepareEntry(raw, window.NearBaseTracker.todayISO());
+        if (prepared.error) {
+          document.getElementById("accountNotice").textContent = prepared.error;
+          return;
+        }
+        prepared.entry.id = "local-" + Date.now().toString(36);
+        data.tracker.entries.unshift(prepared.entry);
+        renderAccount(data);
+        document.getElementById("accountNotice").textContent = "Added in this preview.";
+        return;
+      }
+      window.NearBaseAccount.saveTrackerEntry(raw).then(function (result) {
+        document.getElementById("accountNotice").textContent = result && result.error ? result.error : "Saved to your tracker.";
+        if (!result || !result.error) window.NearBaseAccountPage.render(window.NearBaseAccount.state());
+      });
+    };
+    [].forEach.call(document.querySelectorAll("form.entry[data-id]"), function (form) {
+      form.onsubmit = function (event) {
+        event.preventDefault();
+        var raw = entryFromForm(form);
+        if (preview) {
+          var prepared = window.NearBaseTracker.prepareEntry(raw, window.NearBaseTracker.todayISO());
+          if (prepared.error) {
+            document.getElementById("accountNotice").textContent = prepared.error;
+            return;
+          }
+          data.tracker.entries = data.tracker.entries.map(function (item) {
+            return item.id === prepared.entry.id ? prepared.entry : item;
+          });
+          renderAccount(data);
+          document.getElementById("accountNotice").textContent = "Entry saved in this preview.";
+          return;
+        }
+        window.NearBaseAccount.saveTrackerEntry(raw).then(function (result) {
+          var where = result && result.remote ? "Saved to your account." : "Saved on this device.";
+          document.getElementById("accountNotice").textContent = result && result.error ? result.error : where;
+          if (!result || !result.error) window.NearBaseAccountPage.render(window.NearBaseAccount.state());
+        });
+      };
+      var remove = form.querySelector("[data-track-delete]");
+      if (!remove) return;
+      remove.onclick = function () {
+        if (!confirm("Delete this entry from your tracker?")) return;
+        var id = form.getAttribute("data-id");
+        if (preview) {
+          data.tracker.entries = data.tracker.entries.filter(function (item) { return item.id !== id; });
+          renderAccount(data);
+          return;
+        }
+        window.NearBaseAccount.deleteTrackerEntry(id).then(function () {
+          window.NearBaseAccountPage.render(window.NearBaseAccount.state());
+        });
+      };
+    });
+    var exp = document.getElementById("trackerExport");
+    if (exp) exp.onclick = function () {
+      var model = trackerModel(data);
+      var csv = window.NearBaseTracker.toCsv(model.entries, model.moveDate);
+      var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      var link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "nearbase-waitlist.csv";
+      link.click();
+      setTimeout(function () { URL.revokeObjectURL(link.href); }, 1500);
+    };
   }
 
   function renderSignedOut(configured) {
-    if (!configured) {
-      document.getElementById("accountLead").textContent = "Accounts turn on after Supabase is connected. Until then, search and the quiz still save on this device.";
-      app.innerHTML = '<div class="card"><h2>Sign-in is not turned on yet</h2><p class="muted">Join the Premium list and Kelly will follow up. Nothing here asks for a password.</p><p class="actions"><a class="btn" href="/premium.html#waitlist">Join the waitlist</a><a class="btn ghost" href="/find">Back to search</a></p></div>';
+      if (!configured) {
+      document.getElementById("accountLead").textContent = "Accounts turn on after Supabase is connected. The waitlist tracker is free once you can sign in. Premium is optional.";
+      app.innerHTML = '<div class="card"><h2>Sign-in is not turned on yet</h2><p class="muted">Nothing here asks for a password. Search and the quiz still save on this device. When sign-in is on, any account can use the tracker.</p><p class="actions"><a class="btn" href="/find">Back to search</a><a class="btn ghost" href="/premium.html">Premium is optional</a></p></div>';
       return;
     }
-    document.getElementById("accountLead").textContent = "We’ll email you a sign-in link. No password.";
-    app.innerHTML = '<div class="card"><h2>Email me a link</h2><form id="magicForm" class="stack"><input type="email" required placeholder="you@example.com" aria-label="Email address" autocomplete="email"><button class="btn" type="submit">Send link</button></form><p class="notice" id="magicStatus"></p></div>';
+    var pending = null;
+    try { pending = JSON.parse(sessionStorage.getItem("nb_track_pending") || "null"); } catch (e) { pending = null; }
+    var pendingNote = pending && pending.name
+      ? '<p class="notice">Sign in to add ' + esc(pending.name) + ' to your tracker. The tracker is free.</p>'
+      : "";
+    document.getElementById("accountLead").textContent = "We’ll email you a sign-in link. No password. The tracker is free. Premium is optional.";
+    app.innerHTML = '<div class="card"><h2>Email me a link</h2>' + pendingNote + '<form id="magicForm" class="stack"><input type="email" required placeholder="you@example.com" aria-label="Email address" autocomplete="email"><button class="btn" type="submit">Send link</button></form><p class="notice" id="magicStatus"></p></div>';
     document.getElementById("magicForm").onsubmit = function (event) {
       event.preventDefault();
       var email = event.target.querySelector("input").value.trim();
@@ -156,9 +353,12 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
 
   window.NearBaseAccountPage = {
     render: function (authState) {
-      if (params.get("preview") === "signed-in") {
-        document.getElementById("accountLead").textContent = "Signed in. Plan, fingerprint, and saved schools live here.";
-        renderAccount(mock());
+      if (params.get("preview") === "signed-in" || params.get("preview") === "tracker") {
+        document.getElementById("accountLead").textContent = params.get("preview") === "tracker"
+          ? "Sample data on a free account. Premium is an optional upgrade."
+          : "Free account. The waitlist tracker is included. Premium is an optional upgrade.";
+        if (!previewData) previewData = mock();
+        renderAccount(previewData);
         return;
       }
       var session = authState && authState.session;
@@ -166,26 +366,29 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
         renderSignedOut(!!(authState && authState.configured));
         return;
       }
+      document.getElementById("accountLead").textContent = "You are signed in. The waitlist tracker is free. Premium is an optional upgrade.";
       var sbPromise = window.supabase.createClient(authState.config.supabaseUrl, authState.config.supabaseAnonKey);
       var userId = session.user.id;
       Promise.all([
         sbPromise.from("subscriptions").select("*").order("updated_at", { ascending: false }).limit(1),
         sbPromise.from("preferences").select("*").eq("user_id", userId).maybeSingle(),
-        sbPromise.from("favorites").select("*").eq("user_id", userId)
+        sbPromise.from("favorites").select("*").eq("user_id", userId),
+        window.NearBaseAccount.loadTracker()
       ]).then(function (results) {
         renderAccount({
           email: session.user.email,
           plan: results[0].data && results[0].data[0],
           preferences: (results[1].data) || {},
-          favorites: results[2].data || []
+          favorites: results[2].data || [],
+          tracker: results[3] || { entries: [] }
         });
       }).catch(function () {
-        renderAccount({ email: session.user.email, preferences: {}, favorites: [] });
+        renderAccount({ email: session.user.email, preferences: {}, favorites: [], tracker: { entries: [] } });
       });
     }
   };
 
-  if (params.get("preview") === "signed-in") window.NearBaseAccountPage.render({ session: { user: { email: "family@example.com" } }, configured: true });
+  if (isPreview()) window.NearBaseAccountPage.render({ session: { user: { email: "family@example.com" } }, configured: true });
 })();
 </script>
 </body>

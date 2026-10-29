@@ -59,6 +59,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .match-links a{color:var(--g);font-weight:500;text-decoration:none}
 .why-line{font-size:.72rem;color:var(--text);line-height:1.45;margin:.15rem 0 .35rem}
 .why-btn{background:none;border:none;color:var(--g);font-size:.72rem;font-weight:500;padding:0;cursor:pointer;font-family:inherit}
+.nb-track-school{margin-left:.75rem}
 .why-body{font-size:.7rem;color:var(--muted);line-height:1.45;margin:.25rem 0 .35rem}
 .why-body div{margin-bottom:.25rem}
 .limited{font-size:.62rem;color:#633806;background:#FAEEDA;border-radius:100px;padding:.05rem .4rem;margin-left:.25rem}
@@ -256,6 +257,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <script src="schools.js"></script>
 <script src="match.js"></script>
 <script src="billing-config.js"></script>
+<script src="tracker.js"></script>
 <script src="account.js"></script>
 <script>
 // ── 150+ NCR SCHOOLS ACROSS ALL 9 ZONES ────────────────────────────────────
@@ -380,6 +382,11 @@ function persistAndFilter(){
   doFilter();
 }
 
+function onTracker(slug){
+  try {
+    return JSON.parse(localStorage.getItem('nb_waitlist') || '[]').some(function (item) { return item.school_slug === slug; });
+  } catch (e) { return false; }
+}
 function render(rows){
   if(schoolLayer) schoolLayer.clearLayers();
   markers={};
@@ -427,6 +434,7 @@ function render(rows){
       <div class="why-body" hidden>${why}</div>
       <a href="school/${esc(s.slug)}.html" onclick="event.stopPropagation()" style="display:inline-block;font-size:.72rem;font-weight:500;color:var(--g);text-decoration:none;margin:.35rem 0 .1rem">Full profile →</a>
       <button type="button" class="why-btn nb-save-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}">Save school</button>
+      <button type="button" class="why-btn nb-track-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}">${onTracker(s.slug) ? "On your tracker" : "Add to tracker"}</button>
       <div class="cq">${esc(s.quote)}${locked?`<div class="lock"><span style="font-size:1rem">🔒</span><span style="font-size:.7rem;font-weight:500;color:var(--dark)">Waitlist · Contact</span><button class="lock-btn" onclick="event.stopPropagation();showPrem()">Unlock →</button></div>`:''}</div>`;
     list.appendChild(card);
   }

@@ -99,7 +99,7 @@
 
   function preferenceRow(userId, profile, votes) {
     var alerts = readJson("nb_spot_alerts") || { enabled: false, slugs: [] };
-    return {
+    var row = {
       user_id: userId,
       base_id: profile.baseId || null,
       hours: profile.hours || null,
@@ -114,6 +114,39 @@
       spot_alerts: alerts,
       updated_at: new Date().toISOString()
     };
+    var pcs = readPcsDate();
+    if (pcs) row.pcs_date = pcs;
+    return row;
+  }
+
+  function readPcsDate() {
+    try {
+      var value = localStorage.getItem("nb_pcs_date") || "";
+      return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function readLocalEntries() {
+    var Tracker = window.NearBaseTracker;
+    var list = readJson("nb_waitlist");
+    if (!Tracker || !Array.isArray(list)) return [];
+    return list.map(function (item) { return Tracker.normalizeEntry(item); }).filter(function (item) {
+      return item.school_name;
+    });
+  }
+
+  function writeLocalEntries(entries) {
+    try { localStorage.setItem("nb_waitlist", JSON.stringify(entries)); } catch (e) {}
+  }
+
+  function rememberPcsDate(value) {
+    var clean = /^\d{4}-\d{2}-\d{2}$/.test(String(value || "").slice(0, 10)) ? String(value).slice(0, 10) : "";
+    try {
+      if (clean) localStorage.setItem("nb_pcs_date", clean);
+    } catch (e) {}
+    return clean;
   }
 
   function setStatus(id, message) {
@@ -168,6 +201,153 @@
         school_name: name
       }, { onConflict: "user_id,school_slug" });
     }).catch(function () {});
+  }
+
+  function savePcsDate(iso) {
+    var clean = /^\d{4}-\d{2}-\d{2}$/.test(iso || "") ? iso : "";
+    try {
+      if (clean) localStorage.setItem("nb_pcs_date", clean);
+      else localStorage.removeItem("nb_pcs_date");
+    } catch (e) {}
+    if (!state.session) return Promise.resolve({ local: true });
+    return client().then(function (sb) {
+      if (!sb) return { local: true };
+      return sb.from("preferences").upsert({
+        user_id: state.session.user.id,
+        pcs_date: clean || null,
+        updated_at: new Date().toISOString()
+      }).then(function (result) {
+        if (result && result.error) return { local: true };
+        return { remote: true };
+      });
+    }).catch(function () {
+      return { local: true };
+    });
+  }
+
+  function saveTrackerEntry(raw) {
+    var Tracker = window.NearBaseTracker;
+    if (!Tracker) return Promise.resolve({ error: "Tracker is unavailable." });
+    var prepared = Tracker.prepareEntry(raw, Tracker.todayISO());
+    if (prepared.error) return Promise.resolve(prepared);
+    var entry = prepared.entry;
+    var local = readLocalEntries();
+    if (!entry.id) entry.id = "local-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    var idx = -1;
+    local.forEach(function (item, i) { if (item.id === entry.id) idx = i; });
+    if (idx >= 0) local[idx] = entry;
+    else local.unshift(entry);
+    writeLocalEntries(local);
+    if (!state.session) return Promise.resolve({ entry: entry, local: true });
+    var row = {
+      user_id: state.session.user.id,
+      school_slug: entry.school_slug || null,
+      school_name: entry.school_name,
+      applied_date: entry.applied_date || null,
+      fees_paid: entry.fees_paid,
+      desired_start_date: entry.desired_start_date || null,
+      status: entry.status,
+      notes: entry.notes,
+      stated_process: entry.stated_process,
+      follow_up_date: entry.follow_up_date || null,
+      contacts: entry.contacts,
+      updated_at: new Date().toISOString()
+    };
+    if (entry.id.indexOf("local-") !== 0) row.id = entry.id;
+    return client().then(function (sb) {
+      if (!sb) return { entry: entry, local: true };
+      return sb.from("waitlist_entries").upsert(row).select("*").then(function (result) {
+        if (!result || result.error || !result.data || !result.data[0]) return { entry: entry, local: true };
+        var saved = Tracker.normalizeEntry(result.data[0]);
+        var next = readLocalEntries().filter(function (item) {
+          return item.id !== entry.id && item.id !== saved.id;
+        });
+        next.unshift(saved);
+        writeLocalEntries(next);
+        return { entry: saved, remote: true };
+      });
+    }).catch(function () {
+      return { entry: entry, local: true };
+    });
+  }
+
+  function deleteTrackerEntry(id) {
+    var local = readLocalEntries().filter(function (item) { return item.id !== id; });
+    writeLocalEntries(local);
+    if (!state.session || String(id).indexOf("local-") === 0) return Promise.resolve({ local: true });
+    return client().then(function (sb) {
+      if (!sb) return { local: true };
+      return sb.from("waitlist_entries").delete().eq("id", id).eq("user_id", state.session.user.id);
+    }).catch(function () {
+      return { local: true };
+    });
+  }
+
+  function loadTracker() {
+    var Tracker = window.NearBaseTracker;
+    var localPcs = readPcsDate();
+    var timing = "";
+    try {
+      var profile = readJson("nb_family") || {};
+      timing = profile.timing || "";
+    } catch (e) { timing = ""; }
+    if (!state.session || !Tracker) {
+      return Promise.resolve({ entries: readLocalEntries(), pcsDate: localPcs, timing: timing, local: true });
+    }
+    return client().then(function (sb) {
+      if (!sb) return { entries: readLocalEntries(), pcsDate: localPcs, timing: timing, local: true };
+      return Promise.all([
+        sb.from("waitlist_entries").select("*").order("updated_at", { ascending: false }),
+        sb.from("preferences").select("pcs_date,timing").eq("user_id", state.session.user.id).maybeSingle()
+      ]).then(function (results) {
+        var prefs = (results[1] && results[1].data) || {};
+        var pcs = rememberPcsDate(prefs.pcs_date) || localPcs;
+        if (results[0] && results[0].error) {
+          return { entries: readLocalEntries(), pcsDate: pcs, timing: prefs.timing || timing, local: true };
+        }
+        var entries = ((results[0] && results[0].data) || []).map(function (row) {
+          return Tracker.normalizeEntry(row);
+        });
+        writeLocalEntries(entries);
+        return { entries: entries, pcsDate: pcs, timing: prefs.timing || timing, remote: true };
+      });
+    }).catch(function () {
+      return { entries: readLocalEntries(), pcsDate: localPcs, timing: timing, local: true };
+    });
+  }
+
+  function addSchoolToTracker(source) {
+    var slug = String((source && source.slug) || "").trim();
+    var name = String((source && source.name) || "").trim();
+    return loadConfig().then(refreshSession).then(function () {
+      if (state.configured && !state.session) {
+        try {
+          sessionStorage.setItem("nb_track_pending", JSON.stringify({ slug: slug, name: name }));
+        } catch (e) {}
+        if (!source || !source.stay) window.location.href = "/account.html?next=tracker";
+        return { needsSignIn: true };
+      }
+      var ready = state.session ? loadTracker() : Promise.resolve(null);
+      return ready.then(function () {
+        if (!name) return { error: "Add a school name." };
+        var existing = slug && readLocalEntries().filter(function (item) { return item.school_slug === slug; })[0];
+        if (existing) return { entry: existing, already: true };
+        return saveTrackerEntry({ school_slug: slug, school_name: name, status: "researching" });
+      });
+    });
+  }
+
+  function consumePendingTrack() {
+    if (!state.session) return Promise.resolve(null);
+    var raw = null;
+    try { raw = JSON.parse(sessionStorage.getItem("nb_track_pending") || "null"); } catch (e) { raw = null; }
+    if (!raw || !raw.name) return Promise.resolve(null);
+    return addSchoolToTracker({ slug: raw.slug, name: raw.name, stay: true }).then(function (result) {
+      if (result && !result.needsSignIn) {
+        try { sessionStorage.removeItem("nb_track_pending"); } catch (e) {}
+      }
+      return result;
+    });
   }
 
   function checkout(sku) {
@@ -286,10 +466,34 @@
         saveSchool(button);
       });
     }
+    if (!document.documentElement.dataset.trackBound) {
+      document.documentElement.dataset.trackBound = "1";
+      document.addEventListener("click", function (event) {
+        var button = event.target.closest ? event.target.closest(".nb-track-school") : null;
+        if (!button) return;
+        event.stopPropagation();
+        event.preventDefault();
+        var previous = button.textContent;
+        button.textContent = "Adding…";
+        addSchoolToTracker({
+          slug: button.getAttribute("data-slug") || "",
+          name: button.getAttribute("data-name") || ""
+        }).then(function (result) {
+          if (!result || result.needsSignIn) return;
+          if (result.error) {
+            button.textContent = previous;
+            return;
+          }
+          button.textContent = "On your tracker";
+        }).catch(function () {
+          button.textContent = previous;
+        });
+      });
+    }
   }
 
   function boot() {
-    return loadConfig().then(refreshSession).then(function () {
+    return loadConfig().then(refreshSession).then(consumePendingTrack).then(function () {
       wireCheckout();
       wireSignIn();
       wireSave();
@@ -300,6 +504,13 @@
   window.NearBaseAccount = {
     saveProfile: saveProfile,
     saveSchool: saveSchool,
+    savePcsDate: savePcsDate,
+    saveTrackerEntry: saveTrackerEntry,
+    deleteTrackerEntry: deleteTrackerEntry,
+    loadTracker: loadTracker,
+    addSchoolToTracker: addSchoolToTracker,
+    readLocalEntries: readLocalEntries,
+    readPcsDate: readPcsDate,
     checkout: checkout,
     openPortal: openPortal,
     sendMagicLink: sendMagicLink,
