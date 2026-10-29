@@ -15,6 +15,10 @@
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@nearbasenet">
+<meta name="twitter:image" content="https://nearbase.net/og-card.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"NearBase","url":"https://nearbase.net/","description":"Preschool finder for military families on PCS moves.","publisher":{"@type":"Organization","name":"NearBase","url":"https://nearbase.net/","email":"kellybrown@nearbase.net","founder":{"@type":"Person","name":"Kelly Brown"}}}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,6 +115,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .step-num{width:4rem;height:4rem;border-radius:50%;background:var(--light);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;color:var(--green);margin:0 auto 1.25rem;position:relative;background:var(--white)}
 .step-title{font-size:.95rem;font-weight:500;color:var(--dark);margin-bottom:.5rem}
 .step-desc{font-size:.85rem;line-height:1.6;color:var(--muted)}
+.step-desc a,.pf-body a{color:var(--green)}
 
 /* MILITARY DIFFERENCE */
 .military{background:var(--cream)}
@@ -162,6 +167,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .fcta-sub{font-size:1rem;color:rgba(255,255,255,0.55);margin-bottom:2.5rem}
 .btn-white{background:var(--white);color:var(--dark);padding:.875rem 2rem;border-radius:100px;font-size:.95rem;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all .2s}
 .btn-white:hover{background:var(--light);transform:translateY(-1px)}
+.btn-ghost-light{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.75);padding:.8rem 1.4rem;border-radius:100px;font-size:.95rem;font-weight:500;text-decoration:none;display:inline-flex;align-items:center}
+.btn-ghost-light:hover{background:rgba(255,255,255,.12)}
 
 /* FOOTER */
 footer{background:#021f19;padding:2.5rem 2rem}
@@ -181,10 +188,22 @@ footer{background:#021f19;padding:2.5rem 2rem}
 .hero-actions{animation:fadeUp .6s .3s ease both}
 .hero-visual{animation:fadeUp .8s .2s ease both}
 
+.skip{position:absolute;left:-999px;top:.5rem;background:#fff;color:var(--dark);padding:.6rem 1rem;z-index:300;border-radius:8px}
+.skip:focus{left:.5rem}
+.btn-outline-dark{border:1.5px solid var(--dark);color:var(--dark);padding:.8rem 1.4rem;border-radius:100px;font-size:.95rem;font-weight:500;text-decoration:none;display:inline-flex;align-items:center}
+.btn-outline-dark:hover{background:var(--dark);color:#fff}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.example-flag{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
 /* RESPONSIVE */
 @media(max-width:900px){
-  .hero-inner{grid-template-columns:1fr;gap:3rem}
-  .hero-visual{display:none}
+  .hero{padding:6.5rem 1.25rem 3rem}
+  .hero-inner{grid-template-columns:1fr;gap:2rem}
+  .hero-visual{display:block}
+  .float-badge{position:static;margin-top:1rem;animation:none;left:auto;bottom:auto}
   .steps{grid-template-columns:repeat(2,1fr)}
   .steps::before{display:none}
   .mil-grid{grid-template-columns:1fr}
@@ -235,6 +254,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <!-- NAV -->
 <nav>
@@ -250,16 +270,17 @@ body.nbv3-open .nbv3-mobile{display:flex}
         <div class="nbv3-menu"><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a></div></div>
       <div class="nbv3-drop"><button type="button" aria-haspopup="true">About<span class="nbv3-car">▾</span></button>
         <div class="nbv3-menu"><a href='/about'>Our story</a><a href='/mission'>Mission</a></div></div>
-      <a class='nav-cta' href='/find'>Search near my base →</a>
+      <a class='nav-cta' href='/quiz'>Start the quiz →</a>
     </div>
     <button type="button" class="nbv3-burger" aria-label="Open menu" aria-expanded="false" onclick="document.body.classList.toggle('nbv3-open');var open=document.body.classList.contains('nbv3-open');this.setAttribute('aria-expanded',open?'true':'false');this.setAttribute('aria-label',open?'Close menu':'Open menu')"><span></span><span></span><span></span></button>
   </div>
   <div class="nbv3-mobile">
     <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/schools'>For schools</a><a href='/premium'>Premium</a><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a><a href='/about'>Our story</a><a href='/mission'>Mission</a>
-    <a class='nav-cta' href='/find' style='text-align:center;margin-top:.5rem'>Search near my base →</a>
+    <a class='nav-cta' href='/quiz' style='text-align:center;margin-top:.5rem'>Start the quiz →</a>
   </div>
 </nav>
 
+<main id="main">
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -268,23 +289,24 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <h1>Find the right preschool <em>before</em> you unpack a single box.</h1>
       <p class="hero-sub">Tell us where you're PCSing. Get ranked schools with real waitlist intel, military discounts, and insider knowledge no directory has.</p>
       <div class="hero-actions">
-        <a class='btn-primary' href='/find'>Search schools near my base →</a>
-        <a href="#schools" class="btn-secondary">Are you a school? →</a>
+        <a class='btn-primary' href='/quiz'>Take the family quiz →</a>
+        <a class='btn-outline-dark' href='/find'>Search near my base</a>
+        <a href="/checkin" class="btn-secondary">Pay a tour forward →</a>
       </div>
       <div class="hero-proof">
-        <span class="stars">★★★★★</span>
-        <span>Free to search &nbsp;·&nbsp; Built for PCS families &nbsp;·&nbsp; NCR + growing</span>
+        <span>Free to search &nbsp;·&nbsp; Built for PCS families &nbsp;·&nbsp; 150+ NCR schools</span>
       </div>
     </div>
     <div class="hero-visual">
       <div class="hero-card">
+        <div class="example-flag">Example family — not a real result</div>
         <div class="card-header">
           <div class="card-avatar">🪖</div>
           <div class="card-info">
             <div class="card-name">Martinez Family — PCSing to Pentagon</div>
             <div class="card-sub">2 children: ages 3 &amp; 18 months · Summer 2026</div>
           </div>
-          <div class="card-badge">95 match</div>
+          <div class="card-badge">Example</div>
         </div>
         <div class="school-list">
           <div class="school-item">
@@ -313,7 +335,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
           </div>
         </div>
         <div class="card-footer">
-          <span class="card-footer-text">Showing 3 of 38 NCR matches</span>
+          <span class="card-footer-text">Example · three schools near the Pentagon</span>
           <a href="/find" class="card-footer-link">See all results →</a>
         </div>
       </div>
@@ -332,7 +354,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <div class="trust">
   <div class="trust-inner">
     <div class="trust-item"><strong>300,000+</strong> families PCS every year</div>
-    <div class="trust-item"><strong>38 schools</strong> verified in NCR database</div>
+    <div class="trust-item"><strong>150+ schools</strong> in the public NCR directory</div>
     <div class="trust-item"><strong>18 program types</strong> mapped — including programs no one else lists</div>
     <div class="trust-item"><strong>PCS season</strong> May – August — apply early</div>
   </div>
@@ -355,7 +377,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-title">Set your family's priorities</div>
-        <p class="step-desc">Ages · curriculum · hours · MCCYN · EFMP · siblings · deployment flexibility.</p>
+        <p class="step-desc">Ages, hours, MCCYN, EFMP — or <a href="/quiz">take the family quiz</a>.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
@@ -365,7 +387,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-title">Connect and enroll</div>
-        <p class="step-desc">Contact, track waitlists, get spot alerts — first search to first day.</p>
+        <p class="step-desc">Call, tour, then <a href="/checkin">tell the next family</a> what you learned.</p>
       </div>
     </div>
   </div>
@@ -408,7 +430,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <div><div class="stat-n">300,000+</div><div class="stat-label">military families PCS every year</div></div>
       <div><div class="stat-n">40–60 hrs</div><div class="stat-label">average family spends searching for preschools</div></div>
       <div><div class="stat-n">20 min</div><div class="stat-label">what NearBase cuts that to</div></div>
-      <div><div class="stat-n">500+</div><div class="stat-label">programs mapped across the NCR — and growing</div></div>
+      <div><div class="stat-n">150+</div><div class="stat-label">preschools in the public directory, across 9 zones</div></div>
     </div>
   </div>
 </div>
@@ -422,7 +444,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <p class="pf-body">One question after every school contact: “How did it go?” Your answer becomes intel for the family arriving six months behind you.</p>
       <div class="pf-quote">"AI won't know what is behind closed doors at these preschools. But military families who inquire will."</div>
       <p class="pf-body">Your 40–60 search hours don't disappear. They pay forward.</p>
-      <a class='btn-primary' href='/find' style='margin:0 auto;display:inline-flex'>Start your free search →</a>
+      <a class='btn-primary' href='/checkin' style='margin:0 auto;display:inline-flex'>Pay a call forward →</a>
     </div>
   </div>
 </section>
@@ -472,8 +494,12 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <section class="fcta">
   <div class="fcta-title">Finding the right preschool shouldn't depend on who you know.</div>
   <div class="fcta-sub">Now it doesn't.</div>
-  <a class='btn-white' href='/find'>Start your free search →</a>
+  <div class="hero-actions" style="justify-content:center">
+    <a class='btn-white' href='/quiz'>Take the family quiz →</a>
+    <a class='btn-ghost-light' href='/find'>Search near my base</a>
+  </div>
 </section>
+</main>
 
 <!-- FOOTER -->
 
@@ -496,8 +522,9 @@ body.nbv3-open .nbv3-mobile{display:flex}
     <div class="footer-logo">Near<span>Base</span></div>
     <div class="footer-links">
       <a href='/find'>Find schools</a>
-      
-      <a href="#about">About</a>
+      <a href='/quiz'>Family quiz</a>
+      <a href='/checkin'>Pay it forward</a>
+      <a href="/about">About</a>
       <a href="mailto:kellybrown@nearbase.net">Contact</a>
       <a href="/privacy">Privacy policy</a>
     </div>
