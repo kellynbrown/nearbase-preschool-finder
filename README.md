@@ -6,6 +6,19 @@
 
 ---
 
+## Source of truth
+
+The live site (checked against the 2026-10-28 deploy archive) is this repository:
+
+```
+site/                 # Netlify publish directory
+netlify/functions/    # password-protected founder dashboard (admin.mjs + admin.html)
+netlify.toml          # publish = "site", /admin redirects to the function
+scripts/test-match.js # node scripts/test-match.js
+```
+
+Family match math lives in `site/match.js`. Plain-language tour notes live in `site/insights.js`. Both run in the browser. No API key.
+
 ## What This Is
 
 NearBase is an AI-powered preschool finder built specifically for military families navigating PCS moves. Finding a quality preschool in a new city — with weeks of notice, two young children, and a deployment on the horizon — is one of the most stressful parts of military family life. NearBase solves that.

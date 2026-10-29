@@ -15,6 +15,7 @@
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@nearbasenet">
+<meta name="twitter:image" content="https://nearbase.net/og-card.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -367,29 +368,26 @@ body.nbv3-open .nbv3-mobile{display:flex}
         </div>
 
         <div class="setup-form">
-          <div class="form-group">
-            <label class="form-label">Child's age</label>
-            <select class="form-select" id="childAge">
-              <option value="">Select age</option>
-              <option>Infant (0–12 months)</option>
-              <option>Toddler (12–24 months)</option>
-              <option>2 years old</option>
-              <option>3 years old</option>
-              <option>4 years old</option>
-              <option>5 years old</option>
-            </select>
+          <div class="form-group" style="grid-column:1 / -1">
+            <span class="form-label" id="ageLegend">Ages that need a seat</span>
+            <div role="group" aria-labelledby="ageLegend" style="display:flex;flex-wrap:wrap;gap:.4rem .9rem;font-size:.85rem">
+              <label><input type="checkbox" name="age" value="infant"> Infant, under 18 months</label>
+              <label><input type="checkbox" name="age" value="toddler"> Toddler, 18 months–3</label>
+              <label><input type="checkbox" name="age" value="pk"> Preschool, 3–5</label>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Duty station / area</label>
+            <label class="form-label" for="dutyStation">Duty station / area</label>
             <select class="form-select" id="dutyStation">
               <option value="">Select base</option>
-              <option>Pentagon / Arlington VA</option>
-              <option>Fort Belvoir VA</option>
-              <option>JBAB / Bolling DC</option>
-              <option>Joint Base Andrews MD</option>
-              <option>Fort Meade / NSA MD</option>
-              <option>Naval Academy / Annapolis MD</option>
-              <option>Quantico MCB VA</option>
+              <option value="pentagon">Pentagon / Arlington VA</option>
+              <option value="belvoir">Fort Belvoir VA</option>
+              <option value="jbab">JBAB / Bolling DC</option>
+              <option value="andrews">Joint Base Andrews MD</option>
+              <option value="meade">Fort Meade / NSA MD</option>
+              <option value="usna">Naval Academy / Annapolis MD</option>
+              <option value="quantico">Quantico MCB VA</option>
+              <option value="navyyard">Navy Yard</option>
             </select>
           </div>
           <div class="form-group">
@@ -397,12 +395,21 @@ body.nbv3-open .nbv3-mobile{display:flex}
             <input class="form-input" type="month" id="pcsDate">
           </div>
           <div class="form-group">
-            <label class="form-label">Number of children searching</label>
-            <select class="form-select" id="numChildren">
-              <option>1 child</option>
-              <option>2 children</option>
-              <option>3+ children</option>
+            <label class="form-label" for="hoursNeed">Hours you need</label>
+            <select class="form-select" id="hoursNeed">
+              <option value="any">Flexible</option>
+              <option value="early">Open by 6:30am</option>
+              <option value="duty">Duty day, about 7am–6pm</option>
+              <option value="half">Half day is fine</option>
             </select>
+          </div>
+          <div class="form-group" style="grid-column:1 / -1">
+            <span class="form-label" id="needLegend">Also true for your family</span>
+            <div role="group" aria-labelledby="needLegend" style="display:flex;flex-wrap:wrap;gap:.4rem .9rem;font-size:.85rem">
+              <label><input type="checkbox" id="needMccyn"> We need MCCYN / fee assistance</label>
+              <label><input type="checkbox" id="needSubsidy"> We need a free or subsidized seat</label>
+              <label><input type="checkbox" id="needEfmp"> EFMP or special-needs support</label>
+            </div>
           </div>
         </div>
 
@@ -484,6 +491,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
     <div class="fingerprint-card" id="fingerprintCard"></div>
 
     <div class="insight-box" id="insightBox"></div>
+    <div id="realMatches" style="text-align:left;margin:1rem auto;max-width:720px"></div>
 
     <div class="parent-split" id="parentSplit">
       <div class="ps-label">⚠ Parent priorities differ — here's how we balanced them</div>
@@ -492,7 +500,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
 
     <div class="results-btns">
       <button class="btn-primary" onclick="retakeQuiz()">Retake quiz to sharpen results</button>
-      <button class="btn-primary gold" onclick="showToast('🔍 Applying fingerprint to your search…','gold')">Apply to my school search</button>
+      <button class="btn-primary gold" onclick="location.href='/find'">See these matches on the map</button>
       <button class="btn-outline" onclick="exportFingerprint()">Export fingerprint JSON</button>
     </div>
   </div>
@@ -601,6 +609,9 @@ body.nbv3-open .nbv3-mobile{display:flex}
 
 <div class="toast" id="toast"></div>
 
+<script src="schools.js"></script>
+<script src="match.js"></script>
+<script src="insights.js"></script>
 <script>
 // ═══════════════════════════════════════════════
 // DIMENSIONS
@@ -742,6 +753,7 @@ let quizState = {
   prefs: { vibe:{urban:0,suburban:0,rural:0}, campus:{urban:0,suburban:0,rural:0}, program:{}, community:{}, practical:{} },
   currA: null, currB: null, choosing: false,
   votes: { urban:0, suburban:0, rural:0, montessori:0, reggio:0, play:0, waldorf:0, academic:0, nature:0, bilingual:0, small:0, large:0, free:0, structured:0 },
+  situation: null,
   choices: [],
 };
 let setupMode = 'family';
@@ -752,9 +764,23 @@ function selectSetup(m){
   document.getElementById('opt-'+m).classList.add('selected');
 }
 
+function readQuizSituation(){
+  const ages = [...document.querySelectorAll('#setupScreen input[name="age"]:checked')].map(el=>el.value);
+  const baseId = document.getElementById('dutyStation').value || NearBaseMatch.loadProfile().baseId || 'pentagon';
+  return {
+    baseId: baseId,
+    ages: ages,
+    hours: document.getElementById('hoursNeed').value || 'any',
+    timing: NearBaseMatch.timingFromMonth(document.getElementById('pcsDate').value),
+    mccyn: document.getElementById('needMccyn').checked,
+    subsidy: document.getElementById('needSubsidy').checked,
+    efmp: document.getElementById('needEfmp').checked
+  };
+}
 function startQuiz(){
   document.getElementById('setupScreen').style.display='none';
   document.getElementById('quizScreen').style.display='block';
+  quizState.situation = readQuizSituation();
   quizState.who = setupMode;
   quizState.count = 0;
   quizState.choices = [];
@@ -795,8 +821,9 @@ function quizChoose(side){
 
   // Record preference signals
   quizState.votes[winner.settingType] = (quizState.votes[winner.settingType]||0) + 1;
-  const currKey = winner.curriculum.toLowerCase().replace(/\s+/g,'').replace(/ami/,'').replace(/-/g,'').replace(/emilia/,'').replace(/based/,'').replace('nature','nature');
-  quizState.votes[currKey] = (quizState.votes[currKey]||0) + 1;
+  const currMap = {'Montessori AMI':'montessori','Reggio Emilia':'reggio','Play-based':'play','Waldorf':'waldorf','Academic prep':'academic','Nature-based':'nature','Bilingual':'bilingual'};
+  const currKey = currMap[winner.curriculum] || '';
+  if(currKey) quizState.votes[currKey] = (quizState.votes[currKey]||0) + 1;
   const enroll = parseInt(winner.enrollment);
   if(!isNaN(enroll)) quizState.votes[enroll <= 32 ? 'small' : 'large'] = (quizState.votes[enroll<=32?'small':'large']||0)+1;
 
@@ -874,41 +901,65 @@ function finishQuiz(){
 
   const v = quizState.votes;
   const total = Math.max(quizState.count,1);
+  const esc = NearBaseMatch.esc;
 
-  // Stats
   document.getElementById('resultsGrid').innerHTML = [
     {val:quizState.count,label:'Pairs compared'},
     {val:DIMS[quizState.dimIdx].label,label:'Final dimension'},
     {val:`${Math.round(quizState.count/quizState.total*100)}%`,label:'Quiz complete'},
   ].map(s=>`<div class="result-card"><div class="result-card-val">${s.val}</div><div class="result-card-label">${s.label}</div></div>`).join('');
 
-  // Fingerprint
   const topSetting = ['urban','suburban','rural'].sort((a,b)=>(v[b]||0)-(v[a]||0))[0];
-  const topCurr = ['montessori','reggio','play','waldorf','academic','nature','bilingual'].sort((a,b)=>(v[b]||0)-(v[a]||0))[0];
+  const philosophies = NearBaseMatch.philosophiesFromVotes(v);
   const dimScores = [
     {label:'Suburban / outdoor campus',score:Math.min(100,Math.round(((v.suburban||0)+(v.rural||0))/total*160))},
     {label:'Small enrollment (< 32)',score:Math.min(100,Math.round((v.small||0)/total*200))},
     {label:'Child-led learning',score:Math.min(100,Math.round(((v.montessori||0)+(v.play||0)+(v.reggio||0))/total*140))},
     {label:'Nature / outdoor access',score:Math.min(100,Math.round((v.nature||0)/total*250))},
-    {label:'Military-aware program',score:65},
   ];
-
-  document.getElementById('fingerprintCard').innerHTML=`<div class="fp-title">Preference fingerprint — used to re-rank your NCR matches</div>`+
+  document.getElementById('fingerprintCard').innerHTML=`<div class="fp-title">Preference fingerprint — philosophies re-rank real schools</div>`+
     dimScores.map(d=>`<div class="fp-row"><div class="fp-label">${d.label}</div><div class="fp-bar-track"><div class="fp-bar" style="width:${d.score}%"></div></div><div class="fp-val">${d.score}%</div></div>`).join('');
 
-  const insightMap = {
-    urban:`Your fingerprint shows a family drawn to urban settings — walkable campuses, city-integrated learning, and proximity to cultural resources. In your NCR search, we've boosted schools in DC Core (Zone 1) and Close-In NoVA (Zone 2).`,
-    suburban:`You gravitate toward suburban campuses with outdoor space and neighborhood community. We've boosted Fairfax/Herndon (Zone 3) and Montgomery County (Zone 4) schools in your results.`,
-    rural:`Space and nature are priorities. We've surfaced rural and nature-based programs — Mater Amoris, Montessori Country School, and forest school programs — higher in your personalized list.`,
-  };
-  document.getElementById('insightBox').innerHTML=`<div class="ib-label">How this re-ranks your NCR results</div><div class="ib-text">${insightMap[topSetting]||insightMap.suburban}</div>`;
+  NearBaseMatch.saveQuiz(quizState.who, v);
+  let votesForMatch = v;
+  const split = document.getElementById('parentSplit');
+  split.classList.remove('show');
+  if(quizState.who==='parent1' || quizState.who==='parent2'){
+    const otherWho = quizState.who==='parent1' ? 'parent2' : 'parent1';
+    const other = NearBaseMatch.loadQuiz(otherWho);
+    split.classList.add('show');
+    if(other && other.votes){
+      const diff = NearBaseMatch.voteDisagreements(v, other.votes);
+      votesForMatch = NearBaseMatch.mergeVotes(v, other.votes);
+      const names = diff.map(id=>NearBaseMatch.PHILOSOPHY_LABEL[id]||id);
+      document.getElementById('psSplit').innerHTML =
+        `<div class="ps-col"><div class="ps-who">Where you differ</div><div class="ps-pref">${names.length?esc(names.join(', ')):'No sharp philosophy split in these quizzes.'}</div></div>`+
+        `<div class="ps-col"><div class="ps-who">How we ranked</div><div class="ps-pref">Both sets of choices are averaged. Nothing here is guessed.</div></div>`;
+    } else {
+      document.getElementById('psSplit').innerHTML =
+        `<div class="ps-col"><div class="ps-who">${quizState.who==='parent1'?'Parent 2':'Parent 1'} has not taken this yet</div><div class="ps-pref">Ask them to take the quiz on this device. We will not invent their preferences.</div></div>`;
+    }
+  }
 
-  // Simulate parent split if parent mode
-  if(quizState.who !== 'family'){
-    document.getElementById('parentSplit').classList.add('show');
-    document.getElementById('psSplit').innerHTML=`
-      <div class="ps-col"><div class="ps-who">Parent 1</div><div class="ps-pref">Prefers: ${topSetting} settings, ${topCurr} curriculum, small enrollment</div></div>
-      <div class="ps-col"><div class="ps-who">Parent 2</div><div class="ps-pref">Prefers: suburban settings, play-based curriculum, mid-size enrollment</div></div>`;
+  const situation = quizState.situation || readQuizSituation();
+  const profile = NearBaseMatch.withQuiz(situation, votesForMatch, quizState.who);
+  NearBaseMatch.saveProfile(profile);
+  const ranked = NearBaseMatch.rankSchools(window.SCHOOLS||[], profile).slice(0,5);
+  const timeline = NearBaseInsights.pcsTimeline(profile);
+  const settingNote = topSetting ? ` Your pairs leaned ${topSetting}. That setting preference is a quiz signal, not a fact about any school.` : '';
+  document.getElementById('insightBox').innerHTML =
+    `<div class="ib-label">Real schools, re-ranked</div><div class="ib-text">These five use your base, ages, hours, and the philosophies you actually picked.${esc(settingNote)} Each line is from the school listing.</div>`;
+  document.getElementById('realMatches').innerHTML = ranked.map((row,i)=>{
+    const s = row.school;
+    const miles = row.match.distanceMiles==null ? '' : ` · ${row.match.distanceMiles.toFixed(1)} mi`;
+    return `<a href="school/${esc(s.slug)}.html" style="display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;margin-bottom:.55rem">
+      <div style="display:flex;justify-content:space-between;gap:.75rem;align-items:baseline"><strong style="color:var(--dark)">${i+1}. ${esc(s.name)}</strong><span style="color:var(--green);font-weight:600">${row.match.score}</span></div>
+      <div style="font-size:.78rem;color:var(--muted);margin:.15rem 0 .35rem">${esc(s.loc)}${miles}</div>
+      <div style="font-size:.84rem;line-height:1.45">${esc(row.match.headline)}</div>
+    </a>`;
+  }).join('') + `<div style="margin-top:.75rem;font-size:.84rem;line-height:1.5"><strong>${esc(timeline.title)}</strong><ul style="margin:.4rem 0 0 1.1rem">${timeline.items.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`;
+  if(philosophies.length){
+    document.getElementById('insightBox').insertAdjacentHTML('beforeend', `<div class="ib-text" style="margin-top:.45rem">Philosophies carried into the rank: ${esc(philosophies.map(id=>NearBaseMatch.PHILOSOPHY_LABEL[id]).join(', '))}.</div>`);
   }
 }
 
