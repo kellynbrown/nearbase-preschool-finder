@@ -116,11 +116,11 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
     var sku = params.get("sku") || "";
     var follow = "";
     if (checkout === "success" && sku === "consult") {
-      follow = '<div class="card"><h2>Book the 30-minute call</h2><p class="muted">Tell Kelly a couple of times that work. She will write back at the email on this account.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Duty station, ages, and two times that work"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send booking request</button></form></div>';
+      follow = '<div class="card"><h2>Book the 30-minute call</h2><p class="muted">Tell Kelly a couple of times that work. He will write back at the email on this account.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Duty station, ages, and two times that work"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send booking request</button></form></div>';
     } else if (checkout === "success" && sku === "tourkit") {
       follow = '<div class="card"><h2>Your tour kit is ready</h2><p class="muted">Print it or save it. It covers the classroom and the military questions: cost, hours, fee assistance, MCCYN, and a PCS waitlist.</p><p class="actions"><a class="btn" href="/tour-kit.html">Open the question kit</a></p></div>';
     } else if (checkout === "success" && sku === "shortlist") {
-      follow = '<div class="card"><h2>Shortlist requested</h2><p class="muted">Kelly emails the shortlist within 3 business days. Add anything she should know.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Bases, ages, hours, and budget"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send details</button></form></div>';
+      follow = '<div class="card"><h2>Shortlist requested</h2><p class="muted">Kelly emails the shortlist within 3 business days. Add anything he should know.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Bases, ages, hours, and budget"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send details</button></form></div>';
     } else if (checkout === "success") {
       follow = '<div class="card"><h2>Purchase received</h2><p class="muted">Kelly has the order. Cancel anytime from Manage billing if it is a monthly add-on.</p></div>';
     }
