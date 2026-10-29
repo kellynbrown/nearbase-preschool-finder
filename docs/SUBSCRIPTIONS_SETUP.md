@@ -54,13 +54,18 @@ To change a price later, edit the cents in `netlify/functions/lib/catalog.mjs` a
 
 Row security lets a signed-in family read and update only their own rows.
 
+The same script creates `public.waitlist_entries`. That table is the free waitlist tracker. Any signed-in family can use it. Premium is not required. Each row stores the school, dates, fees the family paid, status, notes, the process they copied from the school, a follow-up date, and contacts. Policies allow `select`, `insert`, `update`, and `delete` only where `user_id = auth.uid()`. There is no policy for a school, and no shared or summary view. `preferences.pcs_date` is the family’s PCS move date, used only to flag a desired start that falls after the move.
+
+If this project already ran an older `schema.sql`, run the file again. `create table if not exists` and `add column if not exists` keep the existing rows and add the tracker table and `pcs_date`.
+
 ## 3. Redeploy
 
 Redeploy the site after the env vars are saved. Then, in test mode:
 
-1. Open Premium and subscribe with Stripe’s test card `4242 4242 4242 4242`.
-2. Open the account page from the email link and confirm the plan shows.
-3. Use Manage billing to open the customer portal.
+1. Open the account page, ask for a magic link, and sign in without paying. The waitlist tracker is there on the free account.
+2. Open Premium and subscribe with Stripe’s test card `4242 4242 4242 4242`.
+3. Open the account page from the email link and confirm the plan shows. The tracker stays available.
+4. Use Manage billing to open the customer portal.
 
 ## 4. Go live
 

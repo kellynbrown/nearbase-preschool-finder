@@ -35,8 +35,11 @@ create table if not exists public.preferences (
   timing text,
   quiz_votes jsonb not null default '{}'::jsonb,
   spot_alerts jsonb not null default '{"enabled":false,"slugs":[]}'::jsonb,
+  pcs_date date,
   updated_at timestamptz not null default now()
 );
+
+alter table public.preferences add column if not exists pcs_date date;
 
 create table if not exists public.favorites (
   id uuid primary key default gen_random_uuid(),
@@ -104,6 +107,50 @@ create policy "insert own favorites" on public.favorites
 
 drop policy if exists "delete own favorites" on public.favorites;
 create policy "delete own favorites" on public.favorites
+  for delete using (user_id = auth.uid());
+
+-- Private waitlist tracker. A family can read and write only their own rows.
+-- Schools have no policy on this table. Nothing here is aggregated or shared.
+create table if not exists public.waitlist_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  school_slug text,
+  school_name text not null,
+  applied_date date,
+  fees_paid numeric(10, 2) not null default 0,
+  desired_start_date date,
+  status text not null default 'researching',
+  notes text not null default '',
+  stated_process text not null default '',
+  follow_up_date date,
+  contacts text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint waitlist_status_check check (
+    status in ('researching', 'applied', 'waitlisted', 'offered', 'accepted', 'declined', 'withdrawn')
+  ),
+  constraint waitlist_fees_nonnegative check (fees_paid >= 0)
+);
+
+create index if not exists waitlist_entries_user_idx
+  on public.waitlist_entries (user_id, follow_up_date);
+
+alter table public.waitlist_entries enable row level security;
+
+drop policy if exists "read own waitlist" on public.waitlist_entries;
+create policy "read own waitlist" on public.waitlist_entries
+  for select using (user_id = auth.uid());
+
+drop policy if exists "insert own waitlist" on public.waitlist_entries;
+create policy "insert own waitlist" on public.waitlist_entries
+  for insert with check (user_id = auth.uid());
+
+drop policy if exists "update own waitlist" on public.waitlist_entries;
+create policy "update own waitlist" on public.waitlist_entries
+  for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists "delete own waitlist" on public.waitlist_entries;
+create policy "delete own waitlist" on public.waitlist_entries
   for delete using (user_id = auth.uid());
 
 -- Check-ins, ranking votes, and research votes stay anonymous.

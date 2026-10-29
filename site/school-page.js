@@ -26,7 +26,10 @@
     ".nb-share{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}",
     ".nb-share-btn{background:#fff;color:#085041;border:1px solid #d4ead8;border-radius:100px;padding:.5rem .9rem;font-family:inherit;font-size:.8rem;cursor:pointer}",
     ".nb-share-btn:hover,.nb-share-btn:focus-visible{border-color:#1D9E75;outline:none}",
-    ".nb-dir{font-size:.75rem;color:#6b6b67;margin-top:.35rem}"
+    ".nb-dir{font-size:.75rem;color:#6b6b67;margin-top:.35rem}",
+    ".worth{background:#F8FAF8;border:1px solid #d4ead8;border-radius:16px;padding:.9rem 1rem;margin-top:1rem}",
+    ".worth h3{margin-top:0}",
+    ".nb-track-school{background:#1D9E75;color:#fff;border-color:#1D9E75}"
   ].join("");
   document.head.appendChild(css);
 
@@ -149,5 +152,21 @@
       } else line = next;
     });
     if (line) ctx.fillText(line, x, yy);
+  }
+
+  var Tracker = window.NearBaseTracker;
+  if (Tracker) {
+    var worth = document.createElement("div");
+    worth.className = "nb-worth";
+    var already = false;
+    try {
+      var savedList = JSON.parse(localStorage.getItem("nb_waitlist") || "[]");
+      already = savedList.some(function (item) { return item.school_slug === school.slug; });
+    } catch (err) { already = false; }
+    worth.innerHTML = Tracker.renderWorth(Tracker.fitFactors(result), { disclaimer: true }) +
+      '<div class="nb-share"><button type="button" class="nb-share-btn nb-track-school" data-slug="' + Match.esc(school.slug) + '" data-name="' + Match.esc(school.name) + '">' +
+      (already ? "On your tracker" : "Add to tracker") + "</button></div>" +
+      '<p class="nb-meta">Free with a NearBase account. Premium is optional.</p>';
+    root.appendChild(worth);
   }
 })();

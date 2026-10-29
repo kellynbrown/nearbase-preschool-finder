@@ -89,3 +89,11 @@ The service role writes rows. Families only read their own.
 6. Before you say yes (children actually working, hours in writing, the fee named out loud, off-cycle enrollment).
 
 Privacy mentioned “extra services you bought.” Add that phrase back to the family-accounts paragraph if the orders table returns.
+
+## Anonymous wait-time survey (not built)
+
+Reserved for Extra help. This survey is not built, and it is not part of the free waitlist tracker.
+
+The tracker stays private. A later Extra help feature could ask families to opt in to an anonymous wait-time survey. A family would choose to contribute a school and a wait range after the fact. The contribution would not include the family account, name, email, child, or any protected-class detail. Results would be published only as aggregate ranges, and only after a minimum number of contributions for that school so a single family cannot be picked out. Schools would not receive the raw answers, and the survey would not filter or rank families.
+
+Until that exists, NearBase does not collect crowd-sourced wait times and does not show aggregate wait stats.
