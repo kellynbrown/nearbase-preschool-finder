@@ -14,17 +14,13 @@ Do these in order. Use Stripe **test mode** until a test card finishes a checkou
    STRIPE_SECRET_KEY=sk_test_... node scripts/create-stripe-prices.mjs
    ```
 
-   The script creates Premium at $3/month, the weekly pass at $1/week, and the draft add-ons (consult $25, waitlist concierge $10/month, shortlist $15, tour kit $5). It prints lines like `STRIPE_PRICE_MONTHLY=price_...`.
+   The script creates Premium at $3/month and the weekly pass at $1/week. It prints lines like `STRIPE_PRICE_MONTHLY=price_...`.
 
 4. In Netlify, set these environment variables. Do not paste them into the repo.
 
    - `STRIPE_SECRET_KEY`
    - `STRIPE_PRICE_MONTHLY`
    - `STRIPE_PRICE_WEEKLY`
-   - `STRIPE_PRICE_CONSULT`
-   - `STRIPE_PRICE_CONCIERGE`
-   - `STRIPE_PRICE_SHORTLIST`
-   - `STRIPE_PRICE_TOURKIT`
 
 5. Add a webhook endpoint in Stripe, still in test mode:
 
@@ -36,7 +32,7 @@ Do these in order. Use Stripe **test mode** until a test card finishes a checkou
 
 7. In Stripe, open Settings → Billing → Customer portal and turn it on so families can cancel or change a card. Cancel anytime is the promise on the page.
 
-Add-on prices are drafts. To change one, edit the cents in `netlify/functions/lib/catalog.mjs` and the dollar label in `site/billing-config.js`, run the script again, and replace that price’s env var.
+To change a price later, edit the cents in `netlify/functions/lib/catalog.mjs` and the dollar label in `site/billing-config.js`, run the script again, and replace that price’s env var.
 
 ## 2. Supabase
 
@@ -58,22 +54,15 @@ Add-on prices are drafts. To change one, edit the cents in `netlify/functions/li
 
 Row security lets a signed-in family read and update only their own rows.
 
-## 3. Mail when someone buys extra help
-
-Premium and the account page include a Netlify form named `addon-request`. In Netlify Forms, turn on email notification to `kelly@nearbase.net`. A completed checkout also stores the order in Supabase.
-
-The tour kit itself is `https://nearbase.net/tour-kit.html`. Checkout sends the buyer there.
-
-## 4. Redeploy
+## 3. Redeploy
 
 Redeploy the site after the env vars are saved. Then, in test mode:
 
 1. Open Premium and subscribe with Stripe’s test card `4242 4242 4242 4242`.
 2. Open the account page from the email link and confirm the plan shows.
 3. Use Manage billing to open the customer portal.
-4. Buy the tour kit and confirm the printable page opens.
 
-## 5. Go live
+## 4. Go live
 
 When the test purchase looks right, switch Stripe to live mode, run:
 

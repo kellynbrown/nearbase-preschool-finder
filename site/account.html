@@ -53,13 +53,6 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
   <p class="notice" id="accountNotice"></p>
   <div id="accountApp"></div>
 </main>
-<form name="addon-request" method="POST" action="/thanks.html" data-netlify="true" hidden>
-  <input type="hidden" name="form-name" value="addon-request">
-  <input name="email">
-  <input name="service">
-  <input name="stripe_session">
-  <textarea name="notes"></textarea>
-</form>
 <script src="billing-config.js"></script>
 <script src="match.js"></script>
 <script src="account.js"></script>
@@ -89,15 +82,13 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
       favorites: [
         { school_slug: "the-gardner-school-arlington", school_name: "The Gardner School Arlington" },
         { school_slug: "the-vine-preschool", school_name: "The Vine Preschool" }
-      ],
-      orders: [{ sku: "tourkit", status: "paid", created_at: "2026-10-20T00:00:00.000Z" }]
+      ]
     };
   }
 
   function planLabel(plan) {
     if (!plan || !plan.status) return "No paid plan yet";
     var name = plan.plan === "weekly" ? "Weekly pass" : plan.plan === "monthly" ? "Premium monthly" : (plan.plan || "Plan");
-    if (plan.plan === "concierge") name = "Waitlist concierge";
     var when = plan.current_period_end ? " · renews " + plan.current_period_end.slice(0, 10) : "";
     return name + " · " + plan.status + when;
   }
@@ -111,19 +102,10 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
     var votes = prefs.quiz_votes || {};
     var alerts = prefs.spot_alerts || { enabled: false, slugs: [] };
     var favorites = data.favorites || [];
-    var orders = data.orders || [];
     var checkout = params.get("checkout");
-    var sku = params.get("sku") || "";
-    var follow = "";
-    if (checkout === "success" && sku === "consult") {
-      follow = '<div class="card"><h2>Book the 30-minute call</h2><p class="muted">Tell Kelly a couple of times that work. He will write back at the email on this account.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Duty station, ages, and two times that work"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send booking request</button></form></div>';
-    } else if (checkout === "success" && sku === "tourkit") {
-      follow = '<div class="card"><h2>Your tour kit is ready</h2><p class="muted">Print it or save it. It covers the classroom and the military questions: cost, hours, fee assistance, MCCYN, and a PCS waitlist.</p><p class="actions"><a class="btn" href="/tour-kit.html">Open the question kit</a></p></div>';
-    } else if (checkout === "success" && sku === "shortlist") {
-      follow = '<div class="card"><h2>Shortlist requested</h2><p class="muted">Kelly emails the shortlist within 3 business days. Add anything he should know.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Bases, ages, hours, and budget"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send details</button></form></div>';
-    } else if (checkout === "success") {
-      follow = '<div class="card"><h2>Purchase received</h2><p class="muted">Kelly has the order. Cancel anytime from Manage billing if it is a monthly add-on.</p></div>';
-    }
+    var follow = checkout === "success"
+      ? '<div class="card"><h2>You are subscribed</h2><p class="muted">Cancel anytime from Manage billing.</p></div>'
+      : "";
     app.innerHTML = follow +
       '<div class="card"><div class="row"><div><h2>' + esc(data.email) + '</h2><p class="muted">Email magic link. No password is stored.</p></div><span class="pill">' + esc(planLabel(data.plan)) + '</span></div><div class="actions"><button type="button" class="btn" id="portalBtn">Manage billing</button><a class="btn ghost" href="/premium.html">See plans</a></div><p class="muted" style="margin-top:.55rem">Cancel anytime. Card numbers stay at Stripe. NearBase never sees them.</p></div>' +
       '<div class="card"><h2>Saved preferences</h2><p class="muted">Base, hours, cost, and ages from Find and the quiz.</p><div class="chips"><span class="pill">' + esc(prefs.base_id || "No base yet") + '</span><span class="pill">' + esc(hoursLabel(prefs.hours)) + '</span><span class="pill">' + esc(prefs.cost_ceiling === "assist" || prefs.cost_ceiling === "free" ? "Free / fee assistance first" : "Cost still open") + '</span>' + (prefs.ages || []).map(function (age) { return '<span class="pill">' + esc(age) + '</span>'; }).join("") + '</div></div>' +
@@ -132,9 +114,6 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
         var watched = (alerts.slugs || []).indexOf(school.school_slug) !== -1;
         return '<li class="row"><span>' + esc(school.school_name) + '</span><span class="pill">' + (watched && alerts.enabled ? "Spot alert on" : "Saved") + '</span></li>';
       }).join("") : '<li>No saved schools yet. Use Save school on a listing.</li>') + '</ul></div>' +
-      '<div class="card"><h2>Purchased services</h2><ul class="clean">' + (orders.length ? orders.map(function (order) {
-        return '<li class="row"><span>' + esc(order.sku) + '</span><span class="pill">' + esc(order.status) + '</span></li>';
-      }).join("") : '<li>None yet. Extra help is on the Premium page.</li>') + '</ul></div>' +
       '<div class="card"><h2>Delete this account</h2><p class="muted">This removes the email, plan record, saved schools, and fingerprint. Pay-it-forward check-ins are not part of the account and are not deleted here.</p><div class="actions"><button type="button" class="btn danger" id="deleteBtn">Delete my account</button><button type="button" class="btn ghost" id="signOutBtn">Sign out</button></div></div>';
     var portal = document.getElementById("portalBtn");
     var del = document.getElementById("deleteBtn");
@@ -154,19 +133,6 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
         return;
       }
       window.NearBaseAccount.deleteAccount();
-    };
-    var booking = document.getElementById("bookingForm");
-    if (booking) booking.onsubmit = function (event) {
-      event.preventDefault();
-      var notes = booking.querySelector("textarea").value.trim();
-      var body = new URLSearchParams();
-      body.set("form-name", "addon-request");
-      body.set("email", data.email);
-      body.set("service", sku);
-      body.set("stripe_session", params.get("session_id") || "");
-      body.set("notes", notes);
-      fetch("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: body.toString() }).catch(function () {});
-      document.getElementById("accountNotice").textContent = "Sent to kelly@nearbase.net.";
     };
   }
 
@@ -191,7 +157,7 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
   window.NearBaseAccountPage = {
     render: function (authState) {
       if (params.get("preview") === "signed-in") {
-        document.getElementById("accountLead").textContent = "Signed in. Plan, fingerprint, saved schools, and services live here.";
+        document.getElementById("accountLead").textContent = "Signed in. Plan, fingerprint, and saved schools live here.";
         renderAccount(mock());
         return;
       }
@@ -205,18 +171,16 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
       Promise.all([
         sbPromise.from("subscriptions").select("*").order("updated_at", { ascending: false }).limit(1),
         sbPromise.from("preferences").select("*").eq("user_id", userId).maybeSingle(),
-        sbPromise.from("favorites").select("*").eq("user_id", userId),
-        sbPromise.from("orders").select("*").order("created_at", { ascending: false })
+        sbPromise.from("favorites").select("*").eq("user_id", userId)
       ]).then(function (results) {
         renderAccount({
           email: session.user.email,
           plan: results[0].data && results[0].data[0],
           preferences: (results[1].data) || {},
-          favorites: results[2].data || [],
-          orders: results[3].data || []
+          favorites: results[2].data || []
         });
       }).catch(function () {
-        renderAccount({ email: session.user.email, preferences: {}, favorites: [], orders: [] });
+        renderAccount({ email: session.user.email, preferences: {}, favorites: [] });
       });
     }
   };

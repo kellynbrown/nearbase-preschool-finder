@@ -288,34 +288,11 @@
     }
   }
 
-  function notifyOrder() {
-    var params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") !== "success") return;
-    var sku = params.get("sku") || "";
-    var sessionId = params.get("session_id") || "";
-    var key = "nb_notified_" + sessionId + sku;
-    if (!sku || sessionStorage.getItem(key)) return;
-    var email = state.session && state.session.user ? state.session.user.email : "";
-    var body = new URLSearchParams();
-    body.set("form-name", "addon-request");
-    body.set("email", email);
-    body.set("service", sku);
-    body.set("stripe_session", sessionId);
-    body.set("notes", "Checkout completed on nearbase.net");
-    fetch("/", {
-      method: "POST",
-      headers: { "content-type": "application/x-www-form-urlencoded" },
-      body: body.toString()
-    }).catch(function () {});
-    try { sessionStorage.setItem(key, "1"); } catch (e) {}
-  }
-
   function boot() {
     return loadConfig().then(refreshSession).then(function () {
       wireCheckout();
       wireSignIn();
       wireSave();
-      notifyOrder();
       if (window.NearBaseAccountPage) window.NearBaseAccountPage.render(state);
     });
   }

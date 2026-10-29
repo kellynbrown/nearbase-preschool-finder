@@ -105,18 +105,6 @@ export function subscriptionRowFromCheckout(session) {
   };
 }
 
-export function orderRowFromCheckout(session) {
-  const sku = (session.metadata && session.metadata.sku) || "";
-  const email = session.customer_email || (session.customer_details && session.customer_details.email) || "";
-  return {
-    email: email,
-    sku: sku,
-    stripe_customer_id: session.customer || "",
-    stripe_session_id: session.id || "",
-    status: "paid"
-  };
-}
-
 export function subscriptionRowFromSubscription(sub) {
   const meta = sub.metadata || {};
   const end = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null;
@@ -140,10 +128,6 @@ export async function applyStripeEvent(event, store) {
     if (offer && offer.mode === "subscription" && object.subscription) {
       await store.upsertSubscription(subscriptionRowFromCheckout(object));
       return { handled: true, kind: "subscription", sku: sku };
-    }
-    if (sku) {
-      await store.insertOrder(orderRowFromCheckout(object));
-      return { handled: true, kind: "order", sku: sku };
     }
     return { handled: false };
   }

@@ -52,25 +52,6 @@ export function supabaseStore(env, fetchImpl) {
         body: clean
       });
     },
-    async insertOrder(row) {
-      const clean = {
-        email: row.email || "",
-        sku: row.sku,
-        status: row.status || "paid",
-        stripe_customer_id: row.stripe_customer_id || null,
-        stripe_session_id: row.stripe_session_id,
-        created_at: new Date().toISOString()
-      };
-      if (clean.email) {
-        const profiles = await rest("profiles?select=id,email&email=eq." + encodeURIComponent(clean.email));
-        if (profiles && profiles[0]) clean.user_id = profiles[0].id;
-      }
-      await rest("orders?on_conflict=stripe_session_id", {
-        method: "POST",
-        prefer: "resolution=merge-duplicates,return=minimal",
-        body: clean
-      });
-    },
     async customerIdForEmail(email) {
       const rows = await rest("subscriptions?select=stripe_customer_id,email&email=eq." + encodeURIComponent(email) + "&stripe_customer_id=not.is.null&limit=1");
       return rows && rows[0] && rows[0].stripe_customer_id;

@@ -42,10 +42,10 @@ load().then(function (api) {
   jobs.push(check("catalog prices match the public offer labels", function () {
     assert.strictEqual(api.catalog.CATALOG.monthly.amount, 300);
     assert.strictEqual(api.catalog.CATALOG.weekly.amount, 100);
-    assert.strictEqual(api.catalog.CATALOG.consult.amount, 2500);
-    assert.strictEqual(api.catalog.CATALOG.consult.draft, true);
-    assert.strictEqual(api.catalog.CATALOG.concierge.draft, true);
     assert.strictEqual(api.catalog.CATALOG.monthly.draft, false);
+    assert.strictEqual(api.catalog.CATALOG.weekly.mode, "subscription");
+    assert.ok(!api.catalog.CATALOG.consult);
+    assert.ok(!api.catalog.CATALOG.tourkit);
     var config = fs.readFileSync(path.join(root, "site/billing-config.js"), "utf8");
     Object.keys(api.catalog.CATALOG).forEach(function (sku) {
       assert.ok(config.indexOf("amountCents: " + api.catalog.CATALOG[sku].amount) !== -1, sku);
@@ -92,7 +92,7 @@ load().then(function (api) {
     });
   }));
 
-  jobs.push(check("unknown add-on sku is rejected", function () {
+  jobs.push(check("unknown sku is rejected", function () {
     var handler = api.checkout.createCheckoutHandler({ STRIPE_SECRET_KEY: "sk_test_example" }, fetch);
     return handler(request("https://nearbase.net/", {
       method: "POST",
@@ -108,10 +108,11 @@ load().then(function (api) {
       type: "checkout.session.completed",
       data: { object: {
         id: "cs_1",
-        mode: "payment",
+        mode: "subscription",
+        subscription: "sub_1",
         customer: "cus_1",
         customer_email: "family@example.com",
-        metadata: { sku: "tourkit" }
+        metadata: { sku: "monthly" }
       } }
     });
     var stamp = String(Math.floor(Date.now() / 1000));
@@ -150,10 +151,11 @@ load().then(function (api) {
       }));
     }).then(function (response) {
       assert.strictEqual(response.status, 200);
-      var orderCall = saved.filter(function (call) { return String(call.url).indexOf("/orders") !== -1; })[0];
-      assert.ok(orderCall, "order was recorded");
-      assert.ok(orderCall.options.body.indexOf("tourkit") !== -1);
-      assert.ok(orderCall.options.headers.authorization.indexOf("service-role-test") !== -1);
+      var subCall = saved.filter(function (call) { return String(call.url).indexOf("/subscriptions") !== -1; })[0];
+      assert.ok(subCall, "subscription was recorded");
+      assert.ok(subCall.options.body.indexOf("monthly") !== -1);
+      assert.ok(subCall.options.headers.authorization.indexOf("service-role-test") !== -1);
+      assert.ok(!saved.some(function (call) { return String(call.url).indexOf("/orders") !== -1; }));
     });
   }));
 
@@ -161,7 +163,7 @@ load().then(function (api) {
     var calls = [];
     var store = {
       upsertSubscription: function (row) { calls.push(row); return Promise.resolve(); },
-      insertOrder: function () { throw new Error("not an order"); }
+      insertOrder: function () { throw new Error("orders are shelved"); }
     };
     var result = await api.stripe.applyStripeEvent({
       type: "customer.subscription.deleted",
@@ -208,12 +210,12 @@ load().then(function (api) {
     });
   }));
 
-  jobs.push(check("one-time consult uses payment mode and the draft amount", function () {
-    var built = api.stripe.checkoutForm("consult", { STRIPE_PRICE_CONSULT: "price_consult" }, "https://nearbase.net", "");
-    assert.ok(built.body.indexOf("mode=payment") !== -1);
-    assert.ok(built.body.indexOf("price_consult") !== -1);
-    assert.strictEqual(api.catalog.CATALOG.consult.amount, 2500);
-    assert.strictEqual(built.offer.draft, true);
+  jobs.push(check("weekly checkout is a one-dollar subscription", function () {
+    var built = api.stripe.checkoutForm("weekly", { STRIPE_PRICE_WEEKLY: "price_weekly" }, "https://nearbase.net", "");
+    assert.ok(built.body.indexOf("mode=subscription") !== -1);
+    assert.ok(built.body.indexOf("price_weekly") !== -1);
+    assert.strictEqual(api.catalog.CATALOG.weekly.amount, 100);
+    assert.strictEqual(built.offer.interval, "week");
   }));
 
   return Promise.all(jobs);

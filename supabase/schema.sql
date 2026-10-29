@@ -47,22 +47,10 @@ create table if not exists public.favorites (
   unique (user_id, school_slug)
 );
 
-create table if not exists public.orders (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references public.profiles (id) on delete cascade,
-  email text not null default '',
-  sku text not null,
-  status text not null default 'paid',
-  stripe_customer_id text,
-  stripe_session_id text unique,
-  created_at timestamptz not null default now()
-);
-
 alter table public.profiles enable row level security;
 alter table public.subscriptions enable row level security;
 alter table public.preferences enable row level security;
 alter table public.favorites enable row level security;
-alter table public.orders enable row level security;
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -117,13 +105,6 @@ create policy "insert own favorites" on public.favorites
 drop policy if exists "delete own favorites" on public.favorites;
 create policy "delete own favorites" on public.favorites
   for delete using (user_id = auth.uid());
-
-drop policy if exists "read own orders" on public.orders;
-create policy "read own orders" on public.orders
-  for select using (
-    user_id = auth.uid()
-    or email = (select email from public.profiles where id = auth.uid())
-  );
 
 -- Check-ins, ranking votes, and research votes stay anonymous.
 -- They are not stored in these tables and are never joined to an account.
