@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>NearBase Premium — Full Access for Military Families</title>
-<meta name="description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $9/mo, cancel anytime.">
+<meta name="description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $3/mo, cancel anytime.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/premium.html">
 <meta property="og:site_name" content="NearBase">
 <meta property="og:type" content="website">
 <meta property="og:title" content="NearBase Premium — Full Access for Military Families">
-<meta property="og:description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $9/mo, cancel anytime.">
+<meta property="og:description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $3/mo, cancel anytime.">
 <meta property="og:url" content="https://nearbase.net/premium.html">
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -166,8 +166,8 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <section class="hero">
   <div class="hero-badge">🌱 NearBase Premium</div>
   <h1>The <em>full picture</em> — for the families who need it most.</h1>
-  <p class="hero-sub">Real waitlist times · match scores · sibling filter · spot alerts · PCS simulator. $9/mo, cancel anytime.</p>
-  <a href="#join" class="btn" style="background:var(--g);margin:0 auto">Join the waitlist →</a>
+  <p class="hero-sub">Real waitlist times · match scores · sibling filter · spot alerts · PCS simulator. $3/mo, cancel anytime.</p>
+  <a href="#waitlist" class="btn nb-buy" data-nb-checkout="monthly" style="background:var(--g);margin:0 auto">Start Premium · $3/mo</a>
 </section>
 
 <!-- COMPARE -->
@@ -228,7 +228,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       </div>
       <div class="price-card featured">
         <div class="price-card-label" style="color:var(--g)">Premium — full access</div>
-        <div class="price-amount" style="color:var(--g)">$9<sub>/mo</sub></div>
+        <div class="price-amount" style="color:var(--g)">$3<sub>/mo</sub></div>
         <p class="price-desc">Everything you need during active PCS search. Cancel anytime.</p>
         <ul class="price-features">
           <li>Everything in Free</li>
@@ -237,14 +237,14 @@ body.nbv3-open .nbv3-mobile{display:flex}
           <li>Spot alerts + multi-base comparison</li>
           <li>PCS simulator + Paid-Forward access</li>
         </ul>
-        <a href="mailto:kelly@nearbase.net?subject=NearBase Premium Early Access" class="btn" style="width:100%;justify-content:center">Join early access →</a>
+        <a href="#waitlist" class="btn nb-buy" data-nb-checkout="monthly" style="width:100%;justify-content:center">Subscribe · $3/mo</a>
       </div>
     </div>
     <div style="text-align:center;margin-top:1.25rem">
       <div style="display:inline-flex;align-items:center;gap:.75rem;background:var(--cream);border:1px solid var(--border);border-radius:100px;padding:.5rem 1.25rem;flex-wrap:wrap;justify-content:center;max-width:100%">
         <span style="font-size:.82rem;color:var(--muted)">Active search mode only?</span>
-        <span style="font-size:.85rem;font-weight:500;color:var(--dark)">Weekly pass: $4/week</span>
-        <a href="mailto:kelly@nearbase.net?subject=NearBase Weekly Pass" aria-label="Email about the weekly pass" style="font-size:.78rem;color:var(--g);text-decoration:none;font-weight:500">→</a>
+        <span style="font-size:.85rem;font-weight:500;color:var(--dark)">Weekly pass: $1/week</span>
+        <a href="#waitlist" class="nb-buy" data-nb-checkout="weekly" aria-label="Start the weekly pass" style="font-size:.78rem;color:var(--g);text-decoration:none;font-weight:500">Subscribe →</a>
       </div>
     </div>
   </div>
@@ -269,7 +269,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <!-- WAITLIST JOIN -->
 <section class="waitlist" id="waitlist">
   <h2 class="wl-title">Join the NearBase Premium waitlist.</h2>
-  <p class="wl-sub">Premium is launching soon. Founding members get the first access and the lowest rate — locked in for life.</p>
+  <p class="wl-sub">Checkout uses this list until payments are connected. $3/mo or $1/week. Cancel anytime.</p>
   <form class="wl-form" onsubmit="event.preventDefault();var email=this.email.value.trim();if(!email)return;window.location.href='mailto:kelly@nearbase.net?subject='+encodeURIComponent('NearBase Premium Waitlist')+'&amp;body='+encodeURIComponent('Please add me to the Premium waitlist: '+email);">
     <input type="email" name="email" required placeholder="Your email address" aria-label="Email address" autocomplete="email">
     <button type="submit">Join waitlist →</button>
@@ -306,5 +306,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
   </div>
 </footer>
 </div>
+<script src="billing-config.js"></script>
+<script src="account.js"></script>
 </body>
 </html>

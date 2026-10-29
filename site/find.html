@@ -135,7 +135,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
     <span class="search-icon">⌕</span>
     <input type="text" id="searchInput" aria-label="Search schools, neighborhoods, or base names" placeholder="Search schools, neighborhoods, or base names..." oninput="doFilter()">
   </div>
-  <button class="btn-account" onclick="showPrem()">Sign in / Join free</button>
+  <button class="btn-account" id="signInBtn" type="button" onclick="if(window.__nbAuthConfigured){location.href='/account.html'}else{showPrem()}">Sign in / Join free</button>
 </div>
 <div class="main">
   <div class="sidebar">
@@ -185,6 +185,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
           <label><input type="checkbox" id="matchEfmp"> EFMP / special needs</label>
         </div>
         <p class="match-links"><a href="/quiz">Take the preference quiz</a> · <a href="/checkin">Pay a tour forward</a></p>
+        <p class="match-links"><button type="button" class="why-btn" id="saveProfileBtn">Save to my profile</button></p>
+        <p class="match-note" id="saveProfileStatus"></p>
         </div>
         </details>
       </form>
@@ -206,7 +208,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
     <div class="school-list" id="schoolList"></div>
     <div class="prem-bar">
       <div class="pb-txt"><strong>Unlock full NearBase access</strong>Waitlist times · Match scores · Sibling filter · PCS simulator</div>
-      <button class="pb-btn" onclick="showPrem()">$9/mo →</button>
+      <button class="pb-btn" type="button" onclick="if(window.__nbPayments){event.preventDefault();NearBaseAccount.checkout('monthly')}else{showPrem()}">$3/mo →</button>
     </div>
   </div>
   <div class="map-wrap">
@@ -238,20 +240,23 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
     <div style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.25rem">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem;background:var(--light);border-radius:10px;border:2px solid var(--g)">
         <div><div style="font-weight:500;color:var(--dark);font-size:.875rem">Premium monthly</div><div style="font-size:.75rem;color:var(--muted)">Full access, cancel anytime</div></div>
-        <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--g);font-weight:600">$9<span style="font-size:.75rem;color:var(--muted)">/mo</span></div>
+        <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--g);font-weight:600">$3<span style="font-size:.75rem;color:var(--muted)">/mo</span></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem;background:var(--cream);border-radius:10px;border:1px solid var(--border)">
         <div><div style="font-weight:500;color:var(--dark);font-size:.875rem">Flex weekly pass</div><div style="font-size:.75rem;color:var(--muted)">Active search mode</div></div>
-        <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--dark);font-weight:600">$4<span style="font-size:.75rem;color:var(--muted)">/wk</span></div>
+        <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--dark);font-weight:600">$1<span style="font-size:.75rem;color:var(--muted)">/wk</span></div>
       </div>
     </div>
-    <a href="/premium#waitlist" style="display:block;text-align:center;width:100%;background:var(--g);color:var(--white);text-decoration:none;padding:.8rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'DM Sans',sans-serif">Join the waitlist →</a>
+    <a href="/premium.html#waitlist" data-nb-checkout="monthly" style="display:block;text-align:center;width:100%;background:var(--g);color:var(--white);text-decoration:none;padding:.8rem;border-radius:100px;font-size:.9rem;font-weight:500;font-family:'DM Sans',sans-serif">Subscribe · $3/mo</a>
+    <a href="/premium.html#waitlist" data-nb-checkout="weekly" style="display:block;text-align:center;width:100%;margin-top:.5rem;background:#fff;color:var(--dark);border:1px solid var(--border);text-decoration:none;padding:.7rem;border-radius:100px;font-size:.85rem;font-weight:500;font-family:'DM Sans',sans-serif">Weekly pass · $1/week</a>
     <p style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:.6rem">No credit card for free tier · Built for military families</p>
   </div>
 </div>
 
 <script src="schools.js"></script>
 <script src="match.js"></script>
+<script src="billing-config.js"></script>
+<script src="account.js"></script>
 <script>
 // ── 150+ NCR SCHOOLS ACROSS ALL 9 ZONES ────────────────────────────────────
 const SCHOOLS = window.SCHOOLS
@@ -283,7 +288,7 @@ let map = null;
 try{
   if(typeof L === 'undefined') throw new Error('Leaflet unavailable');
   map = L.map('map',{zoomControl:true}).setView([38.872,-77.056],11);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:16}).addTo(map);
 }catch(e){
   const mEl = document.getElementById('map');
   if(mEl) mEl.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;color:var(--muted);background:var(--cream);text-align:center;padding:2rem"><div style="font-size:1.6rem">🗺</div><div style="font-size:.85rem;max-width:280px">The map couldn\'t load on this connection — every school is still in the list.</div></div>';
@@ -421,6 +426,7 @@ function render(rows){
       <button type="button" class="why-btn" aria-expanded="false" onclick="event.stopPropagation();toggleWhy(this)">Why this score</button>
       <div class="why-body" hidden>${why}</div>
       <a href="school/${esc(s.slug)}.html" onclick="event.stopPropagation()" style="display:inline-block;font-size:.72rem;font-weight:500;color:var(--g);text-decoration:none;margin:.35rem 0 .1rem">Full profile →</a>
+      <button type="button" class="why-btn nb-save-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}">Save school</button>
       <div class="cq">${esc(s.quote)}${locked?`<div class="lock"><span style="font-size:1rem">🔒</span><span style="font-size:.7rem;font-weight:500;color:var(--dark)">Waitlist · Contact</span><button class="lock-btn" onclick="event.stopPropagation();showPrem()">Unlock →</button></div>`:''}</div>`;
     list.appendChild(card);
   }
