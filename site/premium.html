@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>NearBase Premium — Full Access for Military Families</title>
-<meta name="description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $9/mo, cancel anytime.">
+<meta name="description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $3/mo, cancel anytime.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/premium.html">
 <meta property="og:site_name" content="NearBase">
 <meta property="og:type" content="website">
 <meta property="og:title" content="NearBase Premium — Full Access for Military Families">
-<meta property="og:description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $9/mo, cancel anytime.">
+<meta property="og:description" content="Real waitlist times, match scores, director contacts, spot alerts, and the PCS move simulator. $3/mo, cancel anytime.">
 <meta property="og:url" content="https://nearbase.net/premium.html">
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -95,7 +95,12 @@ footer{background:#021f19;padding:3rem 1.5rem 1.5rem}
 .footer-links-grid a{display:block;font-size:.8rem;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:.4rem}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:1.25rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
 .footer-bottom span{font-size:.72rem;color:rgba(255,255,255,.2)}
-@media(max-width:768px){.price-grid,.feat-grid,.footer-top{grid-template-columns:1fr}.footer-links-grid{grid-template-columns:repeat(2,1fr)}.compare .si{overflow-x:auto;-webkit-overflow-scrolling:touch}.compare-table{font-size:.8rem}.compare-table th,.compare-table td{padding:.7rem .55rem}}
+.addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+.addon-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.25rem}
+.addon-card h3{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--dark);margin:.35rem 0 .3rem}
+.addon-price{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--g);font-weight:600}
+.draft-tag{display:inline-block;font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:#FAEEDA;color:#633806;border-radius:100px;padding:.12rem .5rem}
+@media(max-width:768px){.price-grid,.feat-grid,.footer-top,.addon-grid{grid-template-columns:1fr}.footer-links-grid{grid-template-columns:repeat(2,1fr)}.compare .si{overflow-x:auto;-webkit-overflow-scrolling:touch}.compare-table{font-size:.8rem}.compare-table th,.compare-table td{padding:.7rem .55rem}}
 </style>
 
 <style id="nbv3-css">
@@ -166,8 +171,8 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <section class="hero">
   <div class="hero-badge">🌱 NearBase Premium</div>
   <h1>The <em>full picture</em> — for the families who need it most.</h1>
-  <p class="hero-sub">Real waitlist times · match scores · sibling filter · spot alerts · PCS simulator. $9/mo, cancel anytime.</p>
-  <a href="#join" class="btn" style="background:var(--g);margin:0 auto">Join the waitlist →</a>
+  <p class="hero-sub">Real waitlist times · match scores · sibling filter · spot alerts · PCS simulator. $3/mo, cancel anytime.</p>
+  <a href="#waitlist" class="btn nb-buy" data-nb-checkout="monthly" style="background:var(--g);margin:0 auto">Start Premium · $3/mo</a>
 </section>
 
 <!-- COMPARE -->
@@ -228,7 +233,7 @@ body.nbv3-open .nbv3-mobile{display:flex}
       </div>
       <div class="price-card featured">
         <div class="price-card-label" style="color:var(--g)">Premium — full access</div>
-        <div class="price-amount" style="color:var(--g)">$9<sub>/mo</sub></div>
+        <div class="price-amount" style="color:var(--g)">$3<sub>/mo</sub></div>
         <p class="price-desc">Everything you need during active PCS search. Cancel anytime.</p>
         <ul class="price-features">
           <li>Everything in Free</li>
@@ -237,14 +242,14 @@ body.nbv3-open .nbv3-mobile{display:flex}
           <li>Spot alerts + multi-base comparison</li>
           <li>PCS simulator + Paid-Forward access</li>
         </ul>
-        <a href="mailto:kelly@nearbase.net?subject=NearBase Premium Early Access" class="btn" style="width:100%;justify-content:center">Join early access →</a>
+        <a href="#waitlist" class="btn nb-buy" data-nb-checkout="monthly" style="width:100%;justify-content:center">Subscribe · $3/mo</a>
       </div>
     </div>
     <div style="text-align:center;margin-top:1.25rem">
       <div style="display:inline-flex;align-items:center;gap:.75rem;background:var(--cream);border:1px solid var(--border);border-radius:100px;padding:.5rem 1.25rem;flex-wrap:wrap;justify-content:center;max-width:100%">
         <span style="font-size:.82rem;color:var(--muted)">Active search mode only?</span>
-        <span style="font-size:.85rem;font-weight:500;color:var(--dark)">Weekly pass: $4/week</span>
-        <a href="mailto:kelly@nearbase.net?subject=NearBase Weekly Pass" aria-label="Email about the weekly pass" style="font-size:.78rem;color:var(--g);text-decoration:none;font-weight:500">→</a>
+        <span style="font-size:.85rem;font-weight:500;color:var(--dark)">Weekly pass: $1/week</span>
+        <a href="#waitlist" class="nb-buy" data-nb-checkout="weekly" aria-label="Start the weekly pass" style="font-size:.78rem;color:var(--g);text-decoration:none;font-weight:500">Subscribe →</a>
       </div>
     </div>
   </div>
@@ -266,10 +271,48 @@ body.nbv3-open .nbv3-mobile{display:flex}
   </div>
 </section>
 
+<section class="s" id="extra-help" style="background:var(--cream)">
+  <div class="si">
+    <div class="sl">Extra help</div>
+    <h2 class="st">Buy a single service when you need it.</h2>
+    <p class="ss">These prices are drafts Kelly can change. The amounts are marked DRAFT in the billing config. Cancel anytime on anything billed monthly.</p>
+    <div class="addon-grid">
+      <article class="addon-card">
+        <span class="draft-tag">Draft price</span>
+        <h3>PCS move consult call</h3>
+        <div class="addon-price">$25</div>
+        <p class="feat-body">One 30-minute call. After checkout, send a couple of times that work and Kelly books it.</p>
+        <a href="#waitlist" class="btn nb-buy" data-nb-checkout="consult" style="margin-top:.8rem">Buy the call</a>
+      </article>
+      <article class="addon-card">
+        <span class="draft-tag">Draft price</span>
+        <h3>Waitlist concierge</h3>
+        <div class="addon-price">$10<sub style="font-size:.9rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400">/mo</sub></div>
+        <p class="feat-body">We track and nudge waitlists for up to 5 schools. Cancel anytime.</p>
+        <a href="#waitlist" class="btn nb-buy" data-nb-checkout="concierge" style="margin-top:.8rem">Start concierge</a>
+      </article>
+      <article class="addon-card">
+        <span class="draft-tag">Draft price</span>
+        <h3>Personalized school shortlist</h3>
+        <div class="addon-price">$15</div>
+        <p class="feat-body">A written shortlist for your base, hours, and budget, emailed within 3 business days.</p>
+        <a href="#waitlist" class="btn nb-buy" data-nb-checkout="shortlist" style="margin-top:.8rem">Request a shortlist</a>
+      </article>
+      <article class="addon-card">
+        <span class="draft-tag">Draft price</span>
+        <h3>School tour question kit</h3>
+        <div class="addon-price">$5</div>
+        <p class="feat-body">A printable set of Montessori-informed questions plus cost, hours, fee assistance, MCCYN, and PCS waitlist transfer. Instant download.</p>
+        <a href="#waitlist" class="btn nb-buy" data-nb-checkout="tourkit" style="margin-top:.8rem">Get the kit</a>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- WAITLIST JOIN -->
 <section class="waitlist" id="waitlist">
   <h2 class="wl-title">Join the NearBase Premium waitlist.</h2>
-  <p class="wl-sub">Premium is launching soon. Founding members get the first access and the lowest rate — locked in for life.</p>
+  <p class="wl-sub">Checkout uses this list until payments are connected. $3/mo or $1/week. Cancel anytime.</p>
   <form class="wl-form" onsubmit="event.preventDefault();var email=this.email.value.trim();if(!email)return;window.location.href='mailto:kelly@nearbase.net?subject='+encodeURIComponent('NearBase Premium Waitlist')+'&amp;body='+encodeURIComponent('Please add me to the Premium waitlist: '+email);">
     <input type="email" name="email" required placeholder="Your email address" aria-label="Email address" autocomplete="email">
     <button type="submit">Join waitlist →</button>
@@ -306,5 +349,14 @@ body.nbv3-open .nbv3-mobile{display:flex}
   </div>
 </footer>
 </div>
+<form name="addon-request" method="POST" action="/thanks.html" data-netlify="true" hidden>
+  <input type="hidden" name="form-name" value="addon-request">
+  <input name="email">
+  <input name="service">
+  <input name="stripe_session">
+  <textarea name="notes"></textarea>
+</form>
+<script src="billing-config.js"></script>
+<script src="account.js"></script>
 </body>
 </html>

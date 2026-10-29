@@ -523,9 +523,11 @@ body.nbv3-open .nbv3-mobile{display:flex}
 
     <p class="photo-credit">Photos: Unsplash / Pexels. Illustrative only — not pictures of these schools. <a href="img/quiz/CREDITS.md">Photo credits</a></p>
 
+    <p class="photo-credit" id="saveQuizStatus"></p>
     <div class="results-btns">
       <button class="btn-primary" onclick="retakeQuiz()">Retake quiz to sharpen results</button>
       <button class="btn-primary gold" onclick="location.href='/find'">See these matches on the map</button>
+      <button class="btn-outline" type="button" id="saveQuizBtn">Save to my profile</button>
       <button class="btn-outline" onclick="exportFingerprint()">Export fingerprint JSON</button>
     </div>
   </div>
@@ -638,6 +640,8 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <script src="schools.js"></script>
 <script src="match.js"></script>
 <script src="insights.js"></script>
+<script src="billing-config.js"></script>
+<script src="account.js"></script>
 <script>
 // ═══════════════════════════════════════════════
 // DIMENSIONS

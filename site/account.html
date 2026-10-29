@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your account — NearBase</title>
+<meta name="description" content="Sign in with an email link. See your NearBase plan, saved schools, and quiz fingerprint.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://nearbase.net/account.html">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#1D9E75;--dark:#085041;--mid:#0F6E56;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--white:#fff;--cream:#F8FAF8}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.5}
+a{color:var(--mid)}
+header{background:var(--dark);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.logo{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:600;color:#fff;text-decoration:none}
+.logo span{color:var(--g)}
+header a.nav{color:rgba(255,255,255,.8);font-size:.85rem;text-decoration:none}
+main{max-width:760px;margin:0 auto;padding:1.5rem 1rem 3rem}
+h1{font-family:'Fraunces',serif;font-weight:600;color:var(--dark);font-size:1.8rem;line-height:1.2}
+h1 em{font-style:italic;font-weight:300;color:var(--g)}
+.lead{color:var(--muted);margin:.4rem 0 1.1rem;font-size:.92rem}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.1rem 1.15rem;margin-bottom:.85rem}
+.card h2{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--dark);margin-bottom:.35rem}
+.muted{color:var(--muted);font-size:.82rem}
+.row{display:flex;justify-content:space-between;gap:.75rem;align-items:center;flex-wrap:wrap}
+.pill{display:inline-block;background:var(--light);color:var(--dark);border-radius:100px;padding:.15rem .65rem;font-size:.75rem;font-weight:500}
+.btn{background:var(--g);color:#fff;border:none;border-radius:100px;padding:.7rem 1.15rem;font-family:inherit;font-size:.88rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex}
+.btn.ghost{background:#fff;color:var(--dark);border:1px solid var(--border)}
+.btn.danger{background:#fff;color:#9b3a2e;border:1px solid #f0d0cb}
+form.stack{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
+input[type=email],textarea{font:inherit;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--border);min-width:220px;flex:1}
+textarea{width:100%;min-height:90px;margin-top:.5rem}
+ul.clean{list-style:none;margin-top:.4rem}
+ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem}
+.notice{font-size:.84rem;color:var(--mid);margin-top:.55rem}
+.actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+@media(max-width:640px){h1{font-size:1.5rem}header{padding:.85rem 1rem}}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/">Near<span>Base</span></a>
+  <a class="nav" href="/find">Find schools</a>
+</header>
+<main>
+  <h1>Your <em>account</em></h1>
+  <p class="lead" id="accountLead">Sign in with an email link. No password.</p>
+  <p class="notice" id="accountNotice"></p>
+  <div id="accountApp"></div>
+</main>
+<form name="addon-request" method="POST" action="/thanks.html" data-netlify="true" hidden>
+  <input type="hidden" name="form-name" value="addon-request">
+  <input name="email">
+  <input name="service">
+  <input name="stripe_session">
+  <textarea name="notes"></textarea>
+</form>
+<script src="billing-config.js"></script>
+<script src="match.js"></script>
+<script src="account.js"></script>
+<script>
+(function () {
+  var app = document.getElementById("accountApp");
+  var params = new URLSearchParams(location.search);
+
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function mock() {
+    return {
+      email: "family@example.com",
+      plan: { plan: "monthly", status: "active", current_period_end: "2026-11-29T00:00:00.000Z" },
+      preferences: {
+        base_id: "belvoir",
+        hours: "early",
+        cost_ceiling: "assist",
+        ages: ["toddler"],
+        quiz_votes: { cost_free: 5, cost_assist: 4, hours_extended: 7, montessori: 4 },
+        spot_alerts: { enabled: true, slugs: ["the-gardner-school-arlington"] }
+      },
+      favorites: [
+        { school_slug: "the-gardner-school-arlington", school_name: "The Gardner School Arlington" },
+        { school_slug: "the-vine-preschool", school_name: "The Vine Preschool" }
+      ],
+      orders: [{ sku: "tourkit", status: "paid", created_at: "2026-10-20T00:00:00.000Z" }]
+    };
+  }
+
+  function planLabel(plan) {
+    if (!plan || !plan.status) return "No paid plan yet";
+    var name = plan.plan === "weekly" ? "Weekly pass" : plan.plan === "monthly" ? "Premium monthly" : (plan.plan || "Plan");
+    if (plan.plan === "concierge") name = "Waitlist concierge";
+    var when = plan.current_period_end ? " · renews " + plan.current_period_end.slice(0, 10) : "";
+    return name + " · " + plan.status + when;
+  }
+
+  function hoursLabel(id) {
+    return { early: "Open by 6:30am", duty: "Duty day, about 7am–6pm", school: "School day, about 8:30am–3pm", half: "Half day is fine", any: "Flexible" }[id] || "Flexible";
+  }
+
+  function renderAccount(data) {
+    var prefs = data.preferences || {};
+    var votes = prefs.quiz_votes || {};
+    var alerts = prefs.spot_alerts || { enabled: false, slugs: [] };
+    var favorites = data.favorites || [];
+    var orders = data.orders || [];
+    var checkout = params.get("checkout");
+    var sku = params.get("sku") || "";
+    var follow = "";
+    if (checkout === "success" && sku === "consult") {
+      follow = '<div class="card"><h2>Book the 30-minute call</h2><p class="muted">Tell Kelly a couple of times that work. She will write back at the email on this account.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Duty station, ages, and two times that work"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send booking request</button></form></div>';
+    } else if (checkout === "success" && sku === "tourkit") {
+      follow = '<div class="card"><h2>Your tour kit is ready</h2><p class="muted">Print it or save it. It covers the classroom and the military questions: cost, hours, fee assistance, MCCYN, and a PCS waitlist.</p><p class="actions"><a class="btn" href="/tour-kit.html">Open the question kit</a></p></div>';
+    } else if (checkout === "success" && sku === "shortlist") {
+      follow = '<div class="card"><h2>Shortlist requested</h2><p class="muted">Kelly emails the shortlist within 3 business days. Add anything she should know.</p><form id="bookingForm" class="stack" style="display:block"><textarea name="notes" placeholder="Bases, ages, hours, and budget"></textarea><button class="btn" type="submit" style="margin-top:.6rem">Send details</button></form></div>';
+    } else if (checkout === "success") {
+      follow = '<div class="card"><h2>Purchase received</h2><p class="muted">Kelly has the order. Cancel anytime from Manage billing if it is a monthly add-on.</p></div>';
+    }
+    app.innerHTML = follow +
+      '<div class="card"><div class="row"><div><h2>' + esc(data.email) + '</h2><p class="muted">Email magic link. No password is stored.</p></div><span class="pill">' + esc(planLabel(data.plan)) + '</span></div><div class="actions"><button type="button" class="btn" id="portalBtn">Manage billing</button><a class="btn ghost" href="/premium.html">See plans</a></div><p class="muted" style="margin-top:.55rem">Cancel anytime. Card numbers stay at Stripe. NearBase never sees them.</p></div>' +
+      '<div class="card"><h2>Saved preferences</h2><p class="muted">Base, hours, cost, and ages from Find and the quiz.</p><div class="chips"><span class="pill">' + esc(prefs.base_id || "No base yet") + '</span><span class="pill">' + esc(hoursLabel(prefs.hours)) + '</span><span class="pill">' + esc(prefs.cost_ceiling === "assist" || prefs.cost_ceiling === "free" ? "Free / fee assistance first" : "Cost still open") + '</span>' + (prefs.ages || []).map(function (age) { return '<span class="pill">' + esc(age) + '</span>'; }).join("") + '</div></div>' +
+      '<div class="card"><h2>Quiz fingerprint</h2><p class="muted">Votes saved with the profile. Cost votes ' + esc(String((votes.cost_free || 0) + (votes.cost_assist || 0))) + ' toward free or assistance. Extended-hours votes ' + esc(String(votes.hours_extended || 0)) + '.</p></div>' +
+      '<div class="card"><h2>Saved schools</h2><ul class="clean">' + (favorites.length ? favorites.map(function (school) {
+        var watched = (alerts.slugs || []).indexOf(school.school_slug) !== -1;
+        return '<li class="row"><span>' + esc(school.school_name) + '</span><span class="pill">' + (watched && alerts.enabled ? "Spot alert on" : "Saved") + '</span></li>';
+      }).join("") : '<li>No saved schools yet. Use Save school on a listing.</li>') + '</ul></div>' +
+      '<div class="card"><h2>Purchased services</h2><ul class="clean">' + (orders.length ? orders.map(function (order) {
+        return '<li class="row"><span>' + esc(order.sku) + '</span><span class="pill">' + esc(order.status) + '</span></li>';
+      }).join("") : '<li>None yet. Extra help is on the Premium page.</li>') + '</ul></div>' +
+      '<div class="card"><h2>Delete this account</h2><p class="muted">This removes the email, plan record, saved schools, and fingerprint. Pay-it-forward check-ins are not part of the account and are not deleted here.</p><div class="actions"><button type="button" class="btn danger" id="deleteBtn">Delete my account</button><button type="button" class="btn ghost" id="signOutBtn">Sign out</button></div></div>';
+    var portal = document.getElementById("portalBtn");
+    var del = document.getElementById("deleteBtn");
+    var out = document.getElementById("signOutBtn");
+    if (portal) portal.onclick = function () {
+      if (params.get("preview") === "signed-in") {
+        document.getElementById("accountNotice").textContent = "Manage billing opens Stripe once a real subscription is connected.";
+        return;
+      }
+      window.NearBaseAccount.openPortal();
+    };
+    if (out) out.onclick = function () { window.NearBaseAccount.signOut(); };
+    if (del) del.onclick = function () {
+      if (!confirm("Delete this NearBase account?")) return;
+      if (params.get("preview") === "signed-in") {
+        document.getElementById("accountNotice").textContent = "On the live site this deletes the account. Check-ins stay anonymous and are not tied to it.";
+        return;
+      }
+      window.NearBaseAccount.deleteAccount();
+    };
+    var booking = document.getElementById("bookingForm");
+    if (booking) booking.onsubmit = function (event) {
+      event.preventDefault();
+      var notes = booking.querySelector("textarea").value.trim();
+      var body = new URLSearchParams();
+      body.set("form-name", "addon-request");
+      body.set("email", data.email);
+      body.set("service", sku);
+      body.set("stripe_session", params.get("session_id") || "");
+      body.set("notes", notes);
+      fetch("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: body.toString() }).catch(function () {});
+      document.getElementById("accountNotice").textContent = "Sent to kelly@nearbase.net.";
+    };
+  }
+
+  function renderSignedOut(configured) {
+    if (!configured) {
+      document.getElementById("accountLead").textContent = "Accounts turn on after Supabase is connected. Until then, search and the quiz still save on this device.";
+      app.innerHTML = '<div class="card"><h2>Sign-in is not turned on yet</h2><p class="muted">Join the Premium list and Kelly will follow up. Nothing here asks for a password.</p><p class="actions"><a class="btn" href="/premium.html#waitlist">Join the waitlist</a><a class="btn ghost" href="/find">Back to search</a></p></div>';
+      return;
+    }
+    document.getElementById("accountLead").textContent = "We’ll email you a sign-in link. No password.";
+    app.innerHTML = '<div class="card"><h2>Email me a link</h2><form id="magicForm" class="stack"><input type="email" required placeholder="you@example.com" aria-label="Email address" autocomplete="email"><button class="btn" type="submit">Send link</button></form><p class="notice" id="magicStatus"></p></div>';
+    document.getElementById("magicForm").onsubmit = function (event) {
+      event.preventDefault();
+      var email = event.target.querySelector("input").value.trim();
+      document.getElementById("magicStatus").textContent = "Sending…";
+      window.NearBaseAccount.sendMagicLink(email).then(function (result) {
+        document.getElementById("magicStatus").textContent = result.ok ? "Check your email for the sign-in link." : (result.reason || "Try again in a minute.");
+      });
+    };
+  }
+
+  window.NearBaseAccountPage = {
+    render: function (authState) {
+      if (params.get("preview") === "signed-in") {
+        document.getElementById("accountLead").textContent = "Signed in. Plan, fingerprint, saved schools, and services live here.";
+        renderAccount(mock());
+        return;
+      }
+      var session = authState && authState.session;
+      if (!session) {
+        renderSignedOut(!!(authState && authState.configured));
+        return;
+      }
+      var sbPromise = window.supabase.createClient(authState.config.supabaseUrl, authState.config.supabaseAnonKey);
+      var userId = session.user.id;
+      Promise.all([
+        sbPromise.from("subscriptions").select("*").order("updated_at", { ascending: false }).limit(1),
+        sbPromise.from("preferences").select("*").eq("user_id", userId).maybeSingle(),
+        sbPromise.from("favorites").select("*").eq("user_id", userId),
+        sbPromise.from("orders").select("*").order("created_at", { ascending: false })
+      ]).then(function (results) {
+        renderAccount({
+          email: session.user.email,
+          plan: results[0].data && results[0].data[0],
+          preferences: (results[1].data) || {},
+          favorites: results[2].data || [],
+          orders: results[3].data || []
+        });
+      }).catch(function () {
+        renderAccount({ email: session.user.email, preferences: {}, favorites: [], orders: [] });
+      });
+    }
+  };
+
+  if (params.get("preview") === "signed-in") window.NearBaseAccountPage.render({ session: { user: { email: "family@example.com" } }, configured: true });
+})();
+</script>
+</body>
+</html>
