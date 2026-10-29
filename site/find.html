@@ -283,7 +283,7 @@ let map = null;
 try{
   if(typeof L === 'undefined') throw new Error('Leaflet unavailable');
   map = L.map('map',{zoomControl:true}).setView([38.872,-77.056],11);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:16}).addTo(map);
 }catch(e){
   const mEl = document.getElementById('map');
   if(mEl) mEl.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;color:var(--muted);background:var(--cream);text-align:center;padding:2rem"><div style="font-size:1.6rem">🗺</div><div style="font-size:.85rem;max-width:280px">The map couldn\'t load on this connection — every school is still in the list.</div></div>';
