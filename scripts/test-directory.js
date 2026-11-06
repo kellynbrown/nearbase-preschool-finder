@@ -1,0 +1,198 @@
+#!/usr/bin/env node
+// Fort Belvoir directory: skeleton rows, distance sort, and the Supabase read.
+var assert = require("assert");
+var fs = require("fs");
+var path = require("path");
+var directory = require(path.join(__dirname, "..", "site/directory.js"));
+
+var failures = 0;
+var pending = [];
+function check(name, fn) {
+  var result;
+  try {
+    result = fn();
+  } catch (error) {
+    failures += 1;
+    console.error("  FAIL  " + name);
+    console.error(error && error.stack || error);
+    return;
+  }
+  if (result && typeof result.then === "function") {
+    pending.push(result.then(function () {
+      console.log("  ok  " + name);
+    }, function (error) {
+      failures += 1;
+      console.error("  FAIL  " + name);
+      console.error(error && error.stack || error);
+    }));
+    return;
+  }
+  console.log("  ok  " + name);
+}
+
+function row(overrides) {
+  return Object.assign({
+    id: "summer-breeze-learning-center-alexandria-vdoe5015",
+    name: "Summer Breeze Learning Center",
+    address: "8758 Richmond Highway",
+    city: "Alexandria",
+    state: "VA",
+    zip: "22309",
+    phone: "(703) 360-3668",
+    lat: 38.721598,
+    lng: -77.126036,
+    distance_miles_to_belvoir: 1.54,
+    license_type: "Licensed Child Day Center",
+    license_status: "Licensed (Two Year)",
+    capacity: 92,
+    ages_served: "1 month - 12 years 11 months",
+    hours: "6:00am - 6:30pm, Monday - Friday",
+    locality: "Fairfax County",
+    pilot_base: "fort-belvoir"
+  }, overrides || {});
+}
+
+function haversine(lat1, lng1, lat2, lng2) {
+  var p = Math.PI / 180;
+  var dLat = (lat2 - lat1) * p;
+  var dLng = (lng2 - lng1) * p;
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * p) * Math.cos(lat2 * p) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 3958.8 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+check("slug for favorites is the schools id", function () {
+  var school = directory.normalizeSchool(row());
+  assert.strictEqual(school.id, "summer-breeze-learning-center-alexandria-vdoe5015");
+  assert.strictEqual(school.slug, school.id);
+  assert.strictEqual(school.pilotBase, "fort-belvoir");
+  assert.strictEqual(directory.normalizeSchool({ name: "Missing id" }), null);
+});
+
+check("cards keep license fields and skip blanks", function () {
+  var full = directory.presentSchool(directory.normalizeSchool(row()), null, haversine);
+  assert.strictEqual(full.place, "Fairfax County · Alexandria, VA");
+  assert.strictEqual(full.addressLine, "8758 Richmond Highway, Alexandria, VA 22309");
+  assert.strictEqual(full.distanceLabel, "1.5 mi from Belvoir");
+  assert.ok(full.facts.some(function (fact) { return fact.text === "Capacity 92"; }));
+  assert.ok(full.facts.some(function (fact) { return fact.text.indexOf("Ages ") === 0; }));
+  assert.ok(full.facts.some(function (fact) { return fact.href === "tel:7033603668"; }));
+  assert.ok(full.facts.some(function (fact) { return fact.text.indexOf("Licensed Child Day Center") === 0; }));
+
+  var sparse = directory.presentSchool(directory.normalizeSchool(row({
+    phone: "", hours: null, ages_served: "", capacity: null, license_status: ""
+  })), null, haversine);
+  assert.ok(sparse.facts.every(function (fact) { return fact.text.indexOf("Capacity") !== 0 && fact.text.indexOf("Ages") !== 0; }));
+  assert.strictEqual(sparse.facts.filter(function (fact) { return fact.href; }).length, 0);
+  assert.strictEqual(sparse.facts[sparse.facts.length - 1].text, "Licensed Child Day Center");
+});
+
+check("home distance wins over the Belvoir distance", function () {
+  var school = directory.normalizeSchool(row());
+  var away = directory.distanceFor(school, null, haversine);
+  assert.strictEqual(away.from, "belvoir");
+  assert.strictEqual(away.miles, 1.54);
+  var home = directory.distanceFor(school, { lat: 38.73, lng: -77.14 }, haversine);
+  assert.strictEqual(home.from, "home");
+  assert.ok(home.miles < 2);
+  assert.ok(/from home$/.test(home.label));
+});
+
+check("sort is by distance and search does not invent a score", function () {
+  var near = directory.normalizeSchool(row({ id: "near", name: "Near", distance_miles_to_belvoir: 2 }));
+  var far = directory.normalizeSchool(row({ id: "far", name: "Far", distance_miles_to_belvoir: 12, city: "Woodbridge" }));
+  var mid = directory.normalizeSchool(row({ id: "mid", name: "Mid", distance_miles_to_belvoir: 5 }));
+  var sorted = directory.sortSchools([far, near, mid], null, haversine);
+  assert.deepStrictEqual(sorted.map(function (s) { return s.id; }), ["near", "mid", "far"]);
+  var byHome = directory.sortSchools([far, near], { lat: far.lat, lng: far.lng }, haversine);
+  assert.strictEqual(byHome[0].id, "far");
+  assert.strictEqual(directory.matchesQuery(far, "woodbridge"), true);
+  assert.strictEqual(directory.matchesQuery(near, "woodbridge"), false);
+  assert.strictEqual(directory.matchesQuery(near, ""), true);
+});
+
+check("pilot read filters fort-belvoir and follows pages", function () {
+  var calls = [];
+  function client(pages, failAt) {
+    return {
+      from: function (table) {
+        assert.strictEqual(table, "schools");
+        var query = { filters: [] };
+        var api = {
+          select: function (cols) { query.cols = cols; return api; },
+          eq: function (col, val) { query.filters.push([col, val]); return api; },
+          order: function (col, opts) { query.order = [col, opts]; return api; },
+          range: function (from, to) {
+            calls.push({ from: from, to: to, filters: query.filters.slice(), order: query.order, cols: query.cols });
+            if (failAt != null && from === failAt) return Promise.resolve({ data: null, error: { message: "permission denied" } });
+            return Promise.resolve({ data: pages.slice(from, to + 1), error: null });
+          }
+        };
+        return api;
+      }
+    };
+  }
+  var first = row({ id: "a", distance_miles_to_belvoir: 1 });
+  var second = row({ id: "b", distance_miles_to_belvoir: 2 });
+  return directory.fetchPilotSchools(client([first, second])).then(function (result) {
+    assert.strictEqual(result.ok, true);
+    assert.deepStrictEqual(result.schools.map(function (s) { return s.slug; }), ["a", "b"]);
+    assert.deepStrictEqual(calls[0].filters, [["pilot_base", "fort-belvoir"]]);
+    assert.strictEqual(calls[0].order[0], "distance_miles_to_belvoir");
+    assert.strictEqual(calls[0].to, 999);
+    assert.ok(calls[0].cols.indexOf("ages_served") !== -1);
+    assert.strictEqual(calls.length, 1);
+    calls = [];
+    var page = [];
+    for (var i = 0; i < 1000; i++) page.push(row({ id: "p" + i, name: "P" + i }));
+    page.push(row({ id: "last", name: "Last" }));
+    return directory.fetchPilotSchools(client(page)).then(function (paged) {
+      assert.strictEqual(paged.ok, true);
+      assert.strictEqual(paged.schools.length, 1001);
+      assert.strictEqual(paged.schools[1000].slug, "last");
+      assert.deepStrictEqual(calls.map(function (call) { return [call.from, call.to]; }), [[0, 999], [1000, 1999]]);
+    });
+  });
+});
+
+check("a failed read stays an error and does not throw", function () {
+  var sb = {
+    from: function () {
+      return {
+        select: function () { return this; },
+        eq: function () { return this; },
+        order: function () { return this; },
+        range: function () { return Promise.reject(new Error("network down")); }
+      };
+    }
+  };
+  return directory.fetchPilotSchools(sb).then(function (result) {
+    assert.strictEqual(result.ok, false);
+    assert.deepStrictEqual(result.schools, []);
+    assert.ok(/network down/.test(result.message));
+  });
+});
+
+check("find uses the live directory for Belvoir and keeps the curated file", function () {
+  var root = path.join(__dirname, "..");
+  var html = fs.readFileSync(path.join(root, "site/find.html"), "utf8");
+  assert.ok(html.indexOf('src="directory.js"') !== -1);
+  assert.ok(html.indexOf("fetchPilotSchools") !== -1);
+  assert.ok(html.indexOf("nb-save-school") !== -1);
+  assert.ok(html.indexOf("data-slug") !== -1);
+  assert.ok(html.indexOf("World_Light_Gray_Base") !== -1);
+  assert.ok(html.indexOf("loadDirectory") !== -1);
+  assert.ok(fs.existsSync(path.join(root, "site/schools.js")));
+  var account = fs.readFileSync(path.join(root, "site/account.js"), "utf8");
+  assert.ok(account.indexOf("school_slug: slug") !== -1);
+  assert.ok(/ready:\s*function/.test(account));
+  assert.ok(/client:\s*client/.test(account));
+});
+
+Promise.all(pending).then(function () {
+  if (failures) {
+    console.error("\n" + failures + " failed");
+    process.exit(1);
+  }
+  console.log("\nAll directory checks passed.");
+});
