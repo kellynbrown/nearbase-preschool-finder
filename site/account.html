@@ -69,7 +69,7 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
 </head>
 <body>
 <header>
-  <a class="logo" href="/">Near<span>Base</span></a>
+  <span class="nb-brand" style="display:inline-flex;align-items:center;gap:.4rem"><a class="logo" href="/">Near<span>Base</span></a><span class="nb-beta" style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#0F6E56;background:#E1F5EE;border-radius:100px;padding:.12rem .48rem;line-height:1.4">Beta</span></span>
   <a class="nav" href="/find">Find schools</a>
 </header>
 <main>
@@ -214,7 +214,7 @@ ul.clean li{padding:.35rem 0;border-top:1px solid var(--border);font-size:.88rem
       '<div class="card"><h2>Saved schools</h2><ul class="clean">' + (favorites.length ? favorites.map(function (school) {
         var watched = (alerts.slugs || []).indexOf(school.school_slug) !== -1;
         return '<li class="row"><span>' + esc(school.school_name) + '</span><span class="pill">' + (watched && alerts.enabled ? "Spot alert on" : "Saved") + '</span></li>';
-      }).join("") : '<li>No saved schools yet. Use Save school on a listing.</li>') + '</ul></div>' +
+      }).join("") : '<li>No saved schools yet. Use the heart on a listing.</li>') + '</ul></div>' +
       '<div class="card"><h2>Delete this account</h2><p class="muted">This removes the email, plan record, saved schools, fingerprint, and waitlist tracker. Pay-it-forward check-ins are not part of the account and are not deleted here.</p><div class="actions"><button type="button" class="btn danger" id="deleteBtn">Delete my account</button><button type="button" class="btn ghost" id="signOutBtn">Sign out</button></div></div>';
     var portal = document.getElementById("portalBtn");
     var del = document.getElementById("deleteBtn");

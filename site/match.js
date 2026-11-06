@@ -10,9 +10,10 @@
   var QUIZ_KEY = "nb_quiz_votes";
 
   // Map pins and the match use the same coordinates.
+  // Fort Belvoir is the first pilot base, so it leads the list and the default profile.
   var BASES = [
-    { id: "pentagon", name: "Pentagon", lat: 38.872, lng: -77.056, kind: "installation" },
     { id: "belvoir", name: "Fort Belvoir", lat: 38.71, lng: -77.15, kind: "installation" },
+    { id: "pentagon", name: "Pentagon", lat: 38.872, lng: -77.056, kind: "installation" },
     { id: "jbab", name: "Joint Base Anacostia-Bolling", lat: 38.843, lng: -77.016, kind: "installation" },
     { id: "andrews", name: "Joint Base Andrews", lat: 38.812, lng: -76.867, kind: "installation" },
     { id: "meade", name: "Fort Meade", lat: 39.108, lng: -76.771, kind: "installation" },
@@ -39,7 +40,7 @@
 
   function defaultProfile() {
     return {
-      baseId: "pentagon",
+      baseId: "belvoir",
       ages: [],
       philosophies: [],
       hours: "any",
