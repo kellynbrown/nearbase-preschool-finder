@@ -1,12 +1,48 @@
 // School profile extras: family match, tour questions, and a share card.
 (function () {
-  var Match = window.NearBaseMatch;
-  var Insights = window.NearBaseInsights;
-  if (!Match || !Insights) return;
+  function websiteHref(value) {
+    if (window.NearBaseDirectory && typeof window.NearBaseDirectory.websiteHref === "function") {
+      return window.NearBaseDirectory.websiteHref(value);
+    }
+    var raw = value == null ? "" : String(value).trim();
+    if (!raw || /[\s<>"'\\]/.test(raw) || /[\u0000-\u001f]/.test(raw)) return "";
+    try {
+      var url = new URL(raw);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+      return url.href;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function placeWebsiteCta(school) {
+    var row = document.querySelector(".cta-row");
+    if (!row) return;
+    var href = websiteHref(school && school.website);
+    var existing = row.querySelector("[data-nb-website]");
+    if (!href) {
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+      return;
+    }
+    var link = existing || document.createElement("a");
+    link.className = "btn btn-p";
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.setAttribute("data-nb-website", "1");
+    link.textContent = "Visit website";
+    if (!existing) row.insertBefore(link, row.firstChild);
+  }
+
+  window.NearBaseSchoolPage = { websiteHref: websiteHref, placeWebsiteCta: placeWebsiteCta };
 
   var slug = (location.pathname.split("/").pop() || "").replace(/\.html$/, "");
   var school = (window.SCHOOLS || []).find(function (s) { return s.slug === slug; });
-  if (!school) return;
+  if (school) placeWebsiteCta(school);
+
+  var Match = window.NearBaseMatch;
+  var Insights = window.NearBaseInsights;
+  if (!Match || !Insights || !school) return;
 
   var css = document.createElement("style");
   css.textContent = [

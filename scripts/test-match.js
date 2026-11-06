@@ -295,10 +295,15 @@ check("parent disagreements come from saved votes only", function () {
   assert.deepStrictEqual(match.voteDisagreements({ montessori: 2 }, { montessori: 2 }), []);
 });
 
-check("Fort Belvoir is the pilot default base", function () {
-  assert.strictEqual(match.defaultProfile().baseId, "belvoir");
-  assert.strictEqual(match.BASES[0].id, "belvoir");
-  assert.strictEqual(match.BASES[0].name, "Fort Belvoir");
+check("the Pentagon is the pilot default base", function () {
+  assert.strictEqual(match.defaultProfile().baseId, "pentagon");
+  assert.strictEqual(match.BASES[0].id, "pentagon");
+  assert.strictEqual(match.BASES[0].name, "Pentagon");
+  assert.strictEqual(match.BASES[0].lat, 38.872);
+  assert.strictEqual(match.BASES[0].lng, -77.056);
+  var belvoir = match.BASES.filter(function (b) { return b.id === "belvoir"; })[0];
+  assert.ok(belvoir);
+  assert.strictEqual(belvoir.name, "Fort Belvoir");
 });
 
 check("find map keeps Esri light gray canvas tiles", function () {

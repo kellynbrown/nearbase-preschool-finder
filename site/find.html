@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#085041">
 <title>NearBase Beta — Schools near your home and base</title>
-<meta name="description" content="Fort Belvoir pilot. Enter your base and home address to see preschools on a map and a list.">
+<meta name="description" content="Pentagon pilot. Fort Belvoir is also available. Enter your base and home address to see preschools on a map and a list.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/find.html">
 <meta property="og:site_name" content="NearBase">
 <meta property="og:type" content="website">
 <meta property="og:title" content="NearBase Beta — Schools near your home and base">
-<meta property="og:description" content="Fort Belvoir pilot. Enter your base and home address to see preschools on a map and a list.">
+<meta property="og:description" content="Pentagon pilot. Fort Belvoir is also available. Enter your base and home address to see preschools on a map and a list.">
 <meta property="og:url" content="https://nearbase.net/find.html">
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -84,6 +84,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .dir-address{font-size:.72rem;color:var(--text);line-height:1.4;margin:.1rem 0 .35rem}
 .dir-facts{font-size:.72rem;color:var(--muted);line-height:1.45;margin:0 0 .45rem}
 .dir-facts a{color:var(--g);font-weight:500;text-decoration:none}
+.visit-web{display:inline-block;margin:0 0 .45rem;background:var(--g);color:#fff;text-decoration:none;border-radius:100px;padding:.38rem .85rem;font-size:.75rem;font-weight:500}
+.visit-web:hover{background:var(--dark)}
 body.dir-live .nb-track-school{margin-left:0;display:inline-block;margin-top:.15rem}
 .results-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:flex-start;justify-content:space-between;gap:.35rem .75rem;flex-wrap:wrap}
 .results-meta>span{flex:1;min-width:9rem;line-height:1.35}
@@ -154,7 +156,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .pu-name{font-size:.875rem;font-weight:500;color:var(--dark);margin-bottom:.25rem}
 .pu-meta{font-size:.72rem;color:var(--muted);margin-bottom:.4rem}
 .pu-bdgs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem}
-.pu-btn{background:var(--g);color:var(--white);border:none;padding:.35rem .875rem;border-radius:100px;font-size:.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%}
+.pu-btn{display:block;box-sizing:border-box;background:var(--g);color:var(--white);border:none;padding:.35rem .875rem;border-radius:100px;font-size:.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;text-align:center;text-decoration:none}
+.pu-btn+.pu-btn{margin-top:.35rem}
 </style>
 </head>
 <body>
@@ -178,7 +181,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <div class="main">
   <div class="sidebar">
     <div class="sidebar-top">
-      <p class="dir-note" id="directoryNote" hidden>Virginia licensed child day centers near Fort Belvoir. Sorted by straight-line distance. Match scores aren’t on these license records.</p>
+      <p class="dir-note" id="directoryNote" hidden>Licensed child day centers near the Pentagon. Fort Belvoir is another pilot base. Sorted by straight-line distance. Match scores aren’t on these license records.</p>
       <form id="matchPanel" aria-label="Match schools to your family">
         <details class="match-details" open>
         <summary>Match to your family</summary>
@@ -252,7 +255,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   </div>
   <div class="map-wrap">
     <div id="map"></div>
-    <div class="counter-badge"><span id="mapBadge">Fort Belvoir pilot</span> · <span id="pinCount">0</span> schools</div>
+    <div class="counter-badge"><span id="mapBadge">Pentagon pilot</span> · <span id="pinCount">0</span> schools</div>
     <div class="map-ctrls">
       <div class="ctrl-group">
         <div class="ctrl-lbl">Map layers</div>
@@ -328,7 +331,7 @@ const ECO = {
 let map = null;
 try{
   if(typeof L === 'undefined') throw new Error('Leaflet unavailable');
-  map = L.map('map',{zoomControl:true}).setView([38.71,-77.15],11);
+  map = L.map('map',{zoomControl:true}).setView([38.872,-77.056],12);
   // Esri Light Gray Canvas. Keep this basemap; the previous CARTO tiles showed an API-key watermark.
   var ESRI_LIGHT_GRAY = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   L.tileLayer(ESRI_LIGHT_GRAY,{attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:16}).addTo(map);
@@ -372,6 +375,17 @@ if(map){
 let activeFilter='all', markers={}, activeCard=null;
 let homePoint=null, homeMarker=null, homeReq=0, fitAfterRender=false;
 const esc = NearBaseMatch.esc;
+
+function websiteButton(raw){
+  const href = NearBaseDirectory.websiteHref(raw);
+  if(!href) return '';
+  return '<a class="visit-web" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit website</a>';
+}
+function websitePopup(raw){
+  const href = NearBaseDirectory.websiteHref(raw);
+  if(!href) return '';
+  return '<a class="pu-btn" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Visit website</a>';
+}
 
 function baseOptions(){
   return NearBaseMatch.BASES.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
@@ -423,9 +437,10 @@ function applyBase(id){
   document.getElementById('mapBase').value = id;
   document.getElementById('doorBase').value = id;
   const pendingHome = document.getElementById('homeAddress').value.trim();
-  if(!homePoint && !pendingHome && id !== NearBaseDirectory.PILOT_BASE_ID) flyToBase(id);
+  if(!homePoint && !pendingHome) flyToBase(id);
   NearBaseMatch.saveProfile(readMatchForm());
-  if(id === NearBaseDirectory.PILOT_BASE_ID && directoryState.status === 'idle') loadDirectory();
+  const pilot = NearBaseDirectory.pilotFor(id);
+  if(pilot && (directoryState.baseId !== id || directoryState.status === 'idle' || directoryState.status === 'error')) loadDirectory();
   else doFilter();
   syncUrl();
 }
@@ -544,7 +559,7 @@ function render(rows){
   if(badge){
     badge.textContent = homePoint
       ? ('Near ' + (baseNow ? baseNow.name : 'your base'))
-      : (baseNow && baseNow.id==='belvoir' ? 'Fort Belvoir pilot' : (baseNow ? baseNow.name : 'Fort Belvoir pilot'));
+      : (baseNow ? baseNow.name : 'Pentagon pilot');
   }
   const label = document.getElementById('rankLabel');
   const anyNear = !homePoint || inside.some(r => r.homeMiles != null && r.homeMiles <= 15);
@@ -571,7 +586,7 @@ function render(rows){
       const m=L.marker([s.lat,s.lng],{icon:mkSchoolIcon(s.tier)}).addTo(schoolLayer);
       const popBdgs=s.badges.slice(0,2).map(b=>`<span class="badge ${b.c}" style="font-size:.65rem;padding:.15rem .5rem;border-radius:100px">${esc(b.t)}</span>`).join('');
       const miles = distBit ? ` · ${distBit}` : '';
-      m.bindPopup(`<div class="pu-name">${esc(s.name)}</div><div class="pu-meta">Family match ${fit.score==null?'—':fit.score}${esc(miles)}</div><div class="pu-bdgs">${popBdgs}</div><a class="pu-btn" style="display:inline-block;text-decoration:none;text-align:center" href="school/${esc(s.slug)}.html">Full profile →</a>`);
+      m.bindPopup(`<div class="pu-name">${esc(s.name)}</div><div class="pu-meta">Family match ${fit.score==null?'—':fit.score}${esc(miles)}</div><div class="pu-bdgs">${popBdgs}</div>${websitePopup(s.website)}<a class="pu-btn" href="school/${esc(s.slug)}.html">Full profile →</a>`);
       markers[s.id]=m;
     }
 
@@ -590,6 +605,7 @@ function render(rows){
         <button type="button" class="heart nb-save-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}" aria-label="${saved ? 'Saved school' : 'Save school'}" aria-pressed="${saved ? 'true' : 'false'}">${saved ? '♥' : '♡'}</button>
       </div>
       <div class="brow">${s.badges.map(b=>`<span class="bdg ${b.c}">${esc(b.t)}</span>`).join('')}</div>
+      ${websiteButton(s.website)}
       <p class="why-line">${esc(isOutside ? (fit.outsideReason || fit.headline) : fit.headline)}</p>
       <button type="button" class="why-btn" aria-expanded="false" onclick="event.stopPropagation();toggleWhy(this)">Why this score</button>
       <div class="why-body" hidden>${why}</div>
@@ -636,13 +652,16 @@ function selectCard(id){
   if(map && markers[id]){markers[id].openPopup();map.panTo(markers[id].getLatLng(),{animate:true});}
 }
 
-let directoryState = { status: 'idle', schools: [], message: '' };
+let directoryState = { status: 'idle', schools: [], message: '', baseId: '' };
 let directoryReq = 0;
 let pinKey = '';
 let fitKey = '';
 
+function selectedPilot(){
+  return NearBaseDirectory.pilotFor(document.getElementById('matchBase').value);
+}
 function directoryActive(){
-  return document.getElementById('matchBase').value === NearBaseDirectory.PILOT_BASE_ID;
+  return !!selectedPilot();
 }
 function setDirectoryChrome(on){
   document.body.classList.toggle('dir-live', on);
@@ -655,13 +674,14 @@ function setDirectoryChrome(on){
 }
 function loadDirectory(){
   const req = ++directoryReq;
-  directoryState = { status: 'loading', schools: [], message: '' };
+  const baseId = document.getElementById('matchBase').value;
+  directoryState = { status: 'loading', schools: [], message: '', baseId: baseId };
   pinKey = '';
   fitKey = '';
   if(directoryActive()) renderDirectory();
   const account = window.NearBaseAccount;
   if(!account || typeof account.ready !== 'function' || typeof account.client !== 'function'){
-    directoryState = { status: 'error', schools: [], message: NearBaseDirectory.CONFIG_MESSAGE };
+    directoryState = { status: 'error', schools: [], message: NearBaseDirectory.CONFIG_MESSAGE, baseId: baseId };
     if(directoryActive()) renderDirectory();
     return;
   }
@@ -670,17 +690,17 @@ function loadDirectory(){
     if(!sb){
       var configured = false;
       try { configured = !!(account.state && account.state().configured); } catch (e) { configured = false; }
-      directoryState = { status: 'error', schools: [], message: configured ? NearBaseDirectory.QUERY_MESSAGE : NearBaseDirectory.CONFIG_MESSAGE };
+      directoryState = { status: 'error', schools: [], message: configured ? NearBaseDirectory.QUERY_MESSAGE : NearBaseDirectory.CONFIG_MESSAGE, baseId: baseId };
       if(directoryActive()) renderDirectory();
       return;
     }
-    return NearBaseDirectory.fetchPilotSchools(sb).then(function(result){
+    return NearBaseDirectory.fetchPilotSchools(sb, baseId).then(function(result){
       if(req !== directoryReq) return;
       if(!result || !result.ok){
         const detail = result && result.message ? ' (' + result.message + ')' : '';
-        directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE + detail };
+        directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE + detail, baseId: baseId };
       } else {
-        directoryState = { status: 'ready', schools: result.schools || [], message: '' };
+        directoryState = { status: 'ready', schools: result.schools || [], message: '', baseId: baseId };
       }
       if(directoryActive()) renderDirectory();
       const pending = new URLSearchParams(location.search).get('school');
@@ -691,39 +711,43 @@ function loadDirectory(){
     });
   }).catch(function(){
     if(req !== directoryReq) return;
-    directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE };
+    directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE, baseId: baseId };
     if(directoryActive()) renderDirectory();
   });
 }
 function syncDirectoryPins(schools){
   if(!map || !schoolLayer) return;
+  const pilot = NearBaseDirectory.pilotFor(directoryState.baseId) || selectedPilot();
   const homeKey = homePoint ? (Number(homePoint.lat).toFixed(5) + ',' + Number(homePoint.lng).toFixed(5)) : '';
-  const key = 'dir:' + schools.length + ':' + homeKey;
+  const key = 'dir:' + (pilot ? pilot.baseId : '') + ':' + schools.length + ':' + homeKey;
   if(pinKey === key) return;
   schoolLayer.clearLayers();
   markers = {};
   const haversine = NearBaseMatch.haversineMiles;
   schools.forEach(function(school){
     if(school.lat == null || school.lng == null) return;
-    const view = NearBaseDirectory.presentSchool(school, homePoint, haversine);
+    const view = NearBaseDirectory.presentSchool(school, homePoint, haversine, pilot);
     const m = L.marker([school.lat, school.lng], {icon: mkSchoolIcon('hi')}).addTo(schoolLayer);
     const bits = [view.distanceLabel, view.addressLine, school.phone].filter(Boolean).map(function(part){ return esc(part); }).join('<br>');
-    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + bits + '</div>');
+    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + bits + '</div>' + websitePopup(view.websiteHref));
     markers[school.id] = m;
   });
   pinKey = key;
 }
 function fitDirectoryView(schools){
   if(!map) return;
-  const key = homePoint ? ('home:' + Number(homePoint.lat).toFixed(4) + ',' + Number(homePoint.lng).toFixed(4)) : 'all';
+  const pilotKey = (NearBaseDirectory.pilotFor(directoryState.baseId) || selectedPilot() || {}).baseId || '';
+  const key = pilotKey + ':' + (homePoint ? ('home:' + Number(homePoint.lat).toFixed(4) + ',' + Number(homePoint.lng).toFixed(4)) : 'all');
   if(fitKey === key) return;
   const bounds = L.latLngBounds([]);
   schools.forEach(function(school){
     if(school.lat != null && school.lng != null) bounds.extend([school.lat, school.lng]);
   });
   if(homePoint) bounds.extend([homePoint.lat, homePoint.lng]);
-  const base = NearBaseMatch.BASES.find(function(b){ return b.id === NearBaseDirectory.PILOT_BASE_ID; });
-  if(base) bounds.extend([base.lat, base.lng]);
+  const pilot = NearBaseDirectory.pilotFor(directoryState.baseId) || selectedPilot();
+  const matchBase = pilot && NearBaseMatch.BASES.find(function(b){ return b.id === pilot.baseId; });
+  if(matchBase) bounds.extend([matchBase.lat, matchBase.lng]);
+  else if(pilot) bounds.extend([pilot.lat, pilot.lng]);
   if(bounds.isValid()) map.fitBounds(bounds.pad(0.12), {maxZoom: 12, animate: false});
   fitKey = key;
 }
@@ -732,7 +756,12 @@ function renderDirectory(){
   const list = document.getElementById('schoolList');
   const label = document.getElementById('rankLabel');
   const badge = document.getElementById('mapBadge');
-  if(badge) badge.textContent = 'Fort Belvoir pilot';
+  const note = document.getElementById('directoryNote');
+  const selectedId = document.getElementById('matchBase').value;
+  const pilot = (directoryState.baseId === selectedId && NearBaseDirectory.pilotFor(directoryState.baseId)) || selectedPilot() || NearBaseDirectory.pilotFor('pentagon');
+  const near = pilot.nearPhrase || pilot.name;
+  if(badge) badge.textContent = homePoint ? ('Near ' + pilot.name) : pilot.badge;
+  if(note) note.textContent = 'Licensed child day centers near ' + near + '. Sorted by straight-line distance. Match scores aren’t on these license records.';
   if(!list.dataset.pickBound){
     list.dataset.pickBound = '1';
     list.addEventListener('click', function(event){
@@ -743,14 +772,15 @@ function renderDirectory(){
       selectCard(card.getAttribute('data-school'));
     });
   }
-  if(directoryState.status === 'loading' || directoryState.status === 'idle'){
+  const stale = directoryState.baseId && directoryState.baseId !== selectedId;
+  if(stale || directoryState.status === 'loading' || directoryState.status === 'idle'){
     if(schoolLayer) schoolLayer.clearLayers();
     markers = {};
     pinKey = '';
     document.getElementById('rc').textContent = '…';
     document.getElementById('pinCount').textContent = '…';
-    if(label) label.textContent = ' licensed centers near Fort Belvoir';
-    list.innerHTML = '<div class="list-status" role="status">Loading licensed child day centers near Fort Belvoir…</div>';
+    if(label) label.textContent = ' licensed centers near ' + near;
+    list.innerHTML = '<div class="list-status" role="status">Loading licensed child day centers near ' + esc(near) + '…</div>';
     return;
   }
   if(directoryState.status === 'error'){
@@ -759,8 +789,8 @@ function renderDirectory(){
     pinKey = '';
     document.getElementById('rc').textContent = '0';
     document.getElementById('pinCount').textContent = '0';
-    if(label) label.textContent = ' licensed centers near Fort Belvoir';
-    list.innerHTML = '<div class="list-status error" role="alert"><p>' + esc(directoryState.message) + '</p><button type="button" onclick="loadDirectory()">Try again</button></div>';
+    if(label) label.textContent = ' licensed centers near ' + near;
+    list.innerHTML = '<div class="list-status error" role="alert"><p><strong>' + esc(pilot.name) + ' directory</strong></p><p>' + esc(directoryState.message) + '</p><p>Schools from another base are not shown here.</p><button type="button" onclick="loadDirectory()">Try again</button></div>';
     return;
   }
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -768,23 +798,24 @@ function renderDirectory(){
   const rows = NearBaseDirectory.sortSchools(
     directoryState.schools.filter(function(school){ return NearBaseDirectory.matchesQuery(school, q); }),
     homePoint,
-    haversine
+    haversine,
+    pilot
   );
   const pinned = directoryState.schools.filter(function(school){ return school.lat != null && school.lng != null; });
   document.getElementById('rc').textContent = String(rows.length);
   document.getElementById('pinCount').textContent = String(pinned.length);
   if(label){
-    label.textContent = homePoint ? ' licensed centers, closest to home' : ' licensed centers, closest to Fort Belvoir';
+    label.textContent = homePoint ? ' licensed centers, closest to home' : ' licensed centers, closest to ' + near;
   }
   syncDirectoryPins(directoryState.schools);
   fitDirectoryView(directoryState.schools);
   if(!rows.length){
-    list.innerHTML = '<div class="list-status" role="status">' + (q ? 'No licensed centers match that search.' : 'No Fort Belvoir licensed centers are in the directory yet.') + '</div>';
+    list.innerHTML = '<div class="list-status" role="status"><p>' + (q ? 'No licensed centers match that search.' : 'No licensed centers near ' + esc(near) + ' are in the directory yet.') + '</p>' + (q ? '' : '<p>This list is only the ' + esc(pilot.name) + ' pilot. Other bases stay in the menu.</p>') + '</div>';
     return;
   }
   const saved = savedSlugs();
   list.innerHTML = rows.map(function(school){
-    const view = NearBaseDirectory.presentSchool(school, homePoint, haversine);
+    const view = NearBaseDirectory.presentSchool(school, homePoint, haversine, pilot);
     const savedNow = saved.indexOf(view.slug) !== -1;
     const facts = view.facts.map(function(fact){
       if(fact.href) return '<a href="' + esc(fact.href) + '" onclick="event.stopPropagation()">' + esc(fact.text) + '</a>';
@@ -797,6 +828,7 @@ function renderDirectory(){
           '<div class="cl">' + esc(view.place) + (view.distanceLabel ? ' · ' + esc(view.distanceLabel) : '') + '</div></div>' +
         '<button type="button" class="heart nb-save-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '" aria-label="' + (savedNow ? 'Saved school' : 'Save school') + '" aria-pressed="' + (savedNow ? 'true' : 'false') + '">' + (savedNow ? '♥' : '♡') + '</button>' +
       '</div>' +
+      websiteButton(view.websiteHref) +
       (view.addressLine ? '<p class="dir-address">' + esc(view.addressLine) + '</p>' : '') +
       (facts ? '<div class="dir-facts">' + facts + '</div>' : '') +
       '<button type="button" class="why-btn nb-track-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '">' + (onTracker(view.slug) ? 'On your tracker' : 'Add to tracker') + '</button>' +
@@ -860,7 +892,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();
     document.getElementById('homeAddress').value = homeQ;
     const details = document.querySelector('.match-details');
     if(details) details.removeAttribute('open');
-  } else if(!directoryActive()) {
+  } else {
     flyToBase(saved.baseId);
   }
   if(directoryActive()) loadDirectory();
