@@ -192,7 +192,9 @@
       list.push({ slug: slug, name: name });
       try { localStorage.setItem("nb_favorites", JSON.stringify(list)); } catch (e) {}
     }
-    button.textContent = "Saved";
+    button.textContent = "♥";
+    button.setAttribute("aria-pressed", "true");
+    button.setAttribute("aria-label", "Saved school");
     if (!state.session) return;
     client().then(function (sb) {
       return sb.from("favorites").upsert({
@@ -464,7 +466,7 @@
         event.stopPropagation();
         event.preventDefault();
         saveSchool(button);
-      });
+      }, true);
     }
     if (!document.documentElement.dataset.trackBound) {
       document.documentElement.dataset.trackBound = "1";

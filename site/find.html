@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#085041">
-<title>NearBase — Find Preschools Near Your Base</title>
-<meta name="description" content="Search 150+ preschools across all 9 National Capital Region zones. Filter by Montessori, free charter, bilingual, and military-friendly programs. Built for PCS moves.">
+<title>NearBase Beta — Schools near your home and base</title>
+<meta name="description" content="Fort Belvoir pilot. Enter your base and home address to see preschools on a map and a list.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/find.html">
 <meta property="og:site_name" content="NearBase">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Find Preschools Near Your Base — NearBase">
-<meta property="og:description" content="Search 150+ preschools across all 9 National Capital Region zones. Filter by Montessori, free charter, bilingual, and military-friendly programs. Built for PCS moves.">
+<meta property="og:title" content="NearBase Beta — Schools near your home and base">
+<meta property="og:description" content="Fort Belvoir pilot. Enter your base and home address to see preschools on a map and a list.">
 <meta property="og:url" content="https://nearbase.net/find.html">
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -31,7 +31,17 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .topbar{background:var(--dark);padding:.875rem 1.25rem;display:flex;align-items:center;gap:1rem;z-index:200;flex-shrink:0;flex-wrap:wrap}
 .logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:var(--white);text-decoration:none;white-space:nowrap}
 .logo span{color:var(--g)}
-.search-wrap{flex:1;position:relative;max-width:500px;min-width:200px}
+.loc-form{display:flex;align-items:center;gap:.4rem;flex:1.4;min-width:280px}
+.loc-form select,.loc-form input{font-family:'DM Sans',sans-serif;font-size:16px;border:none;border-radius:100px;padding:.55rem .85rem;background:rgba(255,255,255,.12);color:#fff;outline:none}
+.loc-form select{max-width:11.5rem}
+.loc-form select option{color:#1a1a18}
+.loc-form input{flex:1;min-width:8rem}
+.loc-form input::placeholder{color:rgba(255,255,255,.55)}
+.loc-go{background:var(--g);color:#fff;border:none;border-radius:100px;padding:.55rem .9rem;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap}
+.loc-go:hover{background:#0F6E56}
+.home-status{flex-basis:100%;font-size:.75rem;color:rgba(255,255,255,.78);line-height:1.4}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.search-wrap{flex:1;position:relative;max-width:320px;min-width:160px}
 .search-wrap input{width:100%;padding:.65rem 1rem .65rem 2.2rem;border-radius:100px;border:none;background:rgba(255,255,255,0.12);color:var(--white);font-size:16px;font-family:'DM Sans',sans-serif;outline:none;transition:background .2s}
 .search-wrap input::placeholder{color:rgba(255,255,255,0.45)}
 .search-wrap input:focus{background:rgba(255,255,255,0.2)}
@@ -66,7 +76,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .outside-head{margin:.85rem .1rem .55rem;padding:.75rem .8rem;background:#FAEEDA;border-radius:12px}
 .outside-head strong{display:block;color:#633806;font-size:.82rem}
 .outside-head span{display:block;color:#633806;font-size:.72rem;line-height:1.4;margin-top:.2rem}
-.results-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.results-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:flex-start;justify-content:space-between;gap:.35rem .75rem;flex-wrap:wrap}
+.results-meta>span{flex:1;min-width:9rem;line-height:1.35}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--g);outline-offset:2px}
 .rc{font-weight:500;color:var(--dark)}
 .school-list{flex:1;overflow-y:auto;padding:.625rem}
@@ -74,6 +85,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .scard:hover{border-color:var(--g);box-shadow:0 3px 12px rgba(29,158,117,0.08)}
 .scard.active{border:2px solid var(--g)}
 .card-top{display:flex;align-items:flex-start;gap:.65rem;margin-bottom:.5rem}
+.heart{margin-left:auto;border:none;background:transparent;font-size:1.25rem;line-height:1;cursor:pointer;color:#c45c6a;padding:.05rem .15rem;flex-shrink:0}
+.heart[aria-pressed="true"]{color:#b4233a}
 .score{width:40px;height:40px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .score.hi{background:var(--light)}.score.fr{background:#EAF3DE}.score.ch{background:#E6F1FB}.score.pr{background:#F3EEF8}
 .sn{font-size:.85rem;font-weight:500;line-height:1}.sn.hi{color:var(--dark)}.sn.fr{color:#27500A}.sn.ch{color:#0C447C}.sn.pr{color:#5B2D8E}
@@ -106,14 +119,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .base-lbl{font-size:.72rem;color:var(--muted)}
 .base-sel{font-size:.75rem;font-weight:500;color:var(--dark);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;padding-right:.5rem}
 .counter-badge{position:absolute;top:1rem;left:1rem;z-index:400;background:var(--dark);color:var(--white);border-radius:100px;padding:.35rem .875rem;font-size:.75rem;font-weight:500;box-shadow:0 2px 10px rgba(0,0,0,0.15)}
+.leaflet-top.leaflet-left{margin-top:2.75rem}
 .counter-badge span{color:var(--g)}
 #premModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
 .prem-box{background:var(--white);border-radius:18px;padding:1.75rem;max-width:400px;width:100%;position:relative}
 @media(max-width:768px){
-  .sidebar-top{max-height:42vh;overflow:auto}
-  .main{grid-template-columns:1fr;grid-template-rows:1fr 42vh}
-  .sidebar{order:2;border-right:none;border-top:1px solid var(--border)}
-  .map-wrap{order:1}
+  .loc-form{flex:1 0 100%;min-width:0;display:grid;grid-template-columns:1fr;gap:.45rem}
+  .loc-form select,.loc-form input,.loc-go{width:100%;max-width:none;min-width:0}
+  .search-wrap{max-width:none;flex:1 0 100%}
+  html,body{height:auto;overflow:auto}
+  .app{height:auto;min-height:100vh}
+  .sidebar-top{max-height:none;overflow:visible}
+  .main{grid-template-columns:1fr;grid-template-rows:320px auto;overflow:visible}
+  .sidebar{order:2;border-right:none;border-top:1px solid var(--border);overflow:visible}
+  .school-list{overflow:visible}
+  .map-wrap{order:1;height:320px}
   .base-bar{left:.75rem;right:.75rem;transform:none;width:auto;max-width:none;white-space:normal}
   .base-sel{flex:1;min-width:0;max-width:100%}
   .map-ctrls{top:.5rem;right:.5rem;max-width:46%}
@@ -131,12 +151,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <body>
 <div class="app">
 <div class="topbar">
-  <a class='logo' href='/'>Near<span>Base</span></a>
+  <span class="nb-brand" style="display:inline-flex;align-items:center;gap:.4rem"><a class='logo' href='/'>Near<span>Base</span></a><span class="nb-beta" style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#0F6E56;background:#E1F5EE;border-radius:100px;padding:.12rem .48rem;line-height:1.4">Beta</span></span>
+  <form id="homeForm" class="loc-form">
+    <label class="sr" for="doorBase">Military base</label>
+    <select id="doorBase" aria-label="Military base"></select>
+    <label class="sr" for="homeAddress">Home address</label>
+    <input id="homeAddress" type="text" autocomplete="street-address" placeholder="Home address, city, state" aria-label="Home address">
+    <button class="loc-go" type="submit">See schools</button>
+  </form>
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="searchInput" aria-label="Search schools, neighborhoods, or base names" placeholder="Search schools, neighborhoods, or base names..." oninput="doFilter()">
+    <input type="text" id="searchInput" aria-label="Search schools, neighborhoods, or base names" placeholder="Search this list" oninput="doFilter()">
   </div>
   <button class="btn-account" id="signInBtn" type="button" onclick="if(window.__nbAuthConfigured){location.href='/account.html'}else{showPrem()}">Sign in / Join free</button>
+  <p class="home-status" id="homeStatus" role="status"></p>
 </div>
 <div class="main">
   <div class="sidebar">
@@ -214,7 +242,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   </div>
   <div class="map-wrap">
     <div id="map"></div>
-    <div class="counter-badge">NCR: <span id="pinCount">0</span> programs mapped</div>
+    <div class="counter-badge"><span id="mapBadge">Fort Belvoir pilot</span> · <span id="pinCount">0</span> schools</div>
     <div class="map-ctrls">
       <div class="ctrl-group">
         <div class="ctrl-lbl">Map layers</div>
@@ -289,8 +317,10 @@ const ECO = {
 let map = null;
 try{
   if(typeof L === 'undefined') throw new Error('Leaflet unavailable');
-  map = L.map('map',{zoomControl:true}).setView([38.872,-77.056],11);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:16}).addTo(map);
+  map = L.map('map',{zoomControl:true}).setView([38.71,-77.15],11);
+  // Esri Light Gray Canvas. Keep this basemap; the previous CARTO tiles showed an API-key watermark.
+  var ESRI_LIGHT_GRAY = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+  L.tileLayer(ESRI_LIGHT_GRAY,{attribution:'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:16}).addTo(map);
 }catch(e){
   const mEl = document.getElementById('map');
   if(mEl) mEl.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;color:var(--muted);background:var(--cream);text-align:center;padding:2rem"><div style="font-size:1.6rem">🗺</div><div style="font-size:.85rem;max-width:280px">The map couldn\'t load on this connection — every school is still in the list.</div></div>';
@@ -304,8 +334,11 @@ function mkSchoolIcon(tier){
 function mkEcoIcon(e){
   return L.divIcon({className:'',html:`<div style="background:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;border:1px solid #d4ead8;box-shadow:0 1px 4px rgba(0,0,0,0.08)">${e}</div>`,iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-14]});
 }
+function mkHomeIcon(){
+  return L.divIcon({className:'',html:'<div style="background:#C8922A;color:white;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.25)"><span style="transform:rotate(45deg);font-size:.72rem;font-weight:600;font-family:DM Sans,sans-serif">H</span></div>',iconSize:[28,28],iconAnchor:[14,28],popupAnchor:[0,-30]});
+}
 function mkBaseIcon(label){
-  return L.divIcon({className:'',html:`<div style="background:#042C53;color:white;padding:3px 8px;border-radius:100px;font-size:.65rem;font-weight:500;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);white-space:nowrap;font-family:'DM Sans',sans-serif">🏛 ${label}</div>`,iconSize:[90,24],iconAnchor:[45,12],popupAnchor:[0,-14]});
+  return L.divIcon({className:'',html:`<div style="background:#042C53;color:white;padding:3px 8px;border-radius:100px;font-size:.65rem;font-weight:500;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);white-space:nowrap;font-family:'DM Sans',sans-serif">🏛 ${label}</div>`,iconSize:[118,24],iconAnchor:[59,12],popupAnchor:[0,-14]});
 }
 
 let schoolLayer=null, coffeeLayer=null, recLayer=null, housingLayer=null;
@@ -326,6 +359,7 @@ if(map){
 }
 
 let activeFilter='all', markers={}, activeCard=null;
+let homePoint=null, homeMarker=null, homeReq=0, fitAfterRender=false;
 const esc = NearBaseMatch.esc;
 
 function baseOptions(){
@@ -349,11 +383,13 @@ function readMatchForm(){
 function fillMatchForm(profile){
   document.getElementById('matchBase').innerHTML = baseOptions();
   document.getElementById('mapBase').innerHTML = baseOptions();
+  document.getElementById('doorBase').innerHTML = baseOptions();
   document.getElementById('philoChecks').innerHTML = NearBaseMatch.PHILOSOPHY_IDS.map(id=>
     `<label><input type="checkbox" name="philo" value="${id}"> ${esc(NearBaseMatch.PHILOSOPHY_LABEL[id])}</label>`
   ).join('');
   document.getElementById('matchBase').value = profile.baseId;
   document.getElementById('mapBase').value = profile.baseId;
+  document.getElementById('doorBase').value = profile.baseId;
   document.getElementById('matchHours').value = profile.hours;
   document.getElementById('matchTiming').value = profile.timing;
   document.getElementById('matchMccyn').checked = profile.mccyn;
@@ -374,14 +410,107 @@ function flyToBase(id){
 function applyBase(id){
   document.getElementById('matchBase').value = id;
   document.getElementById('mapBase').value = id;
-  flyToBase(id);
+  document.getElementById('doorBase').value = id;
+  const pendingHome = document.getElementById('homeAddress').value.trim();
+  if(!homePoint && !pendingHome) flyToBase(id);
   persistAndFilter();
+  syncUrl();
 }
 function persistAndFilter(){
   NearBaseMatch.saveProfile(readMatchForm());
   doFilter();
 }
 
+function syncUrl(){
+  try {
+    const url = new URL(location.href);
+    url.searchParams.set('base', document.getElementById('matchBase').value);
+    const address = document.getElementById('homeAddress').value.trim();
+    if(address) url.searchParams.set('home', address);
+    else url.searchParams.delete('home');
+    history.replaceState(null, '', url.pathname + url.search);
+  } catch (e) {}
+}
+function savedSlugs(){
+  try {
+    return JSON.parse(localStorage.getItem('nb_favorites') || '[]').map(function(item){ return item.slug; });
+  } catch (e) { return []; }
+}
+function setHomeStatus(text){
+  const el = document.getElementById('homeStatus');
+  if(el) el.textContent = text || '';
+}
+function clearHomePin(){
+  homePoint = null;
+  if(homeMarker && map){ map.removeLayer(homeMarker); homeMarker = null; }
+}
+function placeHome(address){
+  const req = ++homeReq;
+  address = (address || '').trim();
+  if(!address){
+    clearHomePin();
+    setHomeStatus('');
+    doFilter();
+    return Promise.resolve();
+  }
+  setHomeStatus('Placing your home…');
+  const base = NearBaseMatch.BASES.find(b=>b.id===document.getElementById('matchBase').value) || NearBaseMatch.BASES[0];
+  const url = 'https://photon.komoot.io/api/?limit=5&lang=en&lat=' + encodeURIComponent(base.lat) + '&lon=' + encodeURIComponent(base.lng) + '&q=' + encodeURIComponent(address);
+  return fetch(url).then(function(res){ return res.json(); }).then(function(data){
+    if(req !== homeReq) return;
+    const feat = (data.features || []).find(function(f){ return f.geometry && f.properties && f.properties.countrycode === 'US'; });
+    if(!feat) throw new Error('no match');
+    const lon = Number(feat.geometry.coordinates[0]);
+    const lat = Number(feat.geometry.coordinates[1]);
+    const props = feat.properties;
+    const label = [props.housenumber, props.street || props.name, props.city, props.state].filter(Boolean).join(', ');
+    homePoint = {lat:lat, lng:lon, label:label || address};
+    if(map){
+      if(homeMarker) map.removeLayer(homeMarker);
+      homeMarker = L.marker([lat, lon], {icon:mkHomeIcon(), zIndexOffset:600}).addTo(map);
+      homeMarker.bindPopup('<div class="pu-name">Your home</div><div class="pu-meta">' + esc(address) + '</div>');
+    }
+    const miles = NearBaseMatch.haversineMiles(lat, lon, base.lat, base.lng);
+    const far = miles != null && miles > 40;
+    setHomeStatus((label ? 'Home pin: ' + label + '.' : 'Home pin placed.') + (far ? ' That pin is far from ' + base.name + '. Add city and state if this is the wrong place.' : ' Schools closest to this pin are listed first.'));
+    fitAfterRender = true;
+    doFilter();
+  }).catch(function(){
+    if(req !== homeReq) return;
+    clearHomePin();
+    setHomeStatus('Could not place that address. Schools are ranked from the base. Add city and state, then try again.');
+    doFilter();
+  });
+}
+function orderForHome(rows){
+  if(!homePoint) return rows;
+  rows.forEach(function(row){
+    row.homeMiles = NearBaseMatch.haversineMiles(homePoint.lat, homePoint.lng, Number(row.school.lat), Number(row.school.lng));
+  });
+  const outside = rows.filter(function(row){ return row.match.group === 'outside'; });
+  const inside = rows.filter(function(row){ return row.match.group !== 'outside'; });
+  const near = inside.filter(function(row){ return row.homeMiles != null && row.homeMiles <= 15; });
+  const far = inside.filter(function(row){ return row.homeMiles == null || row.homeMiles > 15; });
+  function byHome(a, b){
+    const da = a.homeMiles == null ? 9999 : a.homeMiles;
+    const db = b.homeMiles == null ? 9999 : b.homeMiles;
+    if(da !== db) return da - db;
+    return (b.match.score || 0) - (a.match.score || 0);
+  }
+  near.sort(byHome);
+  far.sort(byHome);
+  return near.concat(far, outside);
+}
+function fitCommute(rows){
+  if(!map || !homePoint) return;
+  const base = NearBaseMatch.BASES.find(b=>b.id===document.getElementById('matchBase').value);
+  const bounds = L.latLngBounds([homePoint.lat, homePoint.lng], [homePoint.lat, homePoint.lng]);
+  if(base) bounds.extend([base.lat, base.lng]);
+  rows.forEach(function(row){
+    if(row.homeMiles != null && row.homeMiles <= 8 && isFinite(Number(row.school.lat))) bounds.extend([Number(row.school.lat), Number(row.school.lng)]);
+  });
+  map.fitBounds(bounds.pad(0.2), {maxZoom:13, animate:false});
+}
 function onTracker(slug){
   try {
     return JSON.parse(localStorage.getItem('nb_waitlist') || '[]').some(function (item) { return item.school_slug === slug; });
@@ -394,24 +523,42 @@ function render(rows){
   list.innerHTML='';
   const inside = rows.filter(r => r.match.group !== 'outside');
   const outside = rows.filter(r => r.match.group === 'outside');
-  document.getElementById('rc').textContent=inside.length;
-  document.getElementById('pinCount').textContent=rows.length;
+  const nearRows = homePoint ? inside.filter(r => r.homeMiles != null && r.homeMiles <= 15) : inside;
+  document.getElementById('rc').textContent = homePoint && nearRows.length ? nearRows.length : inside.length;
+  document.getElementById('pinCount').textContent = rows.filter(r => !homePoint || r.homeMiles == null || r.homeMiles <= 18).length;
+  const baseNow = NearBaseMatch.BASES.find(b=>b.id===document.getElementById('matchBase').value);
+  const badge = document.getElementById('mapBadge');
+  if(badge){
+    badge.textContent = homePoint
+      ? ('Near ' + (baseNow ? baseNow.name : 'your base'))
+      : (baseNow && baseNow.id==='belvoir' ? 'Fort Belvoir pilot' : (baseNow ? baseNow.name : 'Fort Belvoir pilot'));
+  }
   const label = document.getElementById('rankLabel');
+  const anyNear = !homePoint || inside.some(r => r.homeMiles != null && r.homeMiles <= 15);
   if(label){
-    label.textContent = outside.length
-      ? ' programs that fit your hours and budget'
-      : ' programs, ranked for your family';
+    if(homePoint){
+      label.textContent = ' closest to home';
+    } else {
+      label.textContent = outside.length
+        ? ' programs that fit your hours and budget'
+        : ' programs, ranked for your family';
+    }
   }
 
   function paint(row, i, isOutside){
     const s = row.school;
     const fit = row.match;
     const locked=!isOutside && i>=6;
-    if(map && schoolLayer){
+    const homeBit = row.homeMiles == null ? '' : `${row.homeMiles.toFixed(1)} mi from home`;
+    const baseBit = fit.distanceMiles == null ? '' : `${fit.distanceMiles.toFixed(1)} mi from base`;
+    const distBit = [homeBit, baseBit].filter(Boolean).join(' · ');
+    const saved = savedSlugs().indexOf(s.slug) !== -1;
+    const showPin = !homePoint || row.homeMiles == null || row.homeMiles <= 18;
+    if(map && schoolLayer && showPin){
       const m=L.marker([s.lat,s.lng],{icon:mkSchoolIcon(s.tier)}).addTo(schoolLayer);
       const popBdgs=s.badges.slice(0,2).map(b=>`<span class="badge ${b.c}" style="font-size:.65rem;padding:.15rem .5rem;border-radius:100px">${esc(b.t)}</span>`).join('');
-      const miles = fit.distanceMiles==null ? '' : ` · ${fit.distanceMiles.toFixed(1)} mi`;
-      m.bindPopup(`<div class="pu-name">${esc(s.name)}</div><div class="pu-meta">Family match ${fit.score==null?'—':fit.score}${miles}</div><div class="pu-bdgs">${popBdgs}</div><a class="pu-btn" style="display:inline-block;text-decoration:none;text-align:center" href="school/${esc(s.slug)}.html">Full profile →</a>`);
+      const miles = distBit ? ` · ${distBit}` : '';
+      m.bindPopup(`<div class="pu-name">${esc(s.name)}</div><div class="pu-meta">Family match ${fit.score==null?'—':fit.score}${esc(miles)}</div><div class="pu-bdgs">${popBdgs}</div><a class="pu-btn" style="display:inline-block;text-decoration:none;text-align:center" href="school/${esc(s.slug)}.html">Full profile →</a>`);
       markers[s.id]=m;
     }
 
@@ -426,19 +573,33 @@ function render(rows){
     card.innerHTML=`
       <div class="card-top">
         <div class="score ${s.tier}"><span class="sn ${s.tier}">${fit.score==null?'—':fit.score}</span><span class="sl">fit</span></div>
-        <div class="ci"><div class="cn">${esc(s.name)}${limited}</div><div class="cl">Zone ${s.zone} · ${esc(s.loc)}${fit.distanceMiles==null?'':` · ${fit.distanceMiles.toFixed(1)} mi`}${dir}</div></div>
+        <div class="ci"><div class="cn">${esc(s.name)}${limited}</div><div class="cl">Zone ${s.zone} · ${esc(s.loc)}${distBit ? ` · ${esc(distBit)}` : ''}${dir}</div></div>
+        <button type="button" class="heart nb-save-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}" aria-label="${saved ? 'Saved school' : 'Save school'}" aria-pressed="${saved ? 'true' : 'false'}">${saved ? '♥' : '♡'}</button>
       </div>
       <div class="brow">${s.badges.map(b=>`<span class="bdg ${b.c}">${esc(b.t)}</span>`).join('')}</div>
       <p class="why-line">${esc(isOutside ? (fit.outsideReason || fit.headline) : fit.headline)}</p>
       <button type="button" class="why-btn" aria-expanded="false" onclick="event.stopPropagation();toggleWhy(this)">Why this score</button>
       <div class="why-body" hidden>${why}</div>
       <a href="school/${esc(s.slug)}.html" onclick="event.stopPropagation()" style="display:inline-block;font-size:.72rem;font-weight:500;color:var(--g);text-decoration:none;margin:.35rem 0 .1rem">Full profile →</a>
-      <button type="button" class="why-btn nb-save-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}">Save school</button>
       <button type="button" class="why-btn nb-track-school" data-slug="${esc(s.slug)}" data-name="${esc(s.name)}">${onTracker(s.slug) ? "On your tracker" : "Add to tracker"}</button>
       <div class="cq">${esc(s.quote)}${locked?`<div class="lock"><span style="font-size:1rem">🔒</span><span style="font-size:.7rem;font-weight:500;color:var(--dark)">Waitlist · Contact</span><button class="lock-btn" onclick="event.stopPropagation();showPrem()">Unlock →</button></div>`:''}</div>`;
     list.appendChild(card);
   }
-  inside.forEach((row,i)=>paint(row,i,false));
+  let sawFar = false;
+  inside.forEach((row,i)=>{
+    if(homePoint && anyNear && !sawFar && (row.homeMiles == null || row.homeMiles > 15)){
+      sawFar = true;
+      const note=document.createElement('div');
+      note.className='outside-head';
+      note.innerHTML='<strong>Farther from home</strong><span>Still in the directory. The schools above are within about 15 straight-line miles of the home pin.</span>';
+      list.appendChild(note);
+    }
+    paint(row,i,false);
+  });
+  if(fitAfterRender){
+    fitAfterRender = false;
+    fitCommute(rows);
+  }
   if(outside.length){
     const head=document.createElement('div');
     head.className='outside-head';
@@ -469,7 +630,7 @@ function doFilter(){
   if(q) data=data.filter(s=>s.name.toLowerCase().includes(q)||s.loc.toLowerCase().includes(q)||('zone'+s.zone).includes(q));
   const profile = readMatchForm();
   fillMatchForm(profile);
-  render(NearBaseMatch.rankSchools(data, profile));
+  render(orderForHome(NearBaseMatch.rankSchools(data, profile)));
 }
 
 function setFilter(f,el){
@@ -497,13 +658,27 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();
   fillMatchForm(saved);
   document.getElementById('matchBase').addEventListener('change', function(){ applyBase(this.value); });
   document.getElementById('mapBase').addEventListener('change', function(){ applyBase(this.value); });
+  document.getElementById('doorBase').addEventListener('change', function(){ applyBase(this.value); });
+  document.getElementById('homeForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    applyBase(document.getElementById('doorBase').value);
+    placeHome(document.getElementById('homeAddress').value);
+  });
   document.getElementById('matchPanel').addEventListener('change', function(e){
     if(e.target.id==='matchBase') return;
     persistAndFilter();
   });
   document.getElementById('matchPanel').addEventListener('submit', function(e){ e.preventDefault(); persistAndFilter(); });
-  flyToBase(saved.baseId);
+  const homeQ = (params.get('home') || '').trim();
+  if(homeQ){
+    document.getElementById('homeAddress').value = homeQ;
+    const details = document.querySelector('.match-details');
+    if(details) details.removeAttribute('open');
+  } else {
+    flyToBase(saved.baseId);
+  }
   doFilter();
+  if(homeQ) placeHome(homeQ);
   const p = params.get('school');
   if(p){ const s = SCHOOLS.find(x=>String(x.id)===p || x.slug===p); if(s){ setTimeout(()=>selectCard(s.id), 400); } }
 })();

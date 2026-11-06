@@ -295,6 +295,41 @@ check("parent disagreements come from saved votes only", function () {
   assert.deepStrictEqual(match.voteDisagreements({ montessori: 2 }, { montessori: 2 }), []);
 });
 
+check("Fort Belvoir is the pilot default base", function () {
+  assert.strictEqual(match.defaultProfile().baseId, "belvoir");
+  assert.strictEqual(match.BASES[0].id, "belvoir");
+  assert.strictEqual(match.BASES[0].name, "Fort Belvoir");
+});
+
+check("find map keeps Esri light gray canvas tiles", function () {
+  var html = fs.readFileSync(path.join(root, "site/find.html"), "utf8");
+  assert.ok(html.indexOf("World_Light_Gray_Base") !== -1);
+  assert.ok(!/cartocdn/i.test(html));
+  assert.ok(html.indexOf("nb-save-school") !== -1);
+});
+
+check("mission, about, and director pages stay off menus", function () {
+  function walk(dir, out) {
+    fs.readdirSync(dir).forEach(function (name) {
+      var file = path.join(dir, name);
+      if (fs.statSync(file).isDirectory()) walk(file, out);
+      else if (name.endsWith(".html")) out.push(file);
+    });
+    return out;
+  }
+  walk(path.join(root, "site"), []).forEach(function (file) {
+    var html = fs.readFileSync(file, "utf8");
+    assert.ok(!/href=['"]\/schools(?:\.html)?['"#]/.test(html), file);
+    assert.ok(!/href=['"]\/about(?:\.html)?['"]/.test(html), file);
+    assert.ok(!/href=['"]\/mission(?:\.html)?['"]/.test(html), file);
+    assert.ok(html.indexOf(">For schools<") === -1, file);
+    assert.ok(html.indexOf(">Our story<") === -1, file);
+  });
+  ["about.html", "mission.html", "schools.html"].forEach(function (name) {
+    assert.ok(fs.existsSync(path.join(root, "site", name)), name);
+  });
+});
+
 if (failures) {
   console.error("\n" + failures + " failed");
   process.exit(1);

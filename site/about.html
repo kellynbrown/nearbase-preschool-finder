@@ -132,23 +132,20 @@ body.nbv3-open .nbv3-mobile{display:flex}
 <body>
 <nav>
   <div class="nav-inner nbv3-inner">
-    <a class='logo' href='/'>Near<span>Base</span></a>
+    <span class="nb-brand" style="display:inline-flex;align-items:center;gap:.4rem"><a class='logo' href='/'>Near<span>Base</span></a><span class="nb-beta" style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#0F6E56;background:#E1F5EE;border-radius:100px;padding:.12rem .48rem;line-height:1.4">Beta</span></span>
     <div class="nbv3-links">
       <a href='/find'>Find schools</a>
       <a href='/rankings'>Rankings</a>
       <a href='/families'>For families</a>
-      <a href='/schools'>For schools</a>
       <a href='/premium'>Premium</a>
       <div class="nbv3-drop"><button type="button" aria-haspopup="true">Community<span class="nbv3-car">▾</span></button>
         <div class="nbv3-menu"><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a></div></div>
-      <div class="nbv3-drop on"><button type="button" aria-haspopup="true">About<span class="nbv3-car">▾</span></button>
-        <div class="nbv3-menu"><a class='on' href='/about'>Our story</a><a href='/mission'>Mission</a></div></div>
       <a class='nav-cta' href='/find'>Search near my base →</a>
     </div>
     <button type="button" class="nbv3-burger" aria-label="Open menu" aria-expanded="false" onclick="document.body.classList.toggle('nbv3-open');var open=document.body.classList.contains('nbv3-open');this.setAttribute('aria-expanded',open?'true':'false');this.setAttribute('aria-label',open?'Close menu':'Open menu')"><span></span><span></span><span></span></button>
   </div>
   <div class="nbv3-mobile">
-    <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/schools'>For schools</a><a href='/premium'>Premium</a><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a><a class='on' href='/about'>Our story</a><a href='/mission'>Mission</a>
+    <a href='/find'>Find schools</a><a href='/rankings'>Rankings</a><a href='/families'>For families</a><a href='/premium'>Premium</a><a href='/quiz'>Preference quiz</a><a href='/checkin'>Pay it forward</a><a href='/ecosystem'>Trust & transparency</a>
     <a class='nav-cta' href='/find' style='text-align:center;margin-top:.5rem'>Search near my base →</a>
   </div>
 </nav>
@@ -260,8 +257,8 @@ body.nbv3-open .nbv3-mobile{display:flex}
       <div><div class="footer-logo">Near<span>Base</span></div><div class="footer-tagline">Every child accelerates with a personalized early educational program.</div><div class="footer-social"><a href="https://instagram.com/nearbasepreschools">@nearbasepreschools</a><a href="https://x.com/nearbasenet">@nearbasenet</a></div></div>
       <div class="footer-links-grid">
         <div><div class="footer-col-title">Families</div><a href='/find'>Find schools</a><a href='/families'>How it works</a><a href='/premium'>Premium</a></div>
-        <div><div class="footer-col-title">Schools</div><a href='/schools'>Partner with us</a><a href='/schools#pricing'>Pricing</a></div>
-        <div><div class="footer-col-title">About</div><a href='/about'>Our story</a><a href='/mission'>Mission</a><a href="mailto:kelly@nearbase.net">Contact</a></div>
+        
+        <div><div class="footer-col-title">Contact</div><a href="mailto:kelly@nearbase.net">Contact</a></div>
       </div>
     </div>
     <div class="footer-bottom"><span>© 2026 NearBase · nearbase.net · kelly@nearbase.net</span><span>Built by a former teacher and military spouse.</span></div>
