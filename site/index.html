@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NearBase Beta — Schools near your home and base</title>
-<meta name="description" content="Fort Belvoir pilot. Enter your military base and home address to see recommended preschools on a map and a list.">
+<meta name="description" content="Pentagon pilot. Fort Belvoir is also available. Enter your military base and home address to see recommended preschools on a map and a list.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/">
 <meta property="og:site_name" content="NearBase">
 <meta property="og:type" content="website">
 <meta property="og:title" content="NearBase Beta — Schools near your home and base">
-<meta property="og:description" content="Fort Belvoir pilot. Enter your military base and home address to see recommended preschools on a map and a list.">
+<meta property="og:description" content="Pentagon pilot. Fort Belvoir is also available. Enter your military base and home address to see recommended preschools on a map and a list.">
 <meta property="og:url" content="https://nearbase.net/">
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -102,23 +102,23 @@ footer a:hover{color:var(--dark)}
   </div>
 </nav>
 <main id="door">
-  <p class="eyebrow">Fort Belvoir pilot</p>
+  <p class="eyebrow">Pentagon pilot</p>
   <h1>See preschools near your home and your base.</h1>
   <p class="lede">Enter both. You’ll get a map and a list of schools already in the directory, closest to where you live.</p>
   <form action="find.html" method="get">
     <div class="fields">
       <label>Military base
         <select name="base" id="base" required>
-          <option value="belvoir" selected>Fort Belvoir</option>
+          <option value="pentagon" selected>Pentagon</option>
         </select>
       </label>
       <label>Home address
-        <input name="home" required autocomplete="street-address" placeholder="9500 Richmond Hwy, Lorton, VA" aria-label="Home address">
+        <input name="home" required autocomplete="street-address" placeholder="1200 S Hayes St, Arlington, VA" aria-label="Home address">
       </label>
     </div>
     <button type="submit">See schools</button>
   </form>
-  <p class="note">Fort Belvoir is the first base. Other bases already in the directory are in the list.</p>
+  <p class="note">The Pentagon is the pilot focus. Fort Belvoir and the other bases stay in the list.</p>
 </main>
 <footer>
   <a href="find.html">Find schools</a>
@@ -133,7 +133,7 @@ footer a:hover{color:var(--dark)}
   sel.innerHTML = NearBaseMatch.BASES.map(function (base) {
     return '<option value="' + base.id + '">' + NearBaseMatch.esc(base.name) + "</option>";
   }).join("");
-  sel.value = "belvoir";
+  sel.value = "pentagon";
 })();
 </script>
 </body>

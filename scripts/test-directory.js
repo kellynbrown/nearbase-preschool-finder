@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Fort Belvoir directory: skeleton rows, distance sort, and the Supabase read.
+// Pilot directory: skeleton rows, distance sort, and the Supabase read.
 var assert = require("assert");
 var fs = require("fs");
 var path = require("path");
@@ -134,11 +134,12 @@ check("pilot read filters fort-belvoir and follows pages", function () {
   }
   var first = row({ id: "a", distance_miles_to_belvoir: 1 });
   var second = row({ id: "b", distance_miles_to_belvoir: 2 });
-  return directory.fetchPilotSchools(client([first, second])).then(function (result) {
+  return directory.fetchPilotSchools(client([first, second]), "belvoir").then(function (result) {
     assert.strictEqual(result.ok, true);
     assert.deepStrictEqual(result.schools.map(function (s) { return s.slug; }), ["a", "b"]);
     assert.deepStrictEqual(calls[0].filters, [["pilot_base", "fort-belvoir"]]);
     assert.strictEqual(calls[0].order[0], "distance_miles_to_belvoir");
+    assert.ok(calls[0].cols.indexOf("distance_miles_to_belvoir") !== -1);
     assert.strictEqual(calls[0].to, 999);
     assert.ok(calls[0].cols.indexOf("ages_served") !== -1);
     assert.strictEqual(calls.length, 1);
@@ -146,7 +147,7 @@ check("pilot read filters fort-belvoir and follows pages", function () {
     var page = [];
     for (var i = 0; i < 1000; i++) page.push(row({ id: "p" + i, name: "P" + i }));
     page.push(row({ id: "last", name: "Last" }));
-    return directory.fetchPilotSchools(client(page)).then(function (paged) {
+    return directory.fetchPilotSchools(client(page), "belvoir").then(function (paged) {
       assert.strictEqual(paged.ok, true);
       assert.strictEqual(paged.schools.length, 1001);
       assert.strictEqual(paged.schools[1000].slug, "last");
@@ -173,7 +174,109 @@ check("a failed read stays an error and does not throw", function () {
   });
 });
 
-check("find uses the live directory for Belvoir and keeps the curated file", function () {
+check("pentagon distance column is used and does not borrow Belvoir miles", function () {
+  var school = directory.normalizeSchool(row({
+    distance_miles_to_belvoir: 1.54,
+    distance_miles_to_pentagon: 4.2,
+    lat: 38.872,
+    lng: -77.056
+  }));
+  var pentagon = directory.distanceFor(school, null, haversine, directory.pilotFor("pentagon"));
+  assert.strictEqual(pentagon.miles, 4.2);
+  assert.strictEqual(pentagon.from, "pentagon");
+  assert.strictEqual(pentagon.label, "4.2 mi from the Pentagon");
+  var belvoir = directory.distanceFor(school, null, haversine, directory.pilotFor("belvoir"));
+  assert.strictEqual(belvoir.miles, 1.54);
+  assert.strictEqual(belvoir.from, "belvoir");
+  assert.strictEqual(belvoir.label, "1.5 mi from Belvoir");
+  var close = directory.normalizeSchool(row({ id: "close", name: "Close", lat: 38.872, lng: -77.056, distance_miles_to_belvoir: 20 }));
+  var far = directory.normalizeSchool(row({ id: "far", name: "Far", lat: 38.7, lng: -77.15, distance_miles_to_belvoir: 1 }));
+  var sorted = directory.sortSchools([far, close], null, haversine, directory.pilotFor("pentagon"));
+  assert.deepStrictEqual(sorted.map(function (s) { return s.id; }), ["close", "far"]);
+  assert.strictEqual(directory.presentSchool(close, null, haversine, directory.pilotFor("pentagon")).distanceLabel.indexOf("the Pentagon") !== -1, true);
+});
+
+check("haversine fallback uses the base point from NearBaseMatch.BASES", function () {
+  var school = directory.normalizeSchool(row({ id: "shift", lat: 38.872, lng: -77.056 }));
+  var previous = global.NearBaseMatch;
+  global.NearBaseMatch = { BASES: [{ id: "pentagon", name: "Pentagon", lat: 39.872, lng: -77.056 }] };
+  try {
+    var dist = directory.distanceFor(school, null, haversine, directory.pilotFor("pentagon"));
+    assert.strictEqual(dist.from, "base");
+    assert.ok(dist.miles > 60);
+  } finally {
+    if (previous) global.NearBaseMatch = previous;
+    else delete global.NearBaseMatch;
+  }
+});
+
+check("pentagon read filters pilot_base and falls back when the distance column is missing", function () {
+  var calls = [];
+  function client(failDistance) {
+    return {
+      from: function (table) {
+        assert.strictEqual(table, "schools");
+        var query = { filters: [] };
+        var api = {
+          select: function (cols) { query.cols = cols; return api; },
+          eq: function (col, val) { query.filters.push([col, val]); return api; },
+          order: function (col, opts) { query.order = [col, opts]; return api; },
+          range: function () {
+            calls.push({ filters: query.filters.slice(), order: query.order.slice(), cols: query.cols });
+            if (failDistance && query.cols.indexOf("distance_miles_to_pentagon") !== -1) {
+              return Promise.resolve({
+                data: null,
+                error: { message: "column schools.distance_miles_to_pentagon does not exist", code: "42703" }
+              });
+            }
+            return Promise.resolve({
+              data: [row({
+                id: "arlington-center",
+                name: "Arlington Center",
+                pilot_base: "pentagon",
+                lat: 38.88,
+                lng: -77.06,
+                distance_miles_to_pentagon: failDistance ? null : 1.1,
+                distance_miles_to_belvoir: 9
+              })],
+              error: null
+            });
+          }
+        };
+        return api;
+      }
+    };
+  }
+  calls = [];
+  return directory.fetchPilotSchools(client(false), "pentagon").then(function (result) {
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.schools[0].pilotBase, "pentagon");
+    assert.strictEqual(result.schools[0].distanceMilesToPentagon, 1.1);
+    assert.deepStrictEqual(calls[0].filters, [["pilot_base", "pentagon"]]);
+    assert.strictEqual(calls[0].order[0], "distance_miles_to_pentagon");
+    assert.ok(calls[0].cols.indexOf("distance_miles_to_pentagon") !== -1);
+    calls = [];
+    return directory.fetchPilotSchools(client(false)).then(function (byDefault) {
+      assert.strictEqual(byDefault.ok, true);
+      assert.deepStrictEqual(calls[0].filters, [["pilot_base", "pentagon"]]);
+      calls = [];
+      return directory.fetchPilotSchools(client(true), "pentagon").then(function (fallback) {
+        assert.strictEqual(fallback.ok, true);
+        assert.strictEqual(fallback.schools[0].slug, "arlington-center");
+        assert.strictEqual(calls.length, 2);
+        assert.strictEqual(calls[1].order[0], "name");
+        assert.ok(calls[1].cols.indexOf("distance_miles_to_pentagon") === -1);
+        var dist = directory.distanceFor(fallback.schools[0], null, haversine, directory.pilotFor("pentagon"));
+        assert.strictEqual(dist.from, "base");
+        assert.ok(dist.miles < 2);
+        assert.ok(dist.miles !== 9);
+        assert.ok(/from the Pentagon$/.test(dist.label));
+      });
+    });
+  });
+});
+
+check("find and home lead with the Pentagon and still load Belvoir by base", function () {
   var root = path.join(__dirname, "..");
   var html = fs.readFileSync(path.join(root, "site/find.html"), "utf8");
   assert.ok(html.indexOf('src="directory.js"') !== -1);
@@ -182,6 +285,16 @@ check("find uses the live directory for Belvoir and keeps the curated file", fun
   assert.ok(html.indexOf("data-slug") !== -1);
   assert.ok(html.indexOf("World_Light_Gray_Base") !== -1);
   assert.ok(html.indexOf("loadDirectory") !== -1);
+  assert.ok(html.indexOf("fetchPilotSchools(sb, baseId)") !== -1);
+  assert.ok(html.indexOf("pilotFor") !== -1);
+  assert.ok(html.indexOf("Pentagon pilot") !== -1);
+  assert.ok(html.indexOf("Schools from another base are not shown here.") !== -1);
+  assert.ok(html.indexOf("No Fort Belvoir licensed centers") === -1);
+  var index = fs.readFileSync(path.join(root, "site/index.html"), "utf8");
+  assert.ok(index.indexOf("Pentagon pilot") !== -1);
+  assert.ok(index.indexOf('sel.value = "pentagon"') !== -1);
+  assert.ok(index.indexOf("Fort Belvoir and the other bases stay in the list.") !== -1);
+  assert.ok(index.indexOf("Fort Belvoir pilot") === -1);
   assert.ok(fs.existsSync(path.join(root, "site/schools.js")));
   var account = fs.readFileSync(path.join(root, "site/account.js"), "utf8");
   assert.ok(account.indexOf("school_slug: slug") !== -1);
