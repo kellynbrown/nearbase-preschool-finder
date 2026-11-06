@@ -494,16 +494,21 @@
     }
   }
 
+  var bootPromise = null;
   function boot() {
-    return loadConfig().then(refreshSession).then(consumePendingTrack).then(function () {
+    if (bootPromise) return bootPromise;
+    bootPromise = loadConfig().then(refreshSession).then(consumePendingTrack).then(function () {
       wireCheckout();
       wireSignIn();
       wireSave();
       if (window.NearBaseAccountPage) window.NearBaseAccountPage.render(state);
     });
+    return bootPromise;
   }
 
   window.NearBaseAccount = {
+    ready: function () { return boot(); },
+    client: client,
     saveProfile: saveProfile,
     saveSchool: saveSchool,
     savePcsDate: savePcsDate,

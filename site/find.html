@@ -76,6 +76,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .outside-head{margin:.85rem .1rem .55rem;padding:.75rem .8rem;background:#FAEEDA;border-radius:12px}
 .outside-head strong{display:block;color:#633806;font-size:.82rem}
 .outside-head span{display:block;color:#633806;font-size:.72rem;line-height:1.4;margin-top:.2rem}
+.dir-note{font-size:.75rem;color:var(--muted);line-height:1.45;margin-bottom:.65rem}
+.dir-note[hidden],#matchPanel[hidden],#filterRow[hidden]{display:none !important}
+.list-status{margin:.15rem .1rem .7rem;padding:.9rem 1rem;background:var(--white);border:1px solid var(--border);border-radius:12px;font-size:.8rem;line-height:1.45;color:var(--muted)}
+.list-status.error{background:#FAEEDA;border-color:#E7D3B1;color:#633806}
+.list-status button{margin-top:.6rem;background:var(--g);color:#fff;border:none;border-radius:100px;padding:.4rem .85rem;font:inherit;font-size:.75rem;font-weight:500;cursor:pointer}
+.dir-address{font-size:.72rem;color:var(--text);line-height:1.4;margin:.1rem 0 .35rem}
+.dir-facts{font-size:.72rem;color:var(--muted);line-height:1.45;margin:0 0 .45rem}
+.dir-facts a{color:var(--g);font-weight:500;text-decoration:none}
+body.dir-live .nb-track-school{margin-left:0;display:inline-block;margin-top:.15rem}
 .results-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:flex-start;justify-content:space-between;gap:.35rem .75rem;flex-wrap:wrap}
 .results-meta>span{flex:1;min-width:9rem;line-height:1.35}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--g);outline-offset:2px}
@@ -169,6 +178,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <div class="main">
   <div class="sidebar">
     <div class="sidebar-top">
+      <p class="dir-note" id="directoryNote" hidden>Virginia licensed child day centers near Fort Belvoir. Sorted by straight-line distance. Match scores aren’t on these license records.</p>
       <form id="matchPanel" aria-label="Match schools to your family">
         <details class="match-details" open>
         <summary>Match to your family</summary>
@@ -284,6 +294,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 
 <script src="schools.js"></script>
 <script src="match.js"></script>
+<script src="directory.js"></script>
 <script src="billing-config.js"></script>
 <script src="tracker.js"></script>
 <script src="account.js"></script>
@@ -412,8 +423,10 @@ function applyBase(id){
   document.getElementById('mapBase').value = id;
   document.getElementById('doorBase').value = id;
   const pendingHome = document.getElementById('homeAddress').value.trim();
-  if(!homePoint && !pendingHome) flyToBase(id);
-  persistAndFilter();
+  if(!homePoint && !pendingHome && id !== NearBaseDirectory.PILOT_BASE_ID) flyToBase(id);
+  NearBaseMatch.saveProfile(readMatchForm());
+  if(id === NearBaseDirectory.PILOT_BASE_ID && directoryState.status === 'idle') loadDirectory();
+  else doFilter();
   syncUrl();
 }
 function persistAndFilter(){
@@ -473,7 +486,7 @@ function placeHome(address){
     const miles = NearBaseMatch.haversineMiles(lat, lon, base.lat, base.lng);
     const far = miles != null && miles > 40;
     setHomeStatus((label ? 'Home pin: ' + label + '.' : 'Home pin placed.') + (far ? ' That pin is far from ' + base.name + '. Add city and state if this is the wrong place.' : ' Schools closest to this pin are listed first.'));
-    fitAfterRender = true;
+    fitAfterRender = !directoryActive();
     doFilter();
   }).catch(function(){
     if(req !== homeReq) return;
@@ -623,7 +636,180 @@ function selectCard(id){
   if(map && markers[id]){markers[id].openPopup();map.panTo(markers[id].getLatLng(),{animate:true});}
 }
 
+let directoryState = { status: 'idle', schools: [], message: '' };
+let directoryReq = 0;
+let pinKey = '';
+let fitKey = '';
+
+function directoryActive(){
+  return document.getElementById('matchBase').value === NearBaseDirectory.PILOT_BASE_ID;
+}
+function setDirectoryChrome(on){
+  document.body.classList.toggle('dir-live', on);
+  const panel = document.getElementById('matchPanel');
+  const filters = document.getElementById('filterRow');
+  const note = document.getElementById('directoryNote');
+  if(panel) panel.hidden = on;
+  if(filters) filters.hidden = on;
+  if(note) note.hidden = !on;
+}
+function loadDirectory(){
+  const req = ++directoryReq;
+  directoryState = { status: 'loading', schools: [], message: '' };
+  pinKey = '';
+  fitKey = '';
+  if(directoryActive()) renderDirectory();
+  const account = window.NearBaseAccount;
+  if(!account || typeof account.ready !== 'function' || typeof account.client !== 'function'){
+    directoryState = { status: 'error', schools: [], message: NearBaseDirectory.CONFIG_MESSAGE };
+    if(directoryActive()) renderDirectory();
+    return;
+  }
+  account.ready().then(function(){ return account.client(); }).then(function(sb){
+    if(req !== directoryReq) return;
+    if(!sb){
+      var configured = false;
+      try { configured = !!(account.state && account.state().configured); } catch (e) { configured = false; }
+      directoryState = { status: 'error', schools: [], message: configured ? NearBaseDirectory.QUERY_MESSAGE : NearBaseDirectory.CONFIG_MESSAGE };
+      if(directoryActive()) renderDirectory();
+      return;
+    }
+    return NearBaseDirectory.fetchPilotSchools(sb).then(function(result){
+      if(req !== directoryReq) return;
+      if(!result || !result.ok){
+        const detail = result && result.message ? ' (' + result.message + ')' : '';
+        directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE + detail };
+      } else {
+        directoryState = { status: 'ready', schools: result.schools || [], message: '' };
+      }
+      if(directoryActive()) renderDirectory();
+      const pending = new URLSearchParams(location.search).get('school');
+      if(pending && result && result.ok){
+        const hit = (result.schools || []).find(function(s){ return s.id === pending || s.slug === pending; });
+        if(hit) setTimeout(function(){ selectCard(hit.id); }, 200);
+      }
+    });
+  }).catch(function(){
+    if(req !== directoryReq) return;
+    directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE };
+    if(directoryActive()) renderDirectory();
+  });
+}
+function syncDirectoryPins(schools){
+  if(!map || !schoolLayer) return;
+  const homeKey = homePoint ? (Number(homePoint.lat).toFixed(5) + ',' + Number(homePoint.lng).toFixed(5)) : '';
+  const key = 'dir:' + schools.length + ':' + homeKey;
+  if(pinKey === key) return;
+  schoolLayer.clearLayers();
+  markers = {};
+  const haversine = NearBaseMatch.haversineMiles;
+  schools.forEach(function(school){
+    if(school.lat == null || school.lng == null) return;
+    const view = NearBaseDirectory.presentSchool(school, homePoint, haversine);
+    const m = L.marker([school.lat, school.lng], {icon: mkSchoolIcon('hi')}).addTo(schoolLayer);
+    const bits = [view.distanceLabel, view.addressLine, school.phone].filter(Boolean).map(function(part){ return esc(part); }).join('<br>');
+    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + bits + '</div>');
+    markers[school.id] = m;
+  });
+  pinKey = key;
+}
+function fitDirectoryView(schools){
+  if(!map) return;
+  const key = homePoint ? ('home:' + Number(homePoint.lat).toFixed(4) + ',' + Number(homePoint.lng).toFixed(4)) : 'all';
+  if(fitKey === key) return;
+  const bounds = L.latLngBounds([]);
+  schools.forEach(function(school){
+    if(school.lat != null && school.lng != null) bounds.extend([school.lat, school.lng]);
+  });
+  if(homePoint) bounds.extend([homePoint.lat, homePoint.lng]);
+  const base = NearBaseMatch.BASES.find(function(b){ return b.id === NearBaseDirectory.PILOT_BASE_ID; });
+  if(base) bounds.extend([base.lat, base.lng]);
+  if(bounds.isValid()) map.fitBounds(bounds.pad(0.12), {maxZoom: 12, animate: false});
+  fitKey = key;
+}
+function renderDirectory(){
+  setDirectoryChrome(true);
+  const list = document.getElementById('schoolList');
+  const label = document.getElementById('rankLabel');
+  const badge = document.getElementById('mapBadge');
+  if(badge) badge.textContent = 'Fort Belvoir pilot';
+  if(!list.dataset.pickBound){
+    list.dataset.pickBound = '1';
+    list.addEventListener('click', function(event){
+      if(!document.body.classList.contains('dir-live')) return;
+      if(event.target.closest('a,button')) return;
+      const card = event.target.closest('.scard');
+      if(!card) return;
+      selectCard(card.getAttribute('data-school'));
+    });
+  }
+  if(directoryState.status === 'loading' || directoryState.status === 'idle'){
+    if(schoolLayer) schoolLayer.clearLayers();
+    markers = {};
+    pinKey = '';
+    document.getElementById('rc').textContent = '…';
+    document.getElementById('pinCount').textContent = '…';
+    if(label) label.textContent = ' licensed centers near Fort Belvoir';
+    list.innerHTML = '<div class="list-status" role="status">Loading licensed child day centers near Fort Belvoir…</div>';
+    return;
+  }
+  if(directoryState.status === 'error'){
+    if(schoolLayer) schoolLayer.clearLayers();
+    markers = {};
+    pinKey = '';
+    document.getElementById('rc').textContent = '0';
+    document.getElementById('pinCount').textContent = '0';
+    if(label) label.textContent = ' licensed centers near Fort Belvoir';
+    list.innerHTML = '<div class="list-status error" role="alert"><p>' + esc(directoryState.message) + '</p><button type="button" onclick="loadDirectory()">Try again</button></div>';
+    return;
+  }
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const haversine = NearBaseMatch.haversineMiles;
+  const rows = NearBaseDirectory.sortSchools(
+    directoryState.schools.filter(function(school){ return NearBaseDirectory.matchesQuery(school, q); }),
+    homePoint,
+    haversine
+  );
+  const pinned = directoryState.schools.filter(function(school){ return school.lat != null && school.lng != null; });
+  document.getElementById('rc').textContent = String(rows.length);
+  document.getElementById('pinCount').textContent = String(pinned.length);
+  if(label){
+    label.textContent = homePoint ? ' licensed centers, closest to home' : ' licensed centers, closest to Fort Belvoir';
+  }
+  syncDirectoryPins(directoryState.schools);
+  fitDirectoryView(directoryState.schools);
+  if(!rows.length){
+    list.innerHTML = '<div class="list-status" role="status">' + (q ? 'No licensed centers match that search.' : 'No Fort Belvoir licensed centers are in the directory yet.') + '</div>';
+    return;
+  }
+  const saved = savedSlugs();
+  list.innerHTML = rows.map(function(school){
+    const view = NearBaseDirectory.presentSchool(school, homePoint, haversine);
+    const savedNow = saved.indexOf(view.slug) !== -1;
+    const facts = view.facts.map(function(fact){
+      if(fact.href) return '<a href="' + esc(fact.href) + '" onclick="event.stopPropagation()">' + esc(fact.text) + '</a>';
+      return esc(fact.text);
+    }).join('<br>');
+    return '<div class="scard" id="card-' + esc(view.id) + '" data-school="' + esc(view.id) + '">' +
+      '<div class="card-top">' +
+        '<div class="score hi" title="' + esc(view.distanceLabel) + '"><span class="sn hi">' + esc(view.milesShort) + '</span><span class="sl">mi</span></div>' +
+        '<div class="ci"><div class="cn">' + esc(view.name) + '</div>' +
+          '<div class="cl">' + esc(view.place) + (view.distanceLabel ? ' · ' + esc(view.distanceLabel) : '') + '</div></div>' +
+        '<button type="button" class="heart nb-save-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '" aria-label="' + (savedNow ? 'Saved school' : 'Save school') + '" aria-pressed="' + (savedNow ? 'true' : 'false') + '">' + (savedNow ? '♥' : '♡') + '</button>' +
+      '</div>' +
+      (view.addressLine ? '<p class="dir-address">' + esc(view.addressLine) + '</p>' : '') +
+      (facts ? '<div class="dir-facts">' + facts + '</div>' : '') +
+      '<button type="button" class="why-btn nb-track-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '">' + (onTracker(view.slug) ? 'On your tracker' : 'Add to tracker') + '</button>' +
+    '</div>';
+  }).join('');
+}
 function doFilter(){
+  if(directoryActive()){
+    renderDirectory();
+    return;
+  }
+  setDirectoryChrome(false);
+  pinKey = '';
   const q=document.getElementById('searchInput').value.toLowerCase();
   let data=SCHOOLS.slice();
   if(activeFilter!=='all') data=data.filter(s=>(s.tags||[]).includes(activeFilter));
@@ -674,13 +860,16 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();
     document.getElementById('homeAddress').value = homeQ;
     const details = document.querySelector('.match-details');
     if(details) details.removeAttribute('open');
-  } else {
+  } else if(!directoryActive()) {
     flyToBase(saved.baseId);
   }
-  doFilter();
+  if(directoryActive()) loadDirectory();
+  else {
+    doFilter();
+    const p = params.get('school');
+    if(p){ const s = SCHOOLS.find(x=>String(x.id)===p || x.slug===p); if(s){ setTimeout(()=>selectCard(s.id), 400); } }
+  }
   if(homeQ) placeHome(homeQ);
-  const p = params.get('school');
-  if(p){ const s = SCHOOLS.find(x=>String(x.id)===p || x.slug===p); if(s){ setTimeout(()=>selectCard(s.id), 400); } }
 })();
 </script>
 </body>
