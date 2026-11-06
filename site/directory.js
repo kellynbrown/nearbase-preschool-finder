@@ -84,7 +84,8 @@
       agesServed: text(row.ages_served),
       hours: text(row.hours),
       locality: text(row.locality),
-      pilotBase: text(row.pilot_base)
+      pilotBase: text(row.pilot_base),
+      website: websiteHref(row.website)
     };
   }
 
@@ -106,6 +107,15 @@
   function phoneHref(phone) {
     var compact = String(phone || "").replace(/[^\d+]/g, "");
     return compact.length >= 7 ? "tel:" + compact : "";
+  }
+
+  function websiteHref(value) {
+    var raw = text(value);
+    if (!raw || /[\s<>"'\\]/.test(raw) || /[\u0000-\u001f]/.test(raw)) return "";
+    var url;
+    try { url = new URL(raw); } catch (error) { return ""; }
+    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+    return url.href;
   }
 
   function storedMiles(school, base) {
@@ -197,6 +207,7 @@
       miles: dist.miles,
       distanceLabel: dist.label,
       milesShort: dist.miles == null ? "—" : dist.miles.toFixed(1),
+      websiteHref: websiteHref(school.website),
       facts: facts
     };
   }
@@ -215,22 +226,27 @@
     return /does not exist|schema cache|42703|PGRST204/i.test(blob);
   }
 
-  function readPilot(sb, pilot, withDistance) {
+  function readPilot(sb, pilot, attempt) {
     var acc = [];
     var cols = SELECT_BASE.slice();
-    if (withDistance && pilot.distanceColumn) cols.push(pilot.distanceColumn);
+    if (attempt.website) cols.push("website");
+    if (attempt.distance && pilot.distanceColumn) cols.push(pilot.distanceColumn);
     var selectList = cols.join(",");
     function page(from) {
       var query = sb.from("schools").select(selectList).eq("pilot_base", pilot.pilotBase);
-      if (withDistance && pilot.distanceColumn) query = query.order(pilot.distanceColumn, { ascending: true });
+      if (attempt.distance && pilot.distanceColumn) query = query.order(pilot.distanceColumn, { ascending: true });
       else query = query.order("name", { ascending: true });
       return query.range(from, from + PAGE_SIZE - 1).then(function (result) {
         if (!result || result.error) {
+          var missingColumn = "";
+          if (attempt.website && columnMissing(result && result.error, "website")) missingColumn = "website";
+          else if (attempt.distance && columnMissing(result && result.error, pilot.distanceColumn)) missingColumn = pilot.distanceColumn;
           return {
             ok: false,
             schools: [],
             message: errorMessage(result && result.error),
-            missingDistanceColumn: !!(withDistance && columnMissing(result && result.error, pilot.distanceColumn))
+            missingColumn: missingColumn,
+            missingDistanceColumn: missingColumn === pilot.distanceColumn
           };
         }
         var rows = result.data || [];
@@ -239,15 +255,19 @@
           if (school && (!school.pilotBase || school.pilotBase === pilot.pilotBase)) acc.push(school);
         });
         if (rows.length === PAGE_SIZE) return page(from + PAGE_SIZE);
-        return { ok: true, schools: acc, message: "", missingDistanceColumn: false };
+        return { ok: true, schools: acc, message: "", missingColumn: "", missingDistanceColumn: false };
       });
     }
     return Promise.resolve().then(function () { return page(0); }).catch(function (error) {
+      var missingColumn = "";
+      if (attempt.website && columnMissing(error, "website")) missingColumn = "website";
+      else if (attempt.distance && columnMissing(error, pilot.distanceColumn)) missingColumn = pilot.distanceColumn;
       return {
         ok: false,
         schools: [],
         message: errorMessage(error),
-        missingDistanceColumn: !!(withDistance && columnMissing(error, pilot.distanceColumn))
+        missingColumn: missingColumn,
+        missingDistanceColumn: missingColumn === pilot.distanceColumn
       };
     });
   }
@@ -257,10 +277,21 @@
     if (!pilot) {
       return Promise.resolve({ ok: false, schools: [], message: "That base does not have a pilot directory yet." });
     }
-    return readPilot(sb, pilot, true).then(function (result) {
-      if (result && result.missingDistanceColumn) return readPilot(sb, pilot, false);
-      return result;
-    });
+    var attempt = { distance: true, website: true };
+    function once() {
+      return readPilot(sb, pilot, attempt).then(function (result) {
+        if (result && result.missingColumn === "website" && attempt.website) {
+          attempt.website = false;
+          return once();
+        }
+        if (result && result.missingColumn === pilot.distanceColumn && attempt.distance) {
+          attempt.distance = false;
+          return once();
+        }
+        return result;
+      });
+    }
+    return once();
   }
 
   var primary = PILOTS[DEFAULT_PILOT_ID];
@@ -280,6 +311,7 @@
     sortSchools: sortSchools,
     matchesQuery: matchesQuery,
     presentSchool: presentSchool,
+    websiteHref: websiteHref,
     fetchPilotSchools: fetchPilotSchools
   };
 });

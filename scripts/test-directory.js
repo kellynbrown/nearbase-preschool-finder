@@ -276,6 +276,88 @@ check("pentagon read filters pilot_base and falls back when the distance column 
   });
 });
 
+check("website is an http(s) link and never invented", function () {
+  assert.strictEqual(directory.websiteHref("https://preschool.example/enroll"), "https://preschool.example/enroll");
+  assert.strictEqual(directory.websiteHref("  http://school.example/path  "), "http://school.example/path");
+  ["", null, "not a url", "javascript:alert(1)", "data:text/html,hi", "mailto:office@school.example", "//school.example"].forEach(function (bad) {
+    assert.strictEqual(directory.websiteHref(bad), "", JSON.stringify(bad));
+  });
+  var school = directory.normalizeSchool(row({ website: "https://preschool.example/enroll" }));
+  assert.strictEqual(school.website, "https://preschool.example/enroll");
+  var view = directory.presentSchool(school, null, haversine);
+  assert.strictEqual(view.websiteHref, "https://preschool.example/enroll");
+  var blank = directory.presentSchool(directory.normalizeSchool(row({ website: "javascript:alert(1)" })), null, haversine);
+  assert.strictEqual(blank.websiteHref, "");
+});
+
+check("a missing website column retries without dropping the pilot filter", function () {
+  var calls = [];
+  var sb = {
+    from: function () {
+      var query = { filters: [], cols: "" };
+      var api = {
+        select: function (cols) { query.cols = cols; return api; },
+        eq: function (col, val) { query.filters.push([col, val]); return api; },
+        order: function (col, opts) { query.order = [col, opts]; return api; },
+        range: function () {
+          calls.push({ cols: query.cols, filters: query.filters.slice(), order: query.order[0] });
+          if (query.cols.indexOf("website") !== -1) {
+            return Promise.resolve({ data: null, error: { code: "PGRST204", message: "Could not find the 'website' column of 'schools' in the schema cache" } });
+          }
+          return Promise.resolve({ data: [row({ id: "kept", name: "Kept", pilot_base: "pentagon" })], error: null });
+        }
+      };
+      return api;
+    }
+  };
+  return directory.fetchPilotSchools(sb, "pentagon").then(function (result) {
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.schools[0].slug, "kept");
+    assert.strictEqual(result.schools[0].website, "");
+    assert.strictEqual(calls.length, 2);
+    assert.ok(calls[0].cols.indexOf("website") !== -1);
+    assert.ok(calls[1].cols.indexOf("website") === -1);
+    assert.deepStrictEqual(calls[1].filters, [["pilot_base", "pentagon"]]);
+    assert.strictEqual(calls[1].order, "distance_miles_to_pentagon");
+  });
+});
+
+check("profile CTA opens a real website and skips a missing or unsafe one", function () {
+  var vm = require("vm");
+  function run(website) {
+    var anchors = [];
+    var row = {
+      firstChild: null,
+      querySelector: function () { return null; },
+      insertBefore: function (node) { anchors.push(node); this.firstChild = node; }
+    };
+    var document = {
+      querySelector: function (sel) { return sel === ".cta-row" ? row : null; },
+      createElement: function () { return { attrs: {}, setAttribute: function (k, v) { this.attrs[k] = v; } }; }
+    };
+    var context = {
+      window: { SCHOOLS: [{ slug: "fixture-school", name: "Fixture", website: website }] },
+      document: document,
+      location: { pathname: "/school/fixture-school.html" },
+      URL: URL
+    };
+    vm.createContext(context);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "site/school-page.js"), "utf8"), context);
+    return { anchors: anchors, api: context.window.NearBaseSchoolPage };
+  }
+  var shown = run("https://preschool.example/enroll");
+  assert.strictEqual(shown.anchors.length, 1);
+  assert.strictEqual(shown.anchors[0].href, "https://preschool.example/enroll");
+  assert.strictEqual(shown.anchors[0].target, "_blank");
+  assert.strictEqual(shown.anchors[0].rel, "noopener noreferrer");
+  assert.strictEqual(shown.anchors[0].className, "btn btn-p");
+  assert.strictEqual(shown.anchors[0].textContent, "Visit website");
+  assert.strictEqual(shown.anchors[0].attrs["data-nb-website"], "1");
+  assert.strictEqual(run("").anchors.length, 0);
+  assert.strictEqual(run("javascript:alert(1)").anchors.length, 0);
+  assert.ok(shown.api && typeof shown.api.placeWebsiteCta === "function");
+});
+
 check("find and home lead with the Pentagon and still load Belvoir by base", function () {
   var root = path.join(__dirname, "..");
   var html = fs.readFileSync(path.join(root, "site/find.html"), "utf8");
@@ -290,6 +372,10 @@ check("find and home lead with the Pentagon and still load Belvoir by base", fun
   assert.ok(html.indexOf("Pentagon pilot") !== -1);
   assert.ok(html.indexOf("Schools from another base are not shown here.") !== -1);
   assert.ok(html.indexOf("No Fort Belvoir licensed centers") === -1);
+  assert.ok(html.indexOf("Visit website") !== -1);
+  assert.ok(html.indexOf('rel="noopener noreferrer"') !== -1);
+  assert.ok(html.indexOf('target="_blank"') !== -1);
+  assert.ok(html.indexOf("websiteHref") !== -1);
   var index = fs.readFileSync(path.join(root, "site/index.html"), "utf8");
   assert.ok(index.indexOf("Pentagon pilot") !== -1);
   assert.ok(index.indexOf('sel.value = "pentagon"') !== -1);
