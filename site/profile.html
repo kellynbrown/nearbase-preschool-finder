@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#085041">
+<title>School evidence — NearBase</title>
+<meta name="description" content="Eligibility evidence for one National Capital Region child care record. Quality pathway documented is not MCCYN approval.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#1D9E75;--dark:#085041;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--cream:#F8FAF8}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);line-height:1.5}
+a:focus-visible,button:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+header{background:var(--dark);color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.logo{font-family:Fraunces,serif;font-size:1.2rem;color:#fff;text-decoration:none}
+.logo span{color:var(--g)}
+.back{color:#fff;font-size:.85rem}
+main{max-width:760px;margin:0 auto;padding:1.25rem 1rem 3rem}
+.kicker{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--g);font-weight:500}
+h1{font-family:Fraunces,serif;font-weight:600;color:var(--dark);font-size:2rem;line-height:1.15;margin:.35rem 0 .4rem}
+.place,.distance{color:var(--muted);font-size:.95rem;margin-bottom:.35rem}
+.brow{display:flex;gap:.35rem;flex-wrap:wrap;margin:.7rem 0}
+.bdg{font-size:.75rem;padding:.2rem .6rem;border-radius:100px}
+.bdg-path{background:var(--light);color:var(--dark)}
+.bdg-pending{background:#FAEEDA;color:#633806}
+.bdg-code{background:#F3EEF8;color:#3C3489;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.honest{background:#fff;border:1px solid var(--border);border-radius:16px;padding:.9rem 1rem;margin:.8rem 0}
+.actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0 1rem}
+.btn{display:inline-block;background:var(--g);color:#fff;text-decoration:none;border-radius:100px;padding:.55rem 1rem;font-size:.85rem;font-weight:500}
+.btn.ghost{background:#fff;color:var(--dark);border:1px solid var(--g)}
+.card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem 1.1rem;margin-top:.8rem}
+.card h2,.nb-evidence h3{font-family:Fraunces,serif;color:var(--dark);font-size:1.15rem;margin-bottom:.45rem}
+.nb-evidence h3{margin-top:1rem}
+.nb-honest{font-weight:500;color:var(--dark);margin-bottom:.45rem}
+.nb-evidence ul,.facts{margin:.4rem 0 .2rem 1.1rem}
+.nb-evidence li,.facts li{margin:.28rem 0}
+.nb-sources{list-style:none;margin:.4rem 0 0;padding:0}
+.nb-sources a{color:var(--dark);font-weight:500}
+.status{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1rem}
+.status.error{background:#FAEEDA;border-color:#E7D3B1;color:#633806}
+code{font-size:.82rem}
+@media(max-width:640px){h1{font-size:1.55rem}header{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">Near<span>Base</span></a>
+  <a class="back" id="back" href="find.html?base=pentagon">Back to the list</a>
+</header>
+<main>
+  <p class="kicker">National Capital Region directory</p>
+  <h1 id="name">Loading school evidence…</h1>
+  <p class="place" id="place"></p>
+  <p class="distance" id="distance"></p>
+  <div class="brow" id="badges"></div>
+  <div class="honest" id="honest">Quality pathway documented is not MCCYN enrollment, approval, or guaranteed family funding.</div>
+  <div class="actions">
+    <a class="btn" id="visit" href="" target="_blank" rel="noopener noreferrer" hidden>Visit website</a>
+    <a class="btn ghost" id="listLink" href="find.html?base=pentagon">Map and list</a>
+  </div>
+  <div class="card" id="factsCard" hidden>
+    <h2>Record</h2>
+    <ul class="facts" id="facts"></ul>
+  </div>
+  <div class="card" id="evidenceCard">
+    <h2>Eligibility evidence</h2>
+    <div id="evidence"><p>Loading source links…</p></div>
+  </div>
+  <p class="status" id="status" role="status" hidden></p>
+</main>
+<script src="match.js"></script>
+<script src="directory.js"></script>
+<script src="billing-config.js"></script>
+<script src="account.js"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var id = (params.get("id") || "").trim();
+  var installation = NearBaseDirectory.pilotFor(params.get("base")) || NearBaseDirectory.pilotFor("pentagon");
+  var jurisdiction = NearBaseDirectory.normalizeJurisdiction(params.get("jurisdiction"));
+  var back = "find.html?base=" + encodeURIComponent(installation.baseId);
+  if (jurisdiction) back += "&jurisdiction=" + encodeURIComponent(jurisdiction);
+  if (id) back += "&school=" + encodeURIComponent(id);
+  document.getElementById("back").href = back;
+  document.getElementById("listLink").href = back;
+
+  function showStatus(message, isError) {
+    var el = document.getElementById("status");
+    el.hidden = !message;
+    el.className = isError ? "status error" : "status";
+    el.textContent = message || "";
+  }
+
+  function addFact(text) {
+    if (!text) return;
+    var li = document.createElement("li");
+    li.textContent = text;
+    document.getElementById("facts").appendChild(li);
+    document.getElementById("factsCard").hidden = false;
+  }
+
+  function render(school) {
+    document.title = school.name + " — NearBase evidence";
+    document.getElementById("name").textContent = school.name;
+    document.getElementById("place").textContent = NearBaseDirectory.addressLine(school) || NearBaseDirectory.placeLine(school);
+    var distance = NearBaseDirectory.distanceFor(school, null, NearBaseMatch.haversineMiles, installation);
+    document.getElementById("distance").textContent = distance.label
+      ? distance.label + ". Straight-line miles to " + installation.nearPhrase + ", not a drive time."
+      : "No straight-line distance is stored for " + installation.nearPhrase + ".";
+    var badge = NearBaseDirectory.eligibilityBadge(school);
+    var badges = document.getElementById("badges");
+    badges.textContent = "";
+    var label = document.createElement("span");
+    label.className = "bdg " + (badge.tone === "pending" ? "bdg-pending" : "bdg-path");
+    label.textContent = badge.label;
+    badges.appendChild(label);
+    if (badge.code) {
+      var code = document.createElement("span");
+      code.className = "bdg bdg-code";
+      code.textContent = badge.code;
+      badges.appendChild(code);
+    }
+    var href = NearBaseDirectory.websiteHref(school.website);
+    var visit = document.getElementById("visit");
+    if (href) {
+      visit.href = href;
+      visit.hidden = false;
+    } else {
+      visit.hidden = true;
+      visit.removeAttribute("href");
+    }
+    addFact(school.jurisdiction ? "Jurisdiction: " + school.jurisdiction : "");
+    addFact(school.licenseId ? "License id: " + school.licenseId : "");
+    addFact(school.licenseType || school.licenseStatus ? [school.licenseType, school.licenseStatus].filter(Boolean).join(" · ") : "");
+    addFact(school.agesServed ? "Ages on record: " + school.agesServed : "");
+    addFact(school.hours ? "Hours: " + school.hours : "");
+    addFact(school.pilotBase ? "Closest planning point stored on the row: " + school.pilotBase + ". That is not an exclusive base assignment." : "");
+    document.getElementById("evidence").innerHTML = NearBaseDirectory.evidenceHtml(school);
+    showStatus("", false);
+  }
+
+  if (!id) {
+    document.getElementById("name").textContent = "School not specified";
+    document.getElementById("evidence").textContent = "Open this page with an id from the directory list.";
+    showStatus("Missing school id.", true);
+    return;
+  }
+
+  var account = window.NearBaseAccount;
+  if (!account || typeof account.ready !== "function" || typeof account.client !== "function") {
+    document.getElementById("name").textContent = "Directory unavailable";
+    showStatus(NearBaseDirectory.CONFIG_MESSAGE, true);
+    return;
+  }
+  account.ready().then(function () { return account.client(); }).then(function (sb) {
+    if (!sb) {
+      document.getElementById("name").textContent = "Directory unavailable";
+      showStatus(NearBaseDirectory.CONFIG_MESSAGE, true);
+      return;
+    }
+    return NearBaseDirectory.fetchSchoolProfile(sb, id).then(function (result) {
+      if (!result || !result.ok) {
+        document.getElementById("name").textContent = "Evidence didn’t load";
+        document.getElementById("evidence").textContent = "The source bundle stayed on the server.";
+        showStatus(NearBaseDirectory.QUERY_MESSAGE + (result && result.message ? " (" + result.message + ")" : ""), true);
+        return;
+      }
+      if (!result.school) {
+        document.getElementById("name").textContent = "School not in the directory";
+        document.getElementById("evidence").textContent = "No row matched that id. Nothing was invented for it.";
+        showStatus(result.message || "That school is not in the directory.", true);
+        return;
+      }
+      render(result.school);
+    });
+  }).catch(function () {
+    document.getElementById("name").textContent = "Evidence didn’t load";
+    showStatus(NearBaseDirectory.QUERY_MESSAGE, true);
+  });
+})();
+</script>
+</body>
+</html>

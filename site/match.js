@@ -21,6 +21,11 @@
     { id: "usna", name: "Naval Academy / Annapolis", lat: 38.975, lng: -76.49, kind: "installation" },
     { id: "quantico", name: "MCB Quantico", lat: 38.524, lng: -77.303, kind: "installation" },
     { id: "navyyard", name: "Navy Yard", lat: 38.876, lng: -77.003, kind: "installation" },
+    { id: "fort-myer", name: "Fort Myer", lat: 38.8804, lng: -77.0794, kind: "installation" },
+    { id: "nsa-bethesda", name: "NSA Bethesda", lat: 39.0016, lng: -77.093, kind: "installation" },
+    { id: "fort-detrick", name: "Fort Detrick", lat: 39.438, lng: -77.426, kind: "installation" },
+    { id: "fort-mcnair", name: "Fort McNair", lat: 38.8652, lng: -77.0151, kind: "installation" },
+    { id: "coast-guard-hq", name: "Coast Guard HQ", lat: 38.8554, lng: -76.9973, kind: "installation" },
     { id: "culmore", name: "Culmore / Bailey's Crossroads", lat: 38.856, lng: -77.128, kind: "area" },
     { id: "germantown", name: "Germantown / Rockville", lat: 39.16, lng: -77.0, kind: "area" },
     { id: "reston", name: "Reston / Herndon", lat: 38.95, lng: -77.33, kind: "area" }

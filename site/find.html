@@ -33,7 +33,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .logo span{color:var(--g)}
 .loc-form{display:flex;align-items:center;gap:.4rem;flex:1.4;min-width:280px}
 .loc-form select,.loc-form input{font-family:'DM Sans',sans-serif;font-size:16px;border:none;border-radius:100px;padding:.55rem .85rem;background:rgba(255,255,255,.12);color:#fff;outline:none}
-.loc-form select{max-width:11.5rem}
+.loc-form select{max-width:16rem}
 .loc-form select option{color:#1a1a18}
 .loc-form input{flex:1;min-width:8rem}
 .loc-form input::placeholder{color:rgba(255,255,255,.55)}
@@ -77,6 +77,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .outside-head strong{display:block;color:#633806;font-size:.82rem}
 .outside-head span{display:block;color:#633806;font-size:.72rem;line-height:1.4;margin-top:.2rem}
 .dir-note{font-size:.75rem;color:var(--muted);line-height:1.45;margin-bottom:.65rem}
+.bdg-path{background:#E1F5EE;color:#085041}
+.bdg-pending{background:#FAEEDA;color:#633806}
+.bdg-code{background:#F3EEF8;color:#3C3489;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0}
+.profile-link{display:inline-block;margin:0 .4rem .45rem 0;border:1px solid var(--g);color:var(--dark);background:#fff;text-decoration:none;border-radius:100px;padding:.38rem .85rem;font-size:.75rem;font-weight:500}
+.visit-web{margin-right:.4rem}
 .dir-note[hidden],#matchPanel[hidden],#filterRow[hidden]{display:none !important}
 .list-status{margin:.15rem .1rem .7rem;padding:.9rem 1rem;background:var(--white);border:1px solid var(--border);border-radius:12px;font-size:.8rem;line-height:1.45;color:var(--muted)}
 .list-status.error{background:#FAEEDA;border-color:#E7D3B1;color:#633806}
@@ -167,6 +172,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   <form id="homeForm" class="loc-form">
     <label class="sr" for="doorBase">Military base</label>
     <select id="doorBase" aria-label="Military base"></select>
+    <label class="sr" for="doorJurisdiction">Jurisdiction</label>
+    <select id="doorJurisdiction" aria-label="Jurisdiction">
+      <option value="">All jurisdictions</option>
+      <option value="VA">Virginia</option>
+      <option value="DC">DC</option>
+      <option value="MD">Maryland</option>
+    </select>
     <label class="sr" for="homeAddress">Home address</label>
     <input id="homeAddress" type="text" autocomplete="street-address" placeholder="Home address, city, state" aria-label="Home address">
     <button class="loc-go" type="submit">See schools</button>
@@ -181,7 +193,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <div class="main">
   <div class="sidebar">
     <div class="sidebar-top">
-      <p class="dir-note" id="directoryNote" hidden>Licensed child day centers near the Pentagon. Fort Belvoir is another pilot base. Sorted by straight-line distance. Match scores aren’t on these license records.</p>
+      <p class="dir-note" id="directoryNote" hidden>National Capital Region directory. The Pentagon is the default. Choosing a base reorders every loaded record by straight-line miles. It does not limit the list to one pilot_base. Quality pathway documented is not MCCYN approval or guaranteed family funding.</p>
       <form id="matchPanel" aria-label="Match schools to your family">
         <details class="match-details" open>
         <summary>Match to your family</summary>
@@ -388,7 +400,60 @@ function websitePopup(raw){
 }
 
 function baseOptions(){
-  return NearBaseMatch.BASES.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  const choices = NearBaseDirectory.selectorBases(NearBaseMatch.BASES, directoryState.schools);
+  let html = "";
+  let group = null;
+  choices.forEach(function(choice){
+    if(choice.group !== group){
+      if(group) html += "</optgroup>";
+      group = choice.group;
+      if(group) html += '<optgroup label="' + esc(group) + '">';
+    }
+    html += '<option value="' + esc(choice.value) + '">' + esc(choice.label) + '</option>';
+  });
+  if(group) html += "</optgroup>";
+  return html;
+}
+function jurisdictionOptions(){
+  const found = directoryState.schools && directoryState.schools.length
+    ? NearBaseDirectory.jurisdictionsIn(directoryState.schools)
+    : NearBaseDirectory.JURISDICTIONS;
+  return '<option value="">All jurisdictions</option>' + found.map(function(item){
+    return '<option value="' + esc(item.id) + '">' + esc(item.label) + '</option>';
+  }).join("");
+}
+function refreshSelectors(){
+  const baseValue = document.getElementById('matchBase').value;
+  const jurisdictionValue = document.getElementById('doorJurisdiction').value;
+  const bases = baseOptions();
+  ['matchBase','mapBase','doorBase'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = bases;
+    if([...el.options].some(function(option){ return option.value === baseValue; })) el.value = baseValue;
+  });
+  const jurisdiction = document.getElementById('doorJurisdiction');
+  jurisdiction.innerHTML = jurisdictionOptions();
+  if([...jurisdiction.options].some(function(option){ return option.value === jurisdictionValue; })) jurisdiction.value = jurisdictionValue;
+}
+function profileHref(id){
+  const base = document.getElementById('matchBase').value || 'pentagon';
+  const jurisdiction = document.getElementById('doorJurisdiction').value;
+  let href = 'profile.html?id=' + encodeURIComponent(id) + '&base=' + encodeURIComponent(base);
+  if(jurisdiction) href += '&jurisdiction=' + encodeURIComponent(jurisdiction);
+  return href;
+}
+function profileLink(id){
+  return '<a class="profile-link" href="' + esc(profileHref(id)) + '" onclick="event.stopPropagation()">Evidence profile</a>';
+}
+function badgeHtml(view){
+  if(!view || !view.badge) return '';
+  const tone = view.badge.tone === 'pending' ? 'bdg-pending' : 'bdg-path';
+  let html = '<div class="brow"><span class="bdg ' + tone + '">' + esc(view.badge.label) + '</span>';
+  if(view.badge.code) html += '<span class="bdg bdg-code">' + esc(view.badge.code) + '</span>';
+  html += '</div>';
+  if(view.badge.detail) html += '<p class="dir-facts">' + esc(view.badge.detail) + '</p>';
+  return html;
 }
 function readMatchForm(){
   const saved = NearBaseMatch.loadProfile();
@@ -406,9 +471,7 @@ function readMatchForm(){
   });
 }
 function fillMatchForm(profile){
-  document.getElementById('matchBase').innerHTML = baseOptions();
-  document.getElementById('mapBase').innerHTML = baseOptions();
-  document.getElementById('doorBase').innerHTML = baseOptions();
+  refreshSelectors();
   document.getElementById('philoChecks').innerHTML = NearBaseMatch.PHILOSOPHY_IDS.map(id=>
     `<label><input type="checkbox" name="philo" value="${id}"> ${esc(NearBaseMatch.PHILOSOPHY_LABEL[id])}</label>`
   ).join('');
@@ -433,15 +496,20 @@ function flyToBase(id){
   if(base) map.flyTo([base.lat, base.lng], 12, {duration:1.0});
 }
 function applyBase(id){
-  document.getElementById('matchBase').value = id;
-  document.getElementById('mapBase').value = id;
-  document.getElementById('doorBase').value = id;
+  const installation = NearBaseDirectory.pilotFor(id);
+  const value = installation ? installation.baseId : id;
+  document.getElementById('matchBase').value = value;
+  document.getElementById('mapBase').value = value;
+  document.getElementById('doorBase').value = value;
   const pendingHome = document.getElementById('homeAddress').value.trim();
-  if(!homePoint && !pendingHome) flyToBase(id);
+  if(!homePoint && !pendingHome) flyToBase(value);
   NearBaseMatch.saveProfile(readMatchForm());
-  const pilot = NearBaseDirectory.pilotFor(id);
-  if(pilot && (directoryState.baseId !== id || directoryState.status === 'idle' || directoryState.status === 'error')) loadDirectory();
-  else doFilter();
+  if(installation){
+    pinKey = '';
+    fitKey = '';
+    if(directoryState.status === 'ready') renderDirectory();
+    else loadDirectory();
+  } else doFilter();
   syncUrl();
 }
 function persistAndFilter(){
@@ -449,13 +517,18 @@ function persistAndFilter(){
   doFilter();
 }
 
-function syncUrl(){
+function syncUrl(schoolId){
   try {
     const url = new URL(location.href);
     url.searchParams.set('base', document.getElementById('matchBase').value);
+    const jurisdiction = document.getElementById('doorJurisdiction').value;
+    if(jurisdiction) url.searchParams.set('jurisdiction', jurisdiction);
+    else url.searchParams.delete('jurisdiction');
     const address = document.getElementById('homeAddress').value.trim();
     if(address) url.searchParams.set('home', address);
     else url.searchParams.delete('home');
+    if(schoolId) url.searchParams.set('school', schoolId);
+    else if(schoolId === '') url.searchParams.delete('school');
     history.replaceState(null, '', url.pathname + url.search);
   } catch (e) {}
 }
@@ -646,10 +719,14 @@ function toggleWhy(btn){
 
 function selectCard(id){
   if(activeCard){document.getElementById('card-'+activeCard)?.classList.remove('active');}
-  document.getElementById('card-'+id)?.classList.add('active');
-  document.getElementById('card-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const card = document.getElementById('card-'+id);
+  if(card){
+    card.classList.add('active');
+    card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
   activeCard=id;
   if(map && markers[id]){markers[id].openPopup();map.panTo(markers[id].getLatLng(),{animate:true});}
+  if(card && document.body.classList.contains('dir-live')) syncUrl(id);
 }
 
 let directoryState = { status: 'idle', schools: [], message: '', baseId: '' };
@@ -701,11 +778,13 @@ function loadDirectory(){
         directoryState = { status: 'error', schools: [], message: NearBaseDirectory.QUERY_MESSAGE + detail, baseId: baseId };
       } else {
         directoryState = { status: 'ready', schools: result.schools || [], message: '', baseId: baseId };
+        refreshSelectors();
       }
       if(directoryActive()) renderDirectory();
       const pending = new URLSearchParams(location.search).get('school');
       if(pending && result && result.ok){
-        const hit = (result.schools || []).find(function(s){ return s.id === pending || s.slug === pending; });
+        const deduped = NearBaseDirectory.dedupeCampuses(result.schools || []).schools;
+        const hit = NearBaseDirectory.findSchool(deduped, pending);
         if(hit) setTimeout(function(){ selectCard(hit.id); }, 200);
       }
     });
@@ -715,11 +794,12 @@ function loadDirectory(){
     if(directoryActive()) renderDirectory();
   });
 }
-function syncDirectoryPins(schools){
+function syncDirectoryPins(schools, pilot){
   if(!map || !schoolLayer) return;
-  const pilot = NearBaseDirectory.pilotFor(directoryState.baseId) || selectedPilot();
   const homeKey = homePoint ? (Number(homePoint.lat).toFixed(5) + ',' + Number(homePoint.lng).toFixed(5)) : '';
-  const key = 'dir:' + (pilot ? pilot.baseId : '') + ':' + schools.length + ':' + homeKey;
+  const jurisdiction = document.getElementById('doorJurisdiction').value;
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const key = 'dir:' + (pilot ? pilot.baseId : '') + ':' + jurisdiction + ':' + query + ':' + schools.length + ':' + homeKey;
   if(pinKey === key) return;
   schoolLayer.clearLayers();
   markers = {};
@@ -728,26 +808,28 @@ function syncDirectoryPins(schools){
     if(school.lat == null || school.lng == null) return;
     const view = NearBaseDirectory.presentSchool(school, homePoint, haversine, pilot);
     const m = L.marker([school.lat, school.lng], {icon: mkSchoolIcon('hi')}).addTo(schoolLayer);
-    const bits = [view.distanceLabel, view.addressLine, school.phone].filter(Boolean).map(function(part){ return esc(part); }).join('<br>');
-    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + bits + '</div>' + websitePopup(view.websiteHref));
+    const bits = [view.distanceLabel, view.addressLine].filter(Boolean).map(function(part){ return esc(part); }).join('<br>');
+    const badge = esc(view.badge.label) + (view.badge.code ? ' · ' + esc(view.badge.code) : '');
+    m.on('click', function(){ selectCard(school.id); });
+    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + badge + '</div><div class="pu-meta">' + bits + '</div>' + websitePopup(view.websiteHref) + '<a class="pu-btn" href="' + esc(profileHref(view.id)) + '">Evidence profile</a>');
     markers[school.id] = m;
   });
   pinKey = key;
 }
-function fitDirectoryView(schools){
+function fitDirectoryView(schools, pilot){
   if(!map) return;
-  const pilotKey = (NearBaseDirectory.pilotFor(directoryState.baseId) || selectedPilot() || {}).baseId || '';
-  const key = pilotKey + ':' + (homePoint ? ('home:' + Number(homePoint.lat).toFixed(4) + ',' + Number(homePoint.lng).toFixed(4)) : 'all');
+  const jurisdiction = document.getElementById('doorJurisdiction').value;
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const key = (pilot ? pilot.baseId : '') + ':' + jurisdiction + ':' + query + ':' + schools.length + ':' + (homePoint ? ('home:' + Number(homePoint.lat).toFixed(4) + ',' + Number(homePoint.lng).toFixed(4)) : 'all');
   if(fitKey === key) return;
   const bounds = L.latLngBounds([]);
   schools.forEach(function(school){
     if(school.lat != null && school.lng != null) bounds.extend([school.lat, school.lng]);
   });
   if(homePoint) bounds.extend([homePoint.lat, homePoint.lng]);
-  const pilot = NearBaseDirectory.pilotFor(directoryState.baseId) || selectedPilot();
-  const matchBase = pilot && NearBaseMatch.BASES.find(function(b){ return b.id === pilot.baseId; });
+  const matchBase = pilot && NearBaseMatch.BASES.find(function(b){ return b.id === pilot.baseId || b.id === pilot.id; });
   if(matchBase) bounds.extend([matchBase.lat, matchBase.lng]);
-  else if(pilot) bounds.extend([pilot.lat, pilot.lng]);
+  else if(pilot && pilot.lat != null && pilot.lng != null) bounds.extend([pilot.lat, pilot.lng]);
   if(bounds.isValid()) map.fitBounds(bounds.pad(0.12), {maxZoom: 12, animate: false});
   fitKey = key;
 }
@@ -757,11 +839,10 @@ function renderDirectory(){
   const label = document.getElementById('rankLabel');
   const badge = document.getElementById('mapBadge');
   const note = document.getElementById('directoryNote');
-  const selectedId = document.getElementById('matchBase').value;
-  const pilot = (directoryState.baseId === selectedId && NearBaseDirectory.pilotFor(directoryState.baseId)) || selectedPilot() || NearBaseDirectory.pilotFor('pentagon');
+  const pilot = selectedPilot() || NearBaseDirectory.pilotFor('pentagon');
   const near = pilot.nearPhrase || pilot.name;
+  const jurisdiction = document.getElementById('doorJurisdiction').value;
   if(badge) badge.textContent = homePoint ? ('Near ' + pilot.name) : pilot.badge;
-  if(note) note.textContent = 'Licensed child day centers near ' + near + '. Sorted by straight-line distance. Match scores aren’t on these license records.';
   if(!list.dataset.pickBound){
     list.dataset.pickBound = '1';
     list.addEventListener('click', function(event){
@@ -772,15 +853,15 @@ function renderDirectory(){
       selectCard(card.getAttribute('data-school'));
     });
   }
-  const stale = directoryState.baseId && directoryState.baseId !== selectedId;
-  if(stale || directoryState.status === 'loading' || directoryState.status === 'idle'){
+  if(directoryState.status === 'loading' || directoryState.status === 'idle'){
     if(schoolLayer) schoolLayer.clearLayers();
     markers = {};
     pinKey = '';
     document.getElementById('rc').textContent = '…';
     document.getElementById('pinCount').textContent = '…';
-    if(label) label.textContent = ' licensed centers near ' + near;
-    list.innerHTML = '<div class="list-status" role="status">Loading licensed child day centers near ' + esc(near) + '…</div>';
+    if(label) label.textContent = ' licensed centers, straight-line miles to ' + near;
+    if(note) note.textContent = 'Loading the National Capital Region directory. Distances are straight-line miles to ' + near + '. ' + NearBaseDirectory.HONEST_LINE;
+    list.innerHTML = '<div class="list-status" role="status">Loading licensed centers. The Pentagon stays the default, and every loaded record can be sorted to ' + esc(near) + '.</div>';
     return;
   }
   if(directoryState.status === 'error'){
@@ -789,28 +870,37 @@ function renderDirectory(){
     pinKey = '';
     document.getElementById('rc').textContent = '0';
     document.getElementById('pinCount').textContent = '0';
-    if(label) label.textContent = ' licensed centers near ' + near;
-    list.innerHTML = '<div class="list-status error" role="alert"><p><strong>' + esc(pilot.name) + ' directory</strong></p><p>' + esc(directoryState.message) + '</p><p>Schools from another base are not shown here.</p><button type="button" onclick="loadDirectory()">Try again</button></div>';
+    if(label) label.textContent = ' licensed centers';
+    if(note) note.textContent = NearBaseDirectory.HONEST_LINE;
+    list.innerHTML = '<div class="list-status error" role="alert"><p><strong>National Capital Region directory</strong></p><p>' + esc(directoryState.message) + '</p><button type="button" onclick="loadDirectory()">Try again</button></div>';
     return;
   }
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const haversine = NearBaseMatch.haversineMiles;
-  const rows = NearBaseDirectory.sortSchools(
-    directoryState.schools.filter(function(school){ return NearBaseDirectory.matchesQuery(school, q); }),
-    homePoint,
-    haversine,
-    pilot
-  );
-  const pinned = directoryState.schools.filter(function(school){ return school.lat != null && school.lng != null; });
+  const viewState = NearBaseDirectory.filterDirectory(directoryState.schools, {
+    baseId: pilot.baseId,
+    jurisdiction: jurisdiction,
+    query: q,
+    homePoint: homePoint,
+    haversine: haversine
+  });
+  const rows = viewState.schools;
+  const pinned = rows.filter(function(school){ return school.lat != null && school.lng != null; });
   document.getElementById('rc').textContent = String(rows.length);
   document.getElementById('pinCount').textContent = String(pinned.length);
   if(label){
-    label.textContent = homePoint ? ' licensed centers, closest to home' : ' licensed centers, closest to ' + near;
+    label.textContent = homePoint ? ' licensed centers, closest to home' : ' licensed centers, straight-line miles to ' + near;
   }
-  syncDirectoryPins(directoryState.schools);
-  fitDirectoryView(directoryState.schools);
+  if(note) note.textContent = NearBaseDirectory.coverageText(viewState.coverage, pilot, jurisdiction);
+  syncDirectoryPins(rows, pilot);
+  fitDirectoryView(rows, pilot);
   if(!rows.length){
-    list.innerHTML = '<div class="list-status" role="status"><p>' + (q ? 'No licensed centers match that search.' : 'No licensed centers near ' + esc(near) + ' are in the directory yet.') + '</p>' + (q ? '' : '<p>This list is only the ' + esc(pilot.name) + ' pilot. Other bases stay in the menu.</p>') + '</div>';
+    const empty = q
+      ? 'No licensed centers match that search.'
+      : (jurisdiction
+        ? 'No ' + esc(document.getElementById('doorJurisdiction').selectedOptions[0].textContent) + ' records are in this directory extract. That is a coverage gap, not a finding that no providers exist.'
+        : 'No licensed centers are in the directory yet.');
+    list.innerHTML = '<div class="list-status" role="status"><p>' + empty + '</p></div>';
     return;
   }
   const saved = savedSlugs();
@@ -828,7 +918,9 @@ function renderDirectory(){
           '<div class="cl">' + esc(view.place) + (view.distanceLabel ? ' · ' + esc(view.distanceLabel) : '') + '</div></div>' +
         '<button type="button" class="heart nb-save-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '" aria-label="' + (savedNow ? 'Saved school' : 'Save school') + '" aria-pressed="' + (savedNow ? 'true' : 'false') + '">' + (savedNow ? '♥' : '♡') + '</button>' +
       '</div>' +
+      badgeHtml(view) +
       websiteButton(view.websiteHref) +
+      profileLink(view.id) +
       (view.addressLine ? '<p class="dir-address">' + esc(view.addressLine) + '</p>' : '') +
       (facts ? '<div class="dir-facts">' + facts + '</div>' : '') +
       '<button type="button" class="why-btn nb-track-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '">' + (onTracker(view.slug) ? 'On your tracker' : 'Add to tracker') + '</button>' +
@@ -872,11 +964,21 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();
 (function initMatch(){
   const params = new URLSearchParams(location.search);
   const saved = NearBaseMatch.loadProfile();
-  if(params.get('base') && NearBaseMatch.BASES.some(b=>b.id===params.get('base'))) saved.baseId = params.get('base');
+  const requestedBase = NearBaseDirectory.pilotFor(params.get('base'));
+  if(requestedBase) saved.baseId = requestedBase.baseId;
+  else if(params.get('base') && NearBaseMatch.BASES.some(b=>b.id===params.get('base'))) saved.baseId = params.get('base');
   fillMatchForm(saved);
+  const requestedJurisdiction = NearBaseDirectory.normalizeJurisdiction(params.get('jurisdiction'));
+  if(requestedJurisdiction) document.getElementById('doorJurisdiction').value = requestedJurisdiction;
   document.getElementById('matchBase').addEventListener('change', function(){ applyBase(this.value); });
   document.getElementById('mapBase').addEventListener('change', function(){ applyBase(this.value); });
   document.getElementById('doorBase').addEventListener('change', function(){ applyBase(this.value); });
+  document.getElementById('doorJurisdiction').addEventListener('change', function(){
+    pinKey = '';
+    fitKey = '';
+    syncUrl();
+    if(directoryActive()) renderDirectory();
+  });
   document.getElementById('homeForm').addEventListener('submit', function(e){
     e.preventDefault();
     applyBase(document.getElementById('doorBase').value);

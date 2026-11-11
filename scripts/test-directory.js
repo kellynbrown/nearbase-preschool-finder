@@ -73,7 +73,7 @@ check("cards keep license fields and skip blanks", function () {
   var full = directory.presentSchool(directory.normalizeSchool(row()), null, haversine);
   assert.strictEqual(full.place, "Fairfax County · Alexandria, VA");
   assert.strictEqual(full.addressLine, "8758 Richmond Highway, Alexandria, VA 22309");
-  assert.strictEqual(full.distanceLabel, "1.5 mi from Belvoir");
+  assert.strictEqual(full.distanceLabel, "1.5 straight-line mi from Belvoir");
   assert.ok(full.facts.some(function (fact) { return fact.text === "Capacity 92"; }));
   assert.ok(full.facts.some(function (fact) { return fact.text.indexOf("Ages ") === 0; }));
   assert.ok(full.facts.some(function (fact) { return fact.href === "tel:7033603668"; }));
@@ -95,7 +95,7 @@ check("home distance wins over the Belvoir distance", function () {
   var home = directory.distanceFor(school, { lat: 38.73, lng: -77.14 }, haversine);
   assert.strictEqual(home.from, "home");
   assert.ok(home.miles < 2);
-  assert.ok(/from home$/.test(home.label));
+  assert.ok(/straight-line mi from home$/.test(home.label));
 });
 
 check("sort is by distance and search does not invent a score", function () {
@@ -111,7 +111,7 @@ check("sort is by distance and search does not invent a score", function () {
   assert.strictEqual(directory.matchesQuery(near, ""), true);
 });
 
-check("pilot read filters fort-belvoir and follows pages", function () {
+check("directory read pages every school and does not filter by pilot_base", function () {
   var calls = [];
   function client(pages, failAt) {
     return {
@@ -137,9 +137,11 @@ check("pilot read filters fort-belvoir and follows pages", function () {
   return directory.fetchPilotSchools(client([first, second]), "belvoir").then(function (result) {
     assert.strictEqual(result.ok, true);
     assert.deepStrictEqual(result.schools.map(function (s) { return s.slug; }), ["a", "b"]);
-    assert.deepStrictEqual(calls[0].filters, [["pilot_base", "fort-belvoir"]]);
-    assert.strictEqual(calls[0].order[0], "distance_miles_to_belvoir");
+    assert.deepStrictEqual(calls[0].filters, []);
+    assert.strictEqual(calls[0].order[0], "id");
     assert.ok(calls[0].cols.indexOf("distance_miles_to_belvoir") !== -1);
+    assert.ok(calls[0].cols.indexOf("installation_distances_miles") !== -1);
+    assert.ok(calls[0].cols.indexOf("eligibility_evidence") === -1);
     assert.strictEqual(calls[0].to, 999);
     assert.ok(calls[0].cols.indexOf("ages_served") !== -1);
     assert.strictEqual(calls.length, 1);
@@ -184,11 +186,11 @@ check("pentagon distance column is used and does not borrow Belvoir miles", func
   var pentagon = directory.distanceFor(school, null, haversine, directory.pilotFor("pentagon"));
   assert.strictEqual(pentagon.miles, 4.2);
   assert.strictEqual(pentagon.from, "pentagon");
-  assert.strictEqual(pentagon.label, "4.2 mi from the Pentagon");
+  assert.strictEqual(pentagon.label, "4.2 straight-line mi from the Pentagon");
   var belvoir = directory.distanceFor(school, null, haversine, directory.pilotFor("belvoir"));
   assert.strictEqual(belvoir.miles, 1.54);
   assert.strictEqual(belvoir.from, "belvoir");
-  assert.strictEqual(belvoir.label, "1.5 mi from Belvoir");
+  assert.strictEqual(belvoir.label, "1.5 straight-line mi from Belvoir");
   var close = directory.normalizeSchool(row({ id: "close", name: "Close", lat: 38.872, lng: -77.056, distance_miles_to_belvoir: 20 }));
   var far = directory.normalizeSchool(row({ id: "far", name: "Far", lat: 38.7, lng: -77.15, distance_miles_to_belvoir: 1 }));
   var sorted = directory.sortSchools([far, close], null, haversine, directory.pilotFor("pentagon"));
@@ -210,7 +212,7 @@ check("haversine fallback uses the base point from NearBaseMatch.BASES", functio
   }
 });
 
-check("pentagon read filters pilot_base and falls back when the distance column is missing", function () {
+check("pentagon read does not filter pilot_base and falls back when the distance column is missing", function () {
   var calls = [];
   function client(failDistance) {
     return {
@@ -252,25 +254,25 @@ check("pentagon read filters pilot_base and falls back when the distance column 
     assert.strictEqual(result.ok, true);
     assert.strictEqual(result.schools[0].pilotBase, "pentagon");
     assert.strictEqual(result.schools[0].distanceMilesToPentagon, 1.1);
-    assert.deepStrictEqual(calls[0].filters, [["pilot_base", "pentagon"]]);
-    assert.strictEqual(calls[0].order[0], "distance_miles_to_pentagon");
+    assert.deepStrictEqual(calls[0].filters, []);
+    assert.strictEqual(calls[0].order[0], "id");
     assert.ok(calls[0].cols.indexOf("distance_miles_to_pentagon") !== -1);
     calls = [];
     return directory.fetchPilotSchools(client(false)).then(function (byDefault) {
       assert.strictEqual(byDefault.ok, true);
-      assert.deepStrictEqual(calls[0].filters, [["pilot_base", "pentagon"]]);
+      assert.deepStrictEqual(calls[0].filters, []);
       calls = [];
       return directory.fetchPilotSchools(client(true), "pentagon").then(function (fallback) {
         assert.strictEqual(fallback.ok, true);
         assert.strictEqual(fallback.schools[0].slug, "arlington-center");
         assert.strictEqual(calls.length, 2);
-        assert.strictEqual(calls[1].order[0], "name");
+        assert.strictEqual(calls[1].order[0], "id");
         assert.ok(calls[1].cols.indexOf("distance_miles_to_pentagon") === -1);
         var dist = directory.distanceFor(fallback.schools[0], null, haversine, directory.pilotFor("pentagon"));
         assert.strictEqual(dist.from, "base");
         assert.ok(dist.miles < 2);
         assert.ok(dist.miles !== 9);
-        assert.ok(/from the Pentagon$/.test(dist.label));
+        assert.ok(/straight-line mi from the Pentagon$/.test(dist.label));
       });
     });
   });
@@ -290,7 +292,7 @@ check("website is an http(s) link and never invented", function () {
   assert.strictEqual(blank.websiteHref, "");
 });
 
-check("a missing website column retries without dropping the pilot filter", function () {
+check("a missing website column retries without adding a pilot filter", function () {
   var calls = [];
   var sb = {
     from: function () {
@@ -301,7 +303,7 @@ check("a missing website column retries without dropping the pilot filter", func
         order: function (col, opts) { query.order = [col, opts]; return api; },
         range: function () {
           calls.push({ cols: query.cols, filters: query.filters.slice(), order: query.order[0] });
-          if (query.cols.indexOf("website") !== -1) {
+          if (/(^|,)website(,|$)/.test(query.cols)) {
             return Promise.resolve({ data: null, error: { code: "PGRST204", message: "Could not find the 'website' column of 'schools' in the schema cache" } });
           }
           return Promise.resolve({ data: [row({ id: "kept", name: "Kept", pilot_base: "pentagon" })], error: null });
@@ -315,10 +317,10 @@ check("a missing website column retries without dropping the pilot filter", func
     assert.strictEqual(result.schools[0].slug, "kept");
     assert.strictEqual(result.schools[0].website, "");
     assert.strictEqual(calls.length, 2);
-    assert.ok(calls[0].cols.indexOf("website") !== -1);
-    assert.ok(calls[1].cols.indexOf("website") === -1);
-    assert.deepStrictEqual(calls[1].filters, [["pilot_base", "pentagon"]]);
-    assert.strictEqual(calls[1].order, "distance_miles_to_pentagon");
+    assert.ok(/(^|,)website(,|$)/.test(calls[0].cols));
+    assert.ok(!/(^|,)website(,|$)/.test(calls[1].cols));
+    assert.deepStrictEqual(calls[1].filters, []);
+    assert.strictEqual(calls[1].order, "id");
   });
 });
 
@@ -370,7 +372,11 @@ check("find and home lead with the Pentagon and still load Belvoir by base", fun
   assert.ok(html.indexOf("fetchPilotSchools(sb, baseId)") !== -1);
   assert.ok(html.indexOf("pilotFor") !== -1);
   assert.ok(html.indexOf("Pentagon pilot") !== -1);
-  assert.ok(html.indexOf("Schools from another base are not shown here.") !== -1);
+  assert.ok(html.indexOf("Schools from another base are not shown here.") === -1);
+  assert.ok(html.indexOf("doorJurisdiction") !== -1);
+  assert.ok(html.indexOf("Evidence profile") !== -1);
+  assert.ok(html.indexOf("Quality pathway documented is not MCCYN approval") !== -1);
+  assert.ok(html.indexOf("profile.html") !== -1);
   assert.ok(html.indexOf("No Fort Belvoir licensed centers") === -1);
   assert.ok(html.indexOf("Visit website") !== -1);
   assert.ok(html.indexOf('rel="noopener noreferrer"') !== -1);
