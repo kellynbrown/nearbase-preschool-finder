@@ -10,16 +10,22 @@
   var QUIZ_KEY = "nb_quiz_votes";
 
   // Map pins and the match use the same coordinates.
-  // Fort Belvoir is the first pilot base, so it leads the list and the default profile.
+  // The Pentagon is the primary pilot, so it leads the list and the default profile.
+  // Fort Belvoir stays in the list as another base.
   var BASES = [
-    { id: "belvoir", name: "Fort Belvoir", lat: 38.71, lng: -77.15, kind: "installation" },
     { id: "pentagon", name: "Pentagon", lat: 38.872, lng: -77.056, kind: "installation" },
+    { id: "belvoir", name: "Fort Belvoir", lat: 38.71, lng: -77.15, kind: "installation" },
     { id: "jbab", name: "Joint Base Anacostia-Bolling", lat: 38.843, lng: -77.016, kind: "installation" },
     { id: "andrews", name: "Joint Base Andrews", lat: 38.812, lng: -76.867, kind: "installation" },
     { id: "meade", name: "Fort Meade", lat: 39.108, lng: -76.771, kind: "installation" },
     { id: "usna", name: "Naval Academy / Annapolis", lat: 38.975, lng: -76.49, kind: "installation" },
     { id: "quantico", name: "MCB Quantico", lat: 38.524, lng: -77.303, kind: "installation" },
     { id: "navyyard", name: "Navy Yard", lat: 38.876, lng: -77.003, kind: "installation" },
+    { id: "fort-myer", name: "Fort Myer", lat: 38.8804, lng: -77.0794, kind: "installation" },
+    { id: "nsa-bethesda", name: "NSA Bethesda", lat: 39.0016, lng: -77.093, kind: "installation" },
+    { id: "fort-detrick", name: "Fort Detrick", lat: 39.438, lng: -77.426, kind: "installation" },
+    { id: "fort-mcnair", name: "Fort McNair", lat: 38.8652, lng: -77.0151, kind: "installation" },
+    { id: "coast-guard-hq", name: "Coast Guard HQ", lat: 38.8554, lng: -76.9973, kind: "installation" },
     { id: "culmore", name: "Culmore / Bailey's Crossroads", lat: 38.856, lng: -77.128, kind: "area" },
     { id: "germantown", name: "Germantown / Rockville", lat: 39.16, lng: -77.0, kind: "area" },
     { id: "reston", name: "Reston / Herndon", lat: 38.95, lng: -77.33, kind: "area" }
@@ -40,7 +46,7 @@
 
   function defaultProfile() {
     return {
-      baseId: "belvoir",
+      baseId: "pentagon",
       ages: [],
       philosophies: [],
       hours: "any",
@@ -290,10 +296,28 @@
     return hh * 60 + mm;
   }
 
+  function clockText(text) {
+    return normText(text)
+      .replace(/\b([ap])\s*\.?\s*m\.?/gi, "$1m")
+      .replace(/(\d{1,2}):(\d)(?!\d)/g, function (_m, hour, minute) { return hour + ":0" + minute; })
+      .replace(/(\d{1,2}:\d{2}):\d{2}/g, "$1");
+  }
+
   function parseHours(text) {
-    var src = normText(text);
+    var src = clockText(text);
     var half = /half-?\s*day|part-?\s*day/i.test(src);
-    var range = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i.exec(src);
+    var range = null;
+    var rangeRe = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/ig;
+    var candidate;
+    while ((candidate = rangeRe.exec(src))) {
+      var hasMeridiem = !!(candidate[3] || candidate[6]);
+      var hasMinutes = !!(candidate[2] || candidate[5]);
+      var hour24 = Number(candidate[1]) >= 13 || Number(candidate[4]) >= 13;
+      if (hasMeridiem || hasMinutes || hour24) {
+        range = candidate;
+        break;
+      }
+    }
     var open = null;
     var close = null;
     var evidence = "";
@@ -324,6 +348,68 @@
     var h = h24 % 12;
     if (h === 0) h = 12;
     return h + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "") + ap;
+  }
+
+  function listingAge(school) {
+    var direct = parseAge([school && school.agesServed, school && school.ages_served].filter(Boolean).join(" "));
+    if (direct.known) return direct;
+    return readSignals(school || {}).age;
+  }
+
+  function listingHours(school) {
+    var direct = parseHours(school && (school.hours || school.hours_served || ""));
+    if (direct.known) return direct;
+    return readSignals(school || {}).hours;
+  }
+
+  function servesChildMonths(bounds, months) {
+    if (!bounds || !bounds.known) return null;
+    if (bounds.min == null && bounds.max == null) return null;
+    var lo = bounds.min == null ? 0 : bounds.min;
+    var hi = bounds.max == null ? 216 : bounds.max;
+    return months >= lo && months <= hi;
+  }
+
+  function ageFilterStatus(school, ages, childMonths) {
+    var wanted = asArray(ages);
+    var months = childMonths === "" || childMonths == null ? null : Number(childMonths);
+    var hasMonths = months != null && isFinite(months);
+    if (!wanted.length && !hasMonths) return "na";
+    var bounds = listingAge(school);
+    if (!bounds.known) return "unknown";
+    if (hasMonths) {
+      var covered = servesChildMonths(bounds, months);
+      if (covered == null) return "unknown";
+      if (!covered) return "miss";
+    }
+    for (var i = 0; i < wanted.length; i++) {
+      var hit = ageCovers(bounds, wanted[i]);
+      if (hit === false) return "miss";
+      if (hit == null) return "unknown";
+    }
+    return "fit";
+  }
+
+  // "Open by 6:30" means the listed open is 6:30am or earlier. 7:00am is not a fit.
+  function hoursFilterStatus(school, hoursNeed) {
+    if (!hoursNeed || hoursNeed === "any") return "na";
+    var hours = listingHours(school);
+    if (!hours.known) return "unknown";
+    if (hoursNeed === "half") return "fit";
+    if (hours.half) return "miss";
+    if (hours.open == null) return "unknown";
+    if (hoursNeed === "early") return hours.open <= 390 ? "fit" : "miss";
+    if (hoursNeed === "duty") {
+      if (hours.open > 450) return "miss";
+      if (hours.close != null && hours.close < 1080) return "miss";
+      return "fit";
+    }
+    if (hoursNeed === "school") {
+      if (hours.open > 510) return "miss";
+      if (hours.close != null && hours.close < 900) return "miss";
+      return "fit";
+    }
+    return "fit";
   }
 
   function readSignals(school) {
@@ -804,6 +890,12 @@
     withQuiz: withQuiz,
     haversineMiles: haversineMiles,
     readSignals: readSignals,
+    parseAge: parseAge,
+    parseHours: parseHours,
+    listingAge: listingAge,
+    listingHours: listingHours,
+    ageFilterStatus: ageFilterStatus,
+    hoursFilterStatus: hoursFilterStatus,
     weightsFor: weightsFor,
     scoreSchool: scoreSchool,
     rankSchools: rankSchools,

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>My tours — NearBase</title>
+<meta name="description" content="Private tour notes, openings reports, and must-haves for your NearBase account.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,300&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#1D9E75;--dark:#085041;--mid:#0F6E56;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--cream:#F8FAF8}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.5}
+a{color:var(--mid)}
+header{background:var(--dark);color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.logo{font-family:Fraunces,serif;font-size:1.25rem;font-weight:600;color:#fff;text-decoration:none}
+.logo span{color:var(--g)}
+header nav{display:flex;gap:1rem;flex-wrap:wrap}
+header nav a{color:rgba(255,255,255,.86);font-size:.85rem;text-decoration:none}
+main{max-width:820px;margin:0 auto;padding:1.4rem 1rem 3rem}
+h1{font-family:Fraunces,serif;font-weight:600;color:var(--dark);font-size:2rem;line-height:1.15}
+h1 em{font-style:italic;font-weight:300;color:var(--g)}
+.lead{color:var(--muted);margin:.35rem 0 1rem}
+.card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem 1.1rem;margin:.85rem 0}
+.card h2{font-family:Fraunces,serif;color:var(--dark);font-size:1.2rem;margin-bottom:.25rem}
+.muted,.fine{color:var(--muted);font-size:.82rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem .75rem;margin-top:.7rem}
+label{display:flex;flex-direction:column;gap:.2rem;font-size:.75rem;color:var(--muted)}
+.span-2{grid-column:1 / -1}
+input,select,textarea{font:inherit;color:var(--text);background:#fff;border:1px solid var(--border);border-radius:10px;padding:.5rem .65rem;width:100%}
+textarea{min-height:72px}
+.btn{background:var(--g);color:#fff;border:none;border-radius:100px;padding:.55rem 1rem;font:inherit;font-size:.85rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex}
+.btn.ghost{background:#fff;color:var(--dark);border:1px solid var(--border)}
+.actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+.check{flex-direction:row;align-items:flex-start;gap:.45rem;color:var(--text);font-size:.84rem}
+.check input{width:auto;margin-top:.2rem}
+.banner{background:var(--light);border-radius:12px;padding:.75rem .85rem;color:var(--dark);font-size:.88rem}
+.banner strong{display:block}
+.status{font-size:.84rem;color:var(--mid);margin-top:.55rem}
+.flag{background:#FAEEDA;color:#633806;border-radius:10px;padding:.55rem .7rem;font-size:.8rem;margin-top:.55rem}
+.results{display:flex;flex-direction:column;gap:.25rem;margin-top:.35rem}
+.results button{text-align:left;background:#fff;border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem;font:inherit;cursor:pointer}
+.results button span{display:block;color:var(--muted);font-size:.72rem}
+.tour{border-top:1px solid var(--border);padding-top:.75rem;margin-top:.75rem}
+.tour h3{font-family:Fraunces,serif;color:var(--dark);font-size:1rem}
+.pill{display:inline-block;background:var(--light);color:var(--dark);border-radius:100px;padding:.1rem .55rem;font-size:.72rem;font-weight:500;margin-right:.25rem}
+.follow{display:grid;grid-template-columns:1.4fr .8fr .7fr .6fr;gap:.4rem;margin-top:.4rem}
+.pref-diff{margin:.4rem 0 0 1rem}
+.pref-diff li{margin:.25rem 0}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+@media(max-width:700px){
+  h1{font-size:1.6rem}
+  .grid,.follow{grid-template-columns:1fr}
+  .span-2{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">Near<span>Base</span></a>
+  <nav>
+    <a href="find.html">Find schools</a>
+    <a href="compare.html">Compare</a>
+    <a href="account.html">Account</a>
+  </nav>
+</header>
+<main>
+  <h1>My <em>tours</em></h1>
+  <p class="lead">Private notes from schools you visit. A checked opt-in only marks a log for a future anonymized insight. The raw log stays on your account.</p>
+  <div class="banner" id="authBanner"><strong>Sign in to save.</strong> You can read the form first. Nothing is stored until you are signed in.</div>
+  <form id="magicForm" class="card">
+    <h2>Email me a sign-in link</h2>
+    <p class="muted">No password. The link brings you back to this page.</p>
+    <div class="actions">
+      <label class="span-2">Email
+        <input id="magicEmail" type="email" required autocomplete="email" placeholder="you@example.com">
+      </label>
+      <button class="btn" type="submit">Send link</button>
+    </div>
+    <p class="status" id="magicStatus" role="status"></p>
+  </form>
+
+  <form id="tourForm" class="card" data-family-write="tour">
+    <h2>Tour log</h2>
+    <p class="muted">Loves, concerns, the infant checklist, cost, staff impressions, and a follow-up with a role and a due date. Leave names and phone numbers out.</p>
+    <div class="grid">
+      <label class="span-2">School
+        <input id="tourSchoolSearch" type="search" autocomplete="off" placeholder="Search the directory" aria-controls="tourSchoolList">
+      </label>
+      <div class="results span-2" id="tourSchoolList"></div>
+      <input id="tourSchoolId" type="hidden">
+      <p class="muted span-2" id="tourSchoolLabel"></p>
+      <label>Visit date
+        <input id="visitedOn" type="date" required>
+      </label>
+      <label>Rating
+        <select id="rating" aria-label="Rating">
+          <option value="">No rating yet</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </label>
+      <label>Would enroll
+        <select id="wouldEnroll">
+          <option value="">Not decided</option>
+          <option value="yes">Yes</option>
+          <option value="maybe">Maybe</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+      <label>Photo permission
+        <select id="photoPermission"></select>
+      </label>
+      <label class="span-2">Loves, one per line
+        <textarea id="likes" placeholder="What you want to remember"></textarea>
+      </label>
+      <label class="span-2">Concerns, one per line
+        <textarea id="dislikes" placeholder="What you want to ask about later"></textarea>
+      </label>
+    </div>
+    <h2 style="margin-top:1rem">Infant checklist</h2>
+    <div class="grid" id="checklist"></div>
+    <div class="grid">
+      <label>Quoted cost
+        <input id="quotedCost" inputmode="decimal" placeholder="Leave blank if pending">
+      </label>
+      <label>Cost period
+        <select id="quotedCostPeriod">
+          <option value="">Pending</option>
+          <option value="hour">Hour</option>
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+          <option value="year">Year</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="span-2">Cost notes
+        <textarea id="costNotes" placeholder="What the quote includes. Do not upload a cost sheet here."></textarea>
+      </label>
+      <label class="span-2">Waitlist / openings you heard
+        <textarea id="waitlist" placeholder="Not asked is a valid note. Who to call can go in a follow-up, by role."></textarea>
+      </label>
+      <label class="span-2">Staff interactions
+        <textarea id="staffNotes" placeholder="What you noticed. No staff names."></textarea>
+      </label>
+      <label class="span-2">Other private notes
+        <textarea id="notes"></textarea>
+      </label>
+      <label class="span-2">Must-haves this tour suggests
+        <textarea id="suggestedMustHaves" placeholder="One per line. These are not applied until you preview them below."></textarea>
+      </label>
+    </div>
+    <h2 style="margin-top:1rem">Follow-ups</h2>
+    <p class="muted">Each follow-up needs a task, a contact role, and a due date.</p>
+    <div id="followUps"></div>
+    <div class="actions"><button class="btn ghost" id="addFollowUp" type="button">Add a follow-up</button></div>
+    <label class="check" style="margin-top:.8rem">
+      <input id="sharePublicly" type="checkbox">
+      <span>Opt in to a future anonymized insight. NearBase will not publish this log, staff notes, costs, or your name, even if this is checked.</span>
+    </label>
+    <div class="actions">
+      <button class="btn" type="submit" id="saveTour">Save tour</button>
+      <button class="btn ghost" type="button" id="resetTour">Clear form</button>
+    </div>
+    <p class="status" id="tourStatus" role="status"></p>
+  </form>
+
+  <section class="card" id="savedTours">
+    <h2>Saved on this account</h2>
+    <div id="tourList"><p class="muted">Sign in to see your tours.</p></div>
+  </section>
+
+  <form id="openingForm" class="card" data-family-write="opening">
+    <h2>Openings report</h2>
+    <p class="muted">Age room, earliest start, waitlist status, source, and the date you observed it. Family reports stay unconfirmed unless a provider later confirms them. This source is recorded as a family tour.</p>
+    <div class="grid">
+      <label class="span-2">School
+        <input id="openingSchoolSearch" type="search" autocomplete="off" placeholder="Search the directory">
+      </label>
+      <div class="results span-2" id="openingSchoolList"></div>
+      <input id="openingSchoolId" type="hidden">
+      <p class="muted span-2" id="openingSchoolLabel"></p>
+      <label>Age room
+        <input id="ageRoom" placeholder="Infant">
+      </label>
+      <label>Waitlist status
+        <select id="openingStatus">
+          <option value="unknown">Not asked / unknown</option>
+          <option value="openings">Openings</option>
+          <option value="waitlist">Waitlist</option>
+          <option value="no_openings">No openings</option>
+        </select>
+      </label>
+      <label>Youngest age, months
+        <input id="ageMin" inputmode="numeric">
+      </label>
+      <label>Oldest age, months
+        <input id="ageMax" inputmode="numeric">
+      </label>
+      <label>Places, if you were told a number
+        <input id="places" inputmode="numeric">
+      </label>
+      <label>Earliest start
+        <input id="opensOn" type="date">
+      </label>
+      <label>Date observed
+        <input id="observedOn" type="date" required>
+      </label>
+      <label>Waitlist note
+        <input id="waitlistEstimate" placeholder="Optional. No phone numbers.">
+      </label>
+      <label class="span-2">Note that can become public after review
+        <textarea id="publicNote" placeholder="No names and no phone numbers."></textarea>
+      </label>
+      <label class="check span-2">
+        <input id="adultAttested" type="checkbox">
+        <span>I am recording my own observation. I am not submitting someone else’s screen or a child’s information.</span>
+      </label>
+    </div>
+    <div class="actions"><button class="btn" type="submit">Save openings report</button></div>
+    <p class="status" id="openingStatusLine" role="status"></p>
+    <div id="openingList"></div>
+  </form>
+
+  <form id="prefForm" class="card" data-family-write="preferences">
+    <h2>Must-haves</h2>
+    <p class="muted">These save to your private family preferences. They do not replace the older match settings on Find or in the original preferences table. Preview the change, then save.</p>
+    <div class="grid">
+      <label class="span-2">Installations, one per line
+        <textarea id="prefInstallations" placeholder="pentagon"></textarea>
+      </label>
+      <fieldset class="span-2" style="border:0;padding:0">
+        <legend class="muted">Jurisdictions</legend>
+        <label class="check"><input type="checkbox" name="jurisdiction" value="VA"> Virginia</label>
+        <label class="check"><input type="checkbox" name="jurisdiction" value="DC"> DC</label>
+        <label class="check"><input type="checkbox" name="jurisdiction" value="MD"> Maryland</label>
+      </fieldset>
+      <label>Age rooms, one per line
+        <textarea id="prefAges" placeholder="infant"></textarea>
+      </label>
+      <label>Visual interests, one per line
+        <textarea id="prefVisual" placeholder="outdoor infant space"></textarea>
+      </label>
+      <label class="span-2">Must-haves, one per line
+        <textarea id="prefMust"></textarea>
+      </label>
+      <label class="span-2">Deal-breakers, one per line
+        <textarea id="prefDeal"></textarea>
+      </label>
+      <label>Budget
+        <input id="prefBudget" inputmode="decimal">
+      </label>
+      <label>Budget period
+        <select id="prefBudgetPeriod">
+          <option value="">None</option>
+          <option value="hour">Hour</option>
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+          <option value="year">Year</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label>Commute cap, minutes
+        <input id="prefCommute" inputmode="numeric" placeholder="Saved only. Not a drive time.">
+      </label>
+      <label>Target start
+        <input id="prefStart" type="month">
+      </label>
+      <label class="span-2">Care schedule
+        <input id="prefHours" placeholder="Hours you need">
+      </label>
+      <label class="check span-2">
+        <input id="applyTourLearning" type="checkbox">
+        <span>Show must-have suggestions from my private tours. They are added here only if I put them in the list and save after a preview.</span>
+      </label>
+    </div>
+    <div id="suggestions"></div>
+    <div id="prefPreview"></div>
+    <div class="actions">
+      <button class="btn ghost" id="previewPrefs" type="button">Preview changes</button>
+      <button class="btn" id="savePrefs" type="submit">Save preferences</button>
+    </div>
+    <p class="status" id="prefStatus" role="status"></p>
+  </form>
+</main>
+<script src="family-loop.js"></script>
+<script src="match.js"></script>
+<script src="directory.js"></script>
+<script src="billing-config.js"></script>
+<script src="account.js"></script>
+<script src="my-tours.js"></script>
+</body>
+</html>

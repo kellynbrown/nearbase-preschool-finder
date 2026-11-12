@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NearBase Beta — Schools near your home and base</title>
-<meta name="description" content="Fort Belvoir pilot. Enter your military base and home address to see recommended preschools on a map and a list.">
+<title>NearBase Beta — Infant and preschool care near your base</title>
+<meta name="description" content="Pentagon pilot. Infant and preschool care near your base. A home address is optional.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://nearbase.net/">
 <meta property="og:site_name" content="NearBase">
 <meta property="og:type" content="website">
 <meta property="og:title" content="NearBase Beta — Schools near your home and base">
-<meta property="og:description" content="Fort Belvoir pilot. Enter your military base and home address to see recommended preschools on a map and a list.">
+<meta property="og:description" content="Pentagon pilot. Fort Belvoir is also available. Enter your military base and home address to see recommended preschools on a map and a list.">
 <meta property="og:url" content="https://nearbase.net/">
 <meta property="og:image" content="https://nearbase.net/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -82,6 +82,7 @@ footer a:hover{color:var(--dark)}
     </span>
     <div class="nbv3-links">
       <a href="find.html">Find schools</a>
+      <a href="my-tours.html">My tours</a>
       <a href="rankings.html">Rankings</a>
       <a href="families.html">For families</a>
       <a href="premium.html">Premium</a>
@@ -93,6 +94,7 @@ footer a:hover{color:var(--dark)}
   </div>
   <div class="nbv3-mobile">
     <a href="find.html">Find schools</a>
+    <a href="my-tours.html">My tours</a>
     <a href="rankings.html">Rankings</a>
     <a href="families.html">For families</a>
     <a href="premium.html">Premium</a>
@@ -102,23 +104,24 @@ footer a:hover{color:var(--dark)}
   </div>
 </nav>
 <main id="door">
-  <p class="eyebrow">Fort Belvoir pilot</p>
-  <h1>See preschools near your home and your base.</h1>
-  <p class="lede">Enter both. You’ll get a map and a list of schools already in the directory, closest to where you live.</p>
+  <p class="eyebrow">Pentagon pilot</p>
+  <h1>See infant &amp; preschool care near your base.</h1>
+  <p class="lede">Pick a base to see the live directory. A home address is optional. If you add one later, the list can sort toward home.</p>
   <form action="find.html" method="get">
     <div class="fields">
       <label>Military base
         <select name="base" id="base" required>
-          <option value="belvoir" selected>Fort Belvoir</option>
+          <option value="pentagon" selected>Pentagon</option>
         </select>
       </label>
       <label>Home address
-        <input name="home" required autocomplete="street-address" placeholder="9500 Richmond Hwy, Lorton, VA" aria-label="Home address">
+        <input name="home" autocomplete="street-address" placeholder="Home address, optional" aria-label="Home address, optional">
       </label>
     </div>
-    <button type="submit">See schools</button>
+    <button type="submit">See infant &amp; preschool care</button>
   </form>
-  <p class="note">Fort Belvoir is the first base. Other bases already in the directory are in the list.</p>
+  <p class="note">The Pentagon is the pilot focus. Fort Belvoir and the other bases stay in the list.</p>
+  <p class="note">Virginia, DC, and Maryland filter the live directory. Distances are straight-line miles, not military fee-assistance approval.</p>
 </main>
 <footer>
   <a href="find.html">Find schools</a>
@@ -126,14 +129,30 @@ footer a:hover{color:var(--dark)}
   <a href="mailto:kelly@nearbase.net">kelly@nearbase.net</a>
 </footer>
 <script src="match.js"></script>
+<script src="directory.js"></script>
 <script>
 (function () {
   var sel = document.getElementById("base");
   if (!sel || !window.NearBaseMatch) return;
-  sel.innerHTML = NearBaseMatch.BASES.map(function (base) {
-    return '<option value="' + base.id + '">' + NearBaseMatch.esc(base.name) + "</option>";
-  }).join("");
-  sel.value = "belvoir";
+  var bases = (window.NearBaseDirectory && NearBaseDirectory.selectorBases)
+    ? NearBaseDirectory.selectorBases(NearBaseMatch.BASES)
+    : NearBaseMatch.BASES.map(function (base) { return { value: base.id, label: base.name, group: "" }; });
+  var html = "";
+  var group = null;
+  bases.forEach(function (base) {
+    var value = base.value || base.id;
+    var label = base.label || base.name;
+    var nextGroup = base.group || "";
+    if (nextGroup !== group) {
+      if (group) html += "</optgroup>";
+      group = nextGroup;
+      if (group) html += '<optgroup label="' + NearBaseMatch.esc(group) + '">';
+    }
+    html += '<option value="' + NearBaseMatch.esc(value) + '">' + NearBaseMatch.esc(label) + "</option>";
+  });
+  if (group) html += "</optgroup>";
+  sel.innerHTML = html;
+  sel.value = "pentagon";
 })();
 </script>
 </body>

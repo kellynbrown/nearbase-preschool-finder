@@ -295,10 +295,15 @@ check("parent disagreements come from saved votes only", function () {
   assert.deepStrictEqual(match.voteDisagreements({ montessori: 2 }, { montessori: 2 }), []);
 });
 
-check("Fort Belvoir is the pilot default base", function () {
-  assert.strictEqual(match.defaultProfile().baseId, "belvoir");
-  assert.strictEqual(match.BASES[0].id, "belvoir");
-  assert.strictEqual(match.BASES[0].name, "Fort Belvoir");
+check("the Pentagon is the pilot default base", function () {
+  assert.strictEqual(match.defaultProfile().baseId, "pentagon");
+  assert.strictEqual(match.BASES[0].id, "pentagon");
+  assert.strictEqual(match.BASES[0].name, "Pentagon");
+  assert.strictEqual(match.BASES[0].lat, 38.872);
+  assert.strictEqual(match.BASES[0].lng, -77.056);
+  var belvoir = match.BASES.filter(function (b) { return b.id === "belvoir"; })[0];
+  assert.ok(belvoir);
+  assert.strictEqual(belvoir.name, "Fort Belvoir");
 });
 
 check("find map keeps Esri light gray canvas tiles", function () {
@@ -327,6 +332,41 @@ check("mission, about, and director pages stay off menus", function () {
   });
   ["about.html", "mission.html", "schools.html"].forEach(function (name) {
     assert.ok(fs.existsSync(path.join(root, "site", name)), name);
+  });
+});
+
+check("a six-month-old is not a fit for a program that starts at age 2, and 7am is not open by 6:30", function () {
+  var infant = { agesServed: "3 months–6 years 11 months", hours: "7:30 AM–5:30 PM" };
+  var older = { agesServed: "2 years - 5 years", hours: "6:00 AM-6:00 PM" };
+  var seven = { agesServed: "6 weeks - 5 years", hours: "7:00 AM-6:00 PM" };
+  var unknown = { agesServed: "", hours: "" };
+  assert.strictEqual(match.ageFilterStatus(infant, [], 6), "fit");
+  assert.strictEqual(match.ageFilterStatus(older, ["infant"], 6), "miss");
+  assert.strictEqual(match.ageFilterStatus(unknown, ["infant"], 6), "unknown");
+  assert.strictEqual(match.hoursFilterStatus(seven, "early"), "miss");
+  assert.strictEqual(match.hoursFilterStatus(infant, "early"), "miss");
+  assert.strictEqual(match.hoursFilterStatus({ hours: "6:00 AM-6:00 PM" }, "early"), "fit");
+  assert.strictEqual(match.hoursFilterStatus(unknown, "early"), "unknown");
+  var age = match.parseAge("3 months–6 years 11 months");
+  assert.strictEqual(age.known, true);
+  assert.ok(age.min <= 6 && (age.max == null || age.max >= 6));
+  var samples = [
+    ["6:30am - 6:0pm, Monday - Friday", 390, "fit"],
+    ["6:30 a.m. - 6:00 p.m., Monday - Friday", 390, "fit"],
+    ["6:30 A.M. - 6:00 P.M., Monday - Friday", 390, "fit"],
+    ["7:00 a.m. - 6:00 p.m., Monday - Friday", 420, "miss"],
+    ["Monday;Tuesday;Wednesday;Thursday;Friday 07:00:00–18:00:00", 420, "miss"],
+    ["Monday;Tuesday;Wednesday;Thursday;Friday 06:30:00–18:30:00", 390, "fit"],
+    ["7:30 AM–5:30 PM Monday–Friday", 450, "miss"],
+    ["Monday 07:00 AM-06:00 PM; Tuesday 07:00 AM-06:00 PM", 420, "miss"],
+    ["8:00 - 6:00, Monday - Friday", 480, "miss"],
+    ["Ages 2-5, 6:30 a.m. - 6:00 p.m.", 390, "fit"]
+  ];
+  samples.forEach(function (sample) {
+    var parsed = match.parseHours(sample[0]);
+    assert.strictEqual(parsed.known, true, sample[0]);
+    assert.strictEqual(parsed.open, sample[1], sample[0]);
+    assert.strictEqual(match.hoursFilterStatus({ hours: sample[0] }, "early"), sample[2], sample[0]);
   });
 });
 

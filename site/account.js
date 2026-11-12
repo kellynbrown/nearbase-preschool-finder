@@ -391,12 +391,16 @@
       });
   }
 
-  function sendMagicLink(email) {
+  function sendMagicLink(email, redirectPath) {
+    var path = "/account.html";
+    if (typeof redirectPath === "string" && /^\/[A-Za-z0-9._/-]+$/.test(redirectPath) && redirectPath.indexOf("..") === -1) {
+      path = redirectPath;
+    }
     return client().then(function (sb) {
       if (!sb) return { ok: false, reason: "Sign-in is not turned on yet." };
       return sb.auth.signInWithOtp({
         email: email,
-        options: { emailRedirectTo: window.location.origin + "/account.html" }
+        options: { emailRedirectTo: window.location.origin + path }
       }).then(function (result) {
         if (result.error) return { ok: false, reason: result.error.message };
         return { ok: true };
