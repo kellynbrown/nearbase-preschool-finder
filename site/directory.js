@@ -48,7 +48,9 @@
     DOD_RECOGNIZED_AMS_ACCREDITATION: "AMS accreditation is the documented pathway. Membership or an affiliated-only listing is not accreditation.",
     DOD_RECOGNIZED_NAEYC_ACCREDITATION: "NAEYC accreditation is the documented pathway.",
     DOD_RECOGNIZED_NAC_ACCREDITATION: "NAC accreditation is the documented pathway.",
-    DOD_RECOGNIZED_NECPA_ACCREDITATION: "NECPA accreditation is the documented pathway."
+    DOD_RECOGNIZED_NECPA_ACCREDITATION: "NECPA accreditation is the documented pathway.",
+    CCA_MCCYN_LIST_ACCREDITED_PLUS: "Presence on the official Child Care Aware MCCYN list as Accredited / MCCYN Plus is documented. That is not family approval or guaranteed fee assistance.",
+    CCA_MCCYN_LIST_PARTICIPATING: "Presence on the official Child Care Aware MCCYN list as Participating is documented. That is not family approval or guaranteed fee assistance."
   };
 
   var SOURCE_LABELS = {
@@ -74,6 +76,8 @@
     "license_type", "license_status", "capacity", "ages_served",
     "hours", "locality", "pilot_base"
   ];
+  // cca_listed_website is a CCA URL that did not verify as this campus's site.
+  // It is intentionally not selected and must never become a Visit website href.
   var LIST_OPTIONAL = [
     "website",
     "distance_miles_to_pentagon",
@@ -86,7 +90,9 @@
     "installation_distances_miles",
     "website_verified_at",
     "verification_at",
-    "source_license_id"
+    "source_license_id",
+    "website_status",
+    "cca_mccyn_tier"
   ];
 
   var CONFIG_MESSAGE = "The school directory isn’t connected. This site needs the existing Supabase URL and anon key (Netlify SUPABASE_URL and SUPABASE_ANON_KEY, or window.NB_CONFIG). The list stays empty until then, and the rest of the page still works.";
@@ -267,6 +273,8 @@
       locality: text(row.locality),
       pilotBase: text(row.pilot_base).toLowerCase(),
       website: websiteHref(row.website),
+      websiteStatus: websiteStatus(row.website_status),
+      ccaMccynTier: ccaTier(row.cca_mccyn_tier),
       jurisdiction: text(row.jurisdiction),
       jurisdictionCode: "",
       eligibilityPath: text(row.eligibility_path),
@@ -336,7 +344,8 @@
       "website", "phone", "address", "city", "state", "zip", "locality", "jurisdiction",
       "eligibilityPath", "accreditation", "qualityRating", "nearestInstallation", "pilotBase",
       "licenseId", "licenseType", "licenseStatus", "agesServed", "hours",
-      "websiteVerifiedAt", "verificationAt", "googlePlaceId", "instagramUrl", "facebookUrl"
+      "websiteVerifiedAt", "verificationAt", "googlePlaceId", "instagramUrl", "facebookUrl",
+      "websiteStatus", "ccaMccynTier"
     ].forEach(function (field) {
       if ((target[field] == null || target[field] === "") && extra[field]) target[field] = extra[field];
     });
@@ -416,6 +425,34 @@
     var compactPhone = String(phone || "").replace(/[^\d+]/g, "");
     return compactPhone.length >= 7 ? "tel:" + compactPhone : "";
   }
+
+  function websiteStatus(value) {
+    var status = text(value);
+    if (status === "verified" || status === "coming_soon" || status === "unverified_listed") return status;
+    return "";
+  }
+
+  function ccaTier(value) {
+    var tier = text(value);
+    if (tier === "accredited_plus" || tier === "participating") return tier;
+    return "";
+  }
+
+  function mccynListBadge(tier) {
+    if (tier === "accredited_plus") {
+      return { label: "On Child Care Aware MCCYN list", tier: "Accredited / MCCYN Plus" };
+    }
+    if (tier === "participating") {
+      return { label: "On Child Care Aware MCCYN list", tier: "Participating" };
+    }
+    return null;
+  }
+
+  function approximateLocation(school) {
+    return !!(school && !text(school.address) && school.lat != null && school.lng != null);
+  }
+
+  var APPROXIMATE_NOTE = "Approximate location. No street address is stored, so this pin is not a door.";
 
   function websiteHref(value) {
     var raw = text(value);
@@ -639,6 +676,11 @@
       distanceLabel: dist.label,
       milesShort: dist.miles == null ? "—" : dist.miles.toFixed(1),
       websiteHref: websiteHref(school.website),
+      websiteStatus: websiteStatus(school.websiteStatus),
+      comingSoon: !websiteHref(school.website),
+      ccaBadge: mccynListBadge(ccaTier(school.ccaMccynTier)),
+      approximate: approximateLocation(school),
+      approximateNote: approximateLocation(school) ? APPROXIMATE_NOTE : "",
       badge: badge,
       facts: facts
     };
@@ -867,6 +909,9 @@
     evidenceHtml: evidenceHtml,
     escHtml: escHtml,
     websiteHref: websiteHref,
+    websiteStatus: websiteStatus,
+    mccynListBadge: mccynListBadge,
+    APPROXIMATE_NOTE: APPROXIMATE_NOTE,
     fetchDirectorySchools: fetchDirectorySchools,
     fetchPilotSchools: fetchPilotSchools,
     fetchSchoolProfile: fetchSchoolProfile

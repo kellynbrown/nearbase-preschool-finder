@@ -59,6 +59,8 @@ h1{font-family:Fraunces,serif;font-weight:600;color:var(--dark);font-size:2rem;l
 .actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0 1rem}
 .btn{display:inline-block;background:var(--g);color:#fff;text-decoration:none;border-radius:100px;padding:.55rem 1rem;font-size:.85rem;font-weight:500}
 .btn.ghost{background:#fff;color:var(--dark);border:1px solid var(--g)}
+.coming-soon{background:#fff;color:var(--muted);border:1px solid var(--border);cursor:default}
+.bdg-cca{background:#E6F1FB;color:#0C447C}
 .card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:1rem 1.1rem;margin-top:.8rem}
 .card h2,.nb-evidence h3{font-family:Fraunces,serif;color:var(--dark);font-size:1.15rem;margin-bottom:.45rem}
 .nb-evidence h3{margin-top:1rem}
@@ -93,6 +95,7 @@ code{font-size:.82rem}
   <div class="honest" id="honest">Quality pathway documented is not MCCYN enrollment, approval, or guaranteed family funding.</div>
   <div class="actions">
     <a class="btn" id="visit" href="" target="_blank" rel="noopener noreferrer" hidden>Visit website</a>
+    <span class="btn ghost coming-soon" id="websiteSoon" hidden>Website coming soon</span>
     <a class="btn ghost" id="listLink" href="find.html?base=pentagon">Map and list</a>
   </div>
   <div class="card" id="openingsCard">
@@ -193,12 +196,28 @@ code{font-size:.82rem}
     }
     var href = NearBaseDirectory.websiteHref(school.website);
     var visit = document.getElementById("visit");
+    var soon = document.getElementById("websiteSoon");
     if (href) {
       visit.href = href;
       visit.hidden = false;
+      if (soon) soon.hidden = true;
     } else {
       visit.hidden = true;
       visit.removeAttribute("href");
+      if (soon) soon.hidden = false;
+    }
+    if (school.ccaMccynTier && window.NearBaseDirectory.mccynListBadge) {
+      var cca = window.NearBaseDirectory.mccynListBadge(school.ccaMccynTier);
+      if (cca) {
+        var ccaBadge = document.createElement("span");
+        ccaBadge.className = "bdg bdg-cca";
+        ccaBadge.textContent = cca.label + " · " + cca.tier;
+        badges.appendChild(ccaBadge);
+      }
+    }
+    if (!school.address && school.lat != null && school.lng != null) {
+      var distanceEl = document.getElementById("distance");
+      distanceEl.textContent = (distanceEl.textContent ? distanceEl.textContent + " " : "") + NearBaseDirectory.APPROXIMATE_NOTE;
     }
     addFact(school.jurisdiction ? "Jurisdiction: " + school.jurisdiction : "");
     addFact(school.licenseId ? "License id: " + school.licenseId : "");

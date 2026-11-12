@@ -22,7 +22,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--g:#1D9E75;--dark:#085041;--mid:#0F6E56;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--white:#fff;--cream:#F8FAF8}
@@ -91,8 +94,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .dir-address{font-size:.72rem;color:var(--text);line-height:1.4;margin:.1rem 0 .35rem}
 .dir-facts{font-size:.72rem;color:var(--muted);line-height:1.45;margin:0 0 .45rem}
 .dir-facts a{color:var(--g);font-weight:500;text-decoration:none}
-.visit-web{display:inline-block;margin:0 0 .45rem;background:var(--g);color:#fff;text-decoration:none;border-radius:100px;padding:.38rem .85rem;font-size:.75rem;font-weight:500}
-.visit-web:hover{background:var(--dark)}
+.visit-web{display:inline-block;margin:0 .4rem .45rem 0;background:var(--g);color:#fff;text-decoration:none;border-radius:100px;padding:.38rem .85rem;font-size:.75rem;font-weight:500}
+.visit-web.coming-soon,.pu-soon{background:transparent;color:var(--muted);border:1px solid var(--border);cursor:default;text-decoration:none}
+.pu-soon{display:inline-block;margin-top:.35rem;border-radius:100px;padding:.28rem .7rem;font-size:.72rem}
+.bdg-cca{background:#E6F1FB;color:#0C447C}
+.approx{display:block;font-size:.72rem;color:#633806;line-height:1.4;margin:.15rem 0 .4rem}
+.list-more{display:block;width:100%;margin:.4rem 0 1rem;background:#fff;color:var(--dark);border:1px solid var(--g);border-radius:100px;padding:.5rem .85rem;font:inherit;font-size:.75rem;font-weight:500;cursor:pointer}
+.visit-web:hover:not(.coming-soon){background:var(--dark)}
 body.dir-live .nb-track-school{margin-left:0;display:inline-block;margin-top:.15rem}
 .results-meta{font-size:.75rem;color:var(--muted);display:flex;align-items:flex-start;justify-content:space-between;gap:.35rem .75rem;flex-wrap:wrap}
 .results-meta>span{flex:1;min-width:9rem;line-height:1.35}
@@ -374,7 +382,15 @@ function mkBaseIcon(label){
 
 let schoolLayer=null, coffeeLayer=null, recLayer=null, housingLayer=null;
 if(map){
-  schoolLayer = L.layerGroup().addTo(map);
+  schoolLayer = (L.markerClusterGroup ? L.markerClusterGroup({
+    chunkedLoading: true,
+    chunkInterval: 40,
+    chunkDelay: 10,
+    maxClusterRadius: 48,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    disableClusteringAtZoom: 16
+  }) : L.layerGroup()).addTo(map);
   coffeeLayer = L.layerGroup();
   recLayer = L.layerGroup();
   housingLayer = L.layerGroup();
@@ -393,15 +409,27 @@ let activeFilter='all', markers={}, activeCard=null;
 let homePoint=null, homeMarker=null, homeReq=0, fitAfterRender=false;
 const esc = NearBaseMatch.esc;
 
-function websiteButton(raw){
-  const href = NearBaseDirectory.websiteHref(raw);
-  if(!href) return '';
-  return '<a class="visit-web" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit website</a>';
+function websiteParts(input){
+  if(input && typeof input === 'object'){
+    return {
+      href: NearBaseDirectory.websiteHref(input.websiteHref != null ? input.websiteHref : input.website),
+      comingSoon: input.comingSoon != null ? !!input.comingSoon : !NearBaseDirectory.websiteHref(input.website)
+    };
+  }
+  const href = NearBaseDirectory.websiteHref(input);
+  return { href: href, comingSoon: !href };
 }
-function websitePopup(raw){
-  const href = NearBaseDirectory.websiteHref(raw);
-  if(!href) return '';
-  return '<a class="pu-btn" href="' + esc(href) + '" target="_blank" rel="noopener noreferrer">Visit website</a>';
+function websiteButton(input){
+  const parts = websiteParts(input);
+  if(parts.href) return '<a class="visit-web" href="' + esc(parts.href) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit website</a>';
+  if(!parts.comingSoon) return '';
+  return '<span class="visit-web coming-soon">Website coming soon</span>';
+}
+function websitePopup(input){
+  const parts = websiteParts(input);
+  if(parts.href) return '<a class="pu-btn" href="' + esc(parts.href) + '" target="_blank" rel="noopener noreferrer">Visit website</a>';
+  if(!parts.comingSoon) return '';
+  return '<span class="pu-soon">Website coming soon</span>';
 }
 
 function baseOptions(){
@@ -456,6 +484,7 @@ function badgeHtml(view){
   const tone = view.badge.tone === 'pending' ? 'bdg-pending' : 'bdg-path';
   let html = '<div class="brow"><span class="bdg ' + tone + '">' + esc(view.badge.label) + '</span>';
   if(view.badge.code) html += '<span class="bdg bdg-code">' + esc(view.badge.code) + '</span>';
+  if(view.ccaBadge) html += '<span class="bdg bdg-cca">' + esc(view.ccaBadge.label) + ' · ' + esc(view.ccaBadge.tier) + '</span>';
   html += '</div>';
   if(view.badge.detail) html += '<p class="dir-facts">' + esc(view.badge.detail) + '</p>';
   return html;
@@ -723,6 +752,13 @@ function toggleWhy(btn){
 }
 
 function selectCard(id){
+  if(document.body.classList.contains('dir-live') && !document.getElementById('card-'+id) && directoryRows.length){
+    const idx = directoryRows.findIndex(function(school){ return school.id === id; });
+    if(idx >= listLimit){
+      listLimit = idx + 1;
+      renderDirectory();
+    }
+  }
   if(activeCard){document.getElementById('card-'+activeCard)?.classList.remove('active');}
   const card = document.getElementById('card-'+id);
   if(card){
@@ -738,6 +774,10 @@ let directoryState = { status: 'idle', schools: [], message: '', baseId: '' };
 let directoryReq = 0;
 let pinKey = '';
 let fitKey = '';
+let directoryRows = [];
+let listLimit = 80;
+let listPageKey = '';
+const LIST_STEP = 80;
 
 function selectedPilot(){
   return NearBaseDirectory.pilotFor(document.getElementById('matchBase').value);
@@ -809,16 +849,20 @@ function syncDirectoryPins(schools, pilot){
   schoolLayer.clearLayers();
   markers = {};
   const haversine = NearBaseMatch.haversineMiles;
+  const batch = [];
   schools.forEach(function(school){
     if(school.lat == null || school.lng == null) return;
     const view = NearBaseDirectory.presentSchool(school, homePoint, haversine, pilot);
-    const m = L.marker([school.lat, school.lng], {icon: mkSchoolIcon('hi')}).addTo(schoolLayer);
+    const m = L.marker([school.lat, school.lng], {icon: mkSchoolIcon('hi')});
     const bits = [view.distanceLabel, view.addressLine].filter(Boolean).map(function(part){ return esc(part); }).join('<br>');
     const badge = esc(view.badge.label) + (view.badge.code ? ' · ' + esc(view.badge.code) : '');
     m.on('click', function(){ selectCard(school.id); });
-    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + badge + '</div><div class="pu-meta">' + bits + '</div>' + websitePopup(view.websiteHref) + '<a class="pu-btn" href="' + esc(profileHref(view.id)) + '">Evidence profile</a>');
+    m.bindPopup('<div class="pu-name">' + esc(view.name) + '</div><div class="pu-meta">' + badge + (view.ccaBadge ? ' · ' + esc(view.ccaBadge.tier) : '') + '</div><div class="pu-meta">' + bits + (view.approximateNote ? '<br>' + esc(view.approximateNote) : '') + '</div>' + websitePopup(view) + '<a class="pu-btn" href="' + esc(profileHref(view.id)) + '">Evidence profile</a>');
     markers[school.id] = m;
+    batch.push(m);
   });
+  if(typeof schoolLayer.addLayers === 'function') schoolLayer.addLayers(batch);
+  else batch.forEach(function(marker){ marker.addTo(schoolLayer); });
   pinKey = key;
 }
 function fitDirectoryView(schools, pilot){
@@ -901,6 +945,13 @@ function renderDirectory(){
     familyNote.textContent = '';
   }
   const pinned = rows.filter(function(school){ return school.lat != null && school.lng != null; });
+  const pageKey = (pilot ? pilot.baseId : '') + '|' + jurisdiction + '|' + q + '|' + (homePoint ? 'home' : '');
+  if(pageKey !== listPageKey){
+    listPageKey = pageKey;
+    listLimit = LIST_STEP;
+  }
+  directoryRows = rows;
+  const visible = rows.slice(0, listLimit);
   document.getElementById('rc').textContent = String(rows.length);
   document.getElementById('pinCount').textContent = String(pinned.length);
   if(label){
@@ -919,7 +970,7 @@ function renderDirectory(){
     return;
   }
   const saved = savedSlugs();
-  list.innerHTML = rows.map(function(school){
+  list.innerHTML = visible.map(function(school){
     const view = NearBaseDirectory.presentSchool(school, homePoint, haversine, pilot);
     const savedNow = saved.indexOf(view.slug) !== -1;
     const facts = view.facts.map(function(fact){
@@ -934,13 +985,25 @@ function renderDirectory(){
         '<button type="button" class="heart nb-save-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '" aria-label="' + (savedNow ? 'Saved school' : 'Save school') + '" aria-pressed="' + (savedNow ? 'true' : 'false') + '">' + (savedNow ? '♥' : '♡') + '</button>' +
       '</div>' +
       badgeHtml(view) +
-      websiteButton(view.websiteHref) +
+      websiteButton(view) +
       profileLink(view.id) +
       (view.addressLine ? '<p class="dir-address">' + esc(view.addressLine) + '</p>' : '') +
+      (view.approximateNote ? '<p class="approx">' + esc(view.approximateNote) + '</p>' : '') +
       (facts ? '<div class="dir-facts">' + facts + '</div>' : '') +
       '<button type="button" class="why-btn nb-track-school" data-slug="' + esc(view.slug) + '" data-name="' + esc(view.name) + '">' + (onTracker(view.slug) ? 'On your tracker' : 'Add to tracker') + '</button>' +
     '</div>';
   }).join('');
+  if(visible.length < rows.length){
+    const more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'list-more';
+    more.textContent = 'Show more (' + (rows.length - visible.length) + ' left)';
+    more.addEventListener('click', function(){
+      listLimit += LIST_STEP;
+      renderDirectory();
+    });
+    list.appendChild(more);
+  }
 }
 function doFilter(){
   if(directoryActive()){

@@ -290,6 +290,51 @@ check("website is an http(s) link and never invented", function () {
   assert.strictEqual(view.websiteHref, "https://preschool.example/enroll");
   var blank = directory.presentSchool(directory.normalizeSchool(row({ website: "javascript:alert(1)" })), null, haversine);
   assert.strictEqual(blank.websiteHref, "");
+  assert.strictEqual(blank.comingSoon, true);
+});
+
+check("a CCA-listed URL is not the visit link, and a zip pin is approximate", function () {
+  var held = directory.presentSchool(directory.normalizeSchool(row({
+    website: null,
+    website_status: "unverified_listed",
+    cca_listed_website: "https://www.kindercare.com/",
+    cca_mccyn_tier: "accredited_plus",
+    address: null,
+    lat: 38.88,
+    lng: -77.1
+  })), null, haversine);
+  assert.strictEqual(held.websiteHref, "");
+  assert.strictEqual(held.websiteStatus, "unverified_listed");
+  assert.strictEqual(held.comingSoon, true);
+  assert.strictEqual(held.approximate, true);
+  assert.strictEqual(held.approximateNote, directory.APPROXIMATE_NOTE);
+  assert.strictEqual(held.ccaBadge.label, "On Child Care Aware MCCYN list");
+  assert.strictEqual(held.ccaBadge.tier, "Accredited / MCCYN Plus");
+  assert.ok(JSON.stringify(held).indexOf("kindercare.com") === -1);
+  var participating = directory.mccynListBadge("participating");
+  assert.strictEqual(participating.tier, "Participating");
+  assert.strictEqual(directory.mccynListBadge("other"), null);
+  var verified = directory.presentSchool(directory.normalizeSchool(row({
+    website: "https://preschool.example/enroll",
+    website_status: "verified",
+    cca_listed_website: "https://www.kindercare.com/",
+    address: "1 Main St"
+  })), null, haversine);
+  assert.strictEqual(verified.websiteHref, "https://preschool.example/enroll");
+  assert.strictEqual(verified.comingSoon, false);
+  assert.strictEqual(verified.approximate, false);
+  var source = fs.readFileSync(path.join(__dirname, "..", "site/directory.js"), "utf8");
+  var list = source.slice(source.indexOf("var LIST_OPTIONAL"), source.indexOf("var CONFIG_MESSAGE"));
+  assert.ok(list.indexOf('"website_status"') !== -1);
+  assert.ok(list.indexOf('"cca_mccyn_tier"') !== -1);
+  assert.ok(list.indexOf("cca_listed_website") === -1);
+  assert.ok(source.indexOf("CCA_MCCYN_LIST_ACCREDITED_PLUS") !== -1);
+  assert.ok(source.indexOf("CCA_MCCYN_LIST_PARTICIPATING") !== -1);
+  var find = fs.readFileSync(path.join(__dirname, "..", "site/find.html"), "utf8");
+  assert.ok(find.indexOf("Website coming soon") !== -1);
+  assert.ok(find.indexOf("leaflet.markercluster") !== -1);
+  assert.ok(find.indexOf("Show more") !== -1);
+  assert.ok(find.indexOf("cca_listed_website") === -1);
 });
 
 check("a missing website column retries without adding a pilot filter", function () {
@@ -335,7 +380,7 @@ check("profile CTA opens a real website and skips a missing or unsafe one", func
     };
     var document = {
       querySelector: function (sel) { return sel === ".cta-row" ? row : null; },
-      createElement: function () { return { attrs: {}, setAttribute: function (k, v) { this.attrs[k] = v; } }; }
+      createElement: function (tag) { return { tagName: String(tag || "").toUpperCase(), attrs: {}, setAttribute: function (k, v) { this.attrs[k] = v; } }; }
     };
     var context = {
       window: { SCHOOLS: [{ slug: "fixture-school", name: "Fixture", website: website }] },
@@ -355,8 +400,14 @@ check("profile CTA opens a real website and skips a missing or unsafe one", func
   assert.strictEqual(shown.anchors[0].className, "btn btn-p");
   assert.strictEqual(shown.anchors[0].textContent, "Visit website");
   assert.strictEqual(shown.anchors[0].attrs["data-nb-website"], "1");
-  assert.strictEqual(run("").anchors.length, 0);
-  assert.strictEqual(run("javascript:alert(1)").anchors.length, 0);
+  var missing = run("");
+  assert.strictEqual(missing.anchors.length, 1);
+  assert.strictEqual(missing.anchors[0].tagName, "SPAN");
+  assert.strictEqual(missing.anchors[0].textContent, "Website coming soon");
+  assert.strictEqual(missing.anchors[0].href, undefined);
+  var unsafe = run("javascript:alert(1)");
+  assert.strictEqual(unsafe.anchors.length, 1);
+  assert.strictEqual(unsafe.anchors[0].tagName, "SPAN");
   assert.ok(shown.api && typeof shown.api.placeWebsiteCta === "function");
 });
 

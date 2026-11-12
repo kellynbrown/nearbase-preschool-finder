@@ -20,10 +20,19 @@
     if (!row) return;
     var href = websiteHref(school && school.website);
     var existing = row.querySelector("[data-nb-website]");
+    var soon = row.querySelector("[data-nb-website-soon]");
     if (!href) {
       if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+      if (!soon) {
+        soon = document.createElement("span");
+        soon.className = "btn btn-p coming-soon";
+        soon.setAttribute("data-nb-website-soon", "1");
+        soon.textContent = "Website coming soon";
+        row.insertBefore(soon, row.firstChild);
+      }
       return;
     }
+    if (soon && soon.parentNode) soon.parentNode.removeChild(soon);
     var link = existing || document.createElement("a");
     link.className = "btn btn-p";
     link.href = href;
