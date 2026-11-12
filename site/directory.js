@@ -277,6 +277,9 @@
       eligibilityEvidence: evidence,
       websiteVerifiedAt: text(row.website_verified_at),
       verificationAt: text(row.verification_at),
+      googlePlaceId: text(row.google_place_id),
+      instagramUrl: text(row.instagram_url),
+      facebookUrl: text(row.facebook_url),
       alsoIds: [],
       alsoLicenseIds: []
     };
@@ -333,7 +336,7 @@
       "website", "phone", "address", "city", "state", "zip", "locality", "jurisdiction",
       "eligibilityPath", "accreditation", "qualityRating", "nearestInstallation", "pilotBase",
       "licenseId", "licenseType", "licenseStatus", "agesServed", "hours",
-      "websiteVerifiedAt", "verificationAt"
+      "websiteVerifiedAt", "verificationAt", "googlePlaceId", "instagramUrl", "facebookUrl"
     ].forEach(function (field) {
       if ((target[field] == null || target[field] === "") && extra[field]) target[field] = extra[field];
     });
@@ -824,7 +827,7 @@
   function fetchSchoolProfile(sb, id) {
     var wanted = text(id);
     if (!wanted) return Promise.resolve({ ok: false, school: null, message: "Missing school id." });
-    return fetchWithOptional(sb, ["eligibility_evidence"], [["id", wanted]]).then(function (result) {
+    return fetchWithOptional(sb, ["eligibility_evidence", "google_place_id", "instagram_url", "facebook_url"], [["id", wanted]]).then(function (result) {
       if (!result || !result.ok) return { ok: false, school: null, message: result && result.message ? result.message : QUERY_MESSAGE };
       return { ok: true, school: result.schools[0] || null, message: result.schools[0] ? "" : "That school is not in the directory." };
     });

@@ -77,6 +77,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .outside-head strong{display:block;color:#633806;font-size:.82rem}
 .outside-head span{display:block;color:#633806;font-size:.72rem;line-height:1.4;margin-top:.2rem}
 .dir-note{font-size:.75rem;color:var(--muted);line-height:1.45;margin-bottom:.65rem}
+.family-links{display:flex;gap:.85rem;flex-wrap:wrap;margin:0 0 .55rem}
+.family-links a{color:var(--g);font-size:.75rem;font-weight:500;text-decoration:none}
 .bdg-path{background:#E1F5EE;color:#085041}
 .bdg-pending{background:#FAEEDA;color:#633806}
 .bdg-code{background:#F3EEF8;color:#3C3489;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0}
@@ -193,7 +195,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <div class="main">
   <div class="sidebar">
     <div class="sidebar-top">
+      <p class="family-links"><a href="my-tours.html">My tours</a><a href="compare.html">Compare saved</a></p>
       <p class="dir-note" id="directoryNote" hidden>National Capital Region directory. The Pentagon is the default. Choosing a base reorders every loaded record by straight-line miles. It does not limit the list to one pilot_base. Quality pathway documented is not MCCYN approval or guaranteed family funding.</p>
+      <p class="dir-note" id="familySortNote" hidden></p>
       <form id="matchPanel" aria-label="Match schools to your family">
         <details class="match-details" open>
         <summary>Match to your family</summary>
@@ -310,6 +314,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 <script src="schools.js"></script>
 <script src="match.js"></script>
 <script src="directory.js"></script>
+<script src="family-loop.js"></script>
 <script src="billing-config.js"></script>
 <script src="tracker.js"></script>
 <script src="account.js"></script>
@@ -884,7 +889,17 @@ function renderDirectory(){
     homePoint: homePoint,
     haversine: haversine
   });
-  const rows = viewState.schools;
+  let rows = viewState.schools;
+  const familyNote = document.getElementById('familySortNote');
+  if(familyNote && window.NearBaseFamily && window.__nbFamilyPrefs){
+    const ranked = window.NearBaseFamily.preferenceRank(rows, window.__nbFamilyPrefs);
+    rows = ranked.schools;
+    familyNote.hidden = !ranked.note;
+    familyNote.textContent = ranked.note || '';
+  } else if(familyNote){
+    familyNote.hidden = true;
+    familyNote.textContent = '';
+  }
   const pinned = rows.filter(function(school){ return school.lat != null && school.lng != null; });
   document.getElementById('rc').textContent = String(rows.length);
   document.getElementById('pinCount').textContent = String(pinned.length);
@@ -997,6 +1012,23 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();
   } else {
     flyToBase(saved.baseId);
   }
+  function loadFamilyPreferences(){
+  const account = window.NearBaseAccount;
+  if(!account || !window.NearBaseFamily || typeof account.ready !== 'function') return;
+  account.ready().then(function(){
+    const state = account.state ? account.state() : null;
+    const user = state && state.session && state.session.user;
+    if(!user) return null;
+    return account.client().then(function(sb){
+      if(!sb) return null;
+      return sb.from('user_preferences').select('preferred_installations,preferred_jurisdictions,age_room_interests,must_haves,deal_breakers,visual_interests,budget_max,budget_period,max_commute_minutes,preferred_start_month,care_schedule,apply_tour_learning').eq('user_id', user.id);
+    });
+  }).then(function(result){
+    if(!result || result.error || !result.data || !result.data.length) return;
+    window.__nbFamilyPrefs = window.NearBaseFamily.normalizePreferences(result.data[0]);
+    if(document.body.classList.contains('dir-live')) renderDirectory();
+  }).catch(function(){});
+}
   if(directoryActive()) loadDirectory();
   else {
     doFilter();
@@ -1004,6 +1036,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePrem();
     if(p){ const s = SCHOOLS.find(x=>String(x.id)===p || x.slug===p); if(s){ setTimeout(()=>selectCard(s.id), 400); } }
   }
   if(homeQ) placeHome(homeQ);
+  loadFamilyPreferences();
 })();
 </script>
 </body>

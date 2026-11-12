@@ -70,7 +70,7 @@ request(PUBLIC_CONFIG, "").then(function (configResponse) {
         return request(base + "?select=id&eligibility_path=is.null&limit=1", key, { prefer: "count=exact" }).then(function (pendingResponse) {
           var pendingRange = pendingResponse.headers.get("content-range") || "";
           var pending = Number((pendingRange.split("/")[1] || "").trim());
-          assert.ok(pending >= 195, "expected legacy rows without a pathway, saw " + pendingRange);
+          assert.strictEqual(pending, 8, "expected the 8 remaining rows without a pathway, saw " + pendingRange);
           console.log("  ok  live directory has " + total + " rows, 7 Maryland AMI records, and " + pending + " rows with verification evidence pending");
           console.log("\nLive NCR read passed.");
         });

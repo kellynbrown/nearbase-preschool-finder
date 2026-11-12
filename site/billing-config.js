@@ -6,7 +6,11 @@
 // Plan labels. Amounts in cents match netlify/functions/lib/catalog.mjs.
 window.NB_CONFIG = {
   supabaseUrl: "",
-  supabaseAnonKey: ""
+  supabaseAnonKey: "",
+  // Referrer-restricted Maps browser key. Leave this empty in git.
+  // scripts/write-maps-config.js copies GOOGLE_MAPS_BROWSER_KEY at build time.
+  // It is not loaded from a Netlify function.
+  GOOGLE_MAPS_BROWSER_KEY: ""
 };
 
 window.NB_OFFERS = {

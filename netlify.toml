@@ -1,6 +1,9 @@
 # The public website is the site/ folder. The founder dashboard is not in
 # that folder; Netlify serves it only through the password-checked function.
 [build]
+  # Writes the public Maps browser key into site/billing-config.js when
+  # GOOGLE_MAPS_BROWSER_KEY is set. An empty key leaves the profile placeholder.
+  command = "node scripts/write-maps-config.js"
   publish = "site"
 
 [functions]
