@@ -500,6 +500,23 @@ check("neighborhood bases stay on the live directory sort", function () {
   assert.ok(find.indexOf("return true;") !== -1);
   assert.ok(find.indexOf("Clear the search, age, hours, or distance filter") !== -1);
   assert.ok(find.indexOf("title: name") !== -1);
+  assert.ok(find.indexOf("id=\"unconfirmedJump\"") !== -1);
+  assert.ok(find.indexOf("refreshMatchNote") !== -1);
+  assert.ok(find.indexOf("filteredShown") !== -1);
+  var profile = fs.readFileSync(path.join(__dirname, "..", "site/profile.html"), "utf8");
+  assert.ok(profile.indexOf("[hidden]{display:none !important}") !== -1);
+  assert.ok(profile.indexOf('NearBaseDirectory.sortBase(params.get("base"))') !== -1);
+  global.NearBaseMatch = require(path.join(__dirname, "..", "site/match.js"));
+  var reston = directory.sortBase("reston");
+  var cmsMiles = directory.distanceFor({
+    lat: 38.968515391,
+    lng: -77.352128838,
+    installationDistances: {}
+  }, null, global.NearBaseMatch.haversineMiles, reston);
+  assert.ok(cmsMiles.miles > 1 && cmsMiles.miles < 2.5, cmsMiles.label);
+  assert.ok(cmsMiles.label.indexOf("Reston") !== -1);
+  var filtered = directory.coverageText(Object.assign({}, { shown: 2036, campusCount: 2036, rowCount: 2132, documented: 1, pending: 0, byJurisdiction: {}, filteredShown: 1997 }), reston, "");
+  assert.ok(filtered.indexOf("1997 shown of 2132 directory rows") !== -1);
 });
 
 Promise.all(pending).then(function () {

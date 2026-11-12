@@ -87,7 +87,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--text);overflo
 .bdg-code{background:#F3EEF8;color:#3C3489;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0}
 .profile-link{display:inline-block;margin:0 .4rem .45rem 0;border:1px solid var(--g);color:var(--dark);background:#fff;text-decoration:none;border-radius:100px;padding:.38rem .85rem;font-size:.75rem;font-weight:500}
 .visit-web{margin-right:.4rem}
-.dir-note[hidden],#matchPanel[hidden],#filterRow[hidden]{display:none !important}
+.dir-note[hidden],#matchPanel[hidden],#filterRow[hidden],#unconfirmedJump[hidden]{display:none !important}
 .list-status{margin:.15rem .1rem .7rem;padding:.9rem 1rem;background:var(--white);border:1px solid var(--border);border-radius:12px;font-size:.8rem;line-height:1.45;color:var(--muted)}
 .list-status.error{background:#FAEEDA;border-color:#E7D3B1;color:#633806}
 .list-status button{margin-top:.6rem;background:var(--g);color:#fff;border:none;border-radius:100px;padding:.4rem .85rem;font:inherit;font-size:.75rem;font-weight:500;cursor:pointer}
@@ -106,7 +106,11 @@ body.dir-live .nb-track-school{margin-left:0;display:inline-block;margin-top:.15
 .results-meta>span{flex:1;min-width:9rem;line-height:1.35}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--g);outline-offset:2px}
 .rc{font-weight:500;color:var(--dark)}
-.school-list{flex:1;overflow-y:auto;padding:.625rem}
+.cn,.cl,.dir-address,.dir-facts,.approx,.dir-note{overflow-wrap:anywhere;word-break:break-word}
+.sidebar-top{max-height:min(42vh,440px);overflow-y:auto}
+.school-list{flex:1;min-height:280px;overflow-y:auto;padding:.625rem}
+.unconfirmed-jump{margin:0 0 .55rem}
+.unconfirmed-jump a{color:#633806;font-size:.78rem;font-weight:500}
 .scard{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:.875rem;margin-bottom:.5rem;cursor:pointer;transition:all .15s;position:relative}
 .scard:hover{border-color:var(--g);box-shadow:0 3px 12px rgba(29,158,117,0.08)}
 .scard.active{border:2px solid var(--g)}
@@ -150,6 +154,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 #premModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
 .prem-box{background:var(--white);border-radius:18px;padding:1.75rem;max-width:400px;width:100%;position:relative}
 @media(max-width:768px){
+  .sidebar-top{max-height:none}
+  .school-list{min-height:0}
   .loc-form{flex:1 0 100%;min-width:0;display:grid;grid-template-columns:1fr;gap:.45rem}
   .loc-form select,.loc-form input,.loc-go{width:100%;max-width:none;min-width:0}
   .search-wrap{max-width:none;flex:1 0 100%}
@@ -204,6 +210,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   <div class="sidebar">
     <div class="sidebar-top">
       <p class="family-links"><a href="my-tours.html">My tours</a><a href="compare.html">Compare saved</a></p>
+      <p class="unconfirmed-jump" id="unconfirmedJump" hidden></p>
       <p class="dir-note" id="directoryNote" hidden>National Capital Region directory. The Pentagon is the default. Choosing a base reorders every loaded record by straight-line miles. It does not limit the list to one pilot_base. Quality pathway documented is not MCCYN approval or guaranteed family funding.</p>
       <p class="dir-note" id="familySortNote" hidden></p>
       <form id="matchPanel" aria-label="Match schools to your family">
@@ -519,6 +526,12 @@ function readMatchForm(){
     quiz: saved.quiz
   });
 }
+function refreshMatchNote(){
+  const note = document.getElementById('matchNote');
+  const pilot = selectedPilot();
+  if(!note || !pilot) return;
+  note.textContent = 'A program whose listed ages or open time do not fit is left off. Unknown ages and hours are listed below and are not a fit. Distances are straight-line miles to ' + (pilot.nearPhrase || pilot.name) + '.';
+}
 function fillMatchForm(profile){
   refreshSelectors();
   document.getElementById('philoChecks').innerHTML = NearBaseMatch.PHILOSOPHY_IDS.map(id=>
@@ -534,10 +547,7 @@ function fillMatchForm(profile){
   document.getElementById('matchEfmp').checked = profile.efmp;
   document.querySelectorAll('#matchPanel input[name="age"]').forEach(el=>{ el.checked = profile.ages.includes(el.value); });
   document.querySelectorAll('#matchPanel input[name="philo"]').forEach(el=>{ el.checked = profile.philosophies.includes(el.value); });
-  const note = document.getElementById('matchNote');
-  const base = NearBaseMatch.BASES.find(b=>b.id===profile.baseId);
-  const gated = profile.costCeiling === 'assist' || profile.costCeiling === 'free' || (profile.hours && profile.hours !== 'any');
-  note.textContent = 'A program whose listed ages or open time do not fit is left off. Unknown ages and hours are listed below and are not a fit. Distances are straight-line miles to ' + (base ? base.name : 'your base') + '.';
+  refreshMatchNote();
 }
 function flyToBase(id){
   if(!map) return;
@@ -557,6 +567,7 @@ function applyBase(id){
   fitKey = '';
   if(directoryState.status === 'ready') renderDirectory();
   else loadDirectory();
+  refreshMatchNote();
   syncUrl();
 }
 function persistAndFilter(){
@@ -994,7 +1005,30 @@ function renderDirectory(){
   if(label){
     label.textContent = homePoint ? ' licensed centers, closest to home' : ' licensed centers, straight-line miles to ' + near;
   }
-  if(note) note.textContent = NearBaseDirectory.coverageText(viewState.coverage, pilot, jurisdiction);
+  if(note) note.textContent = NearBaseDirectory.coverageText(Object.assign({}, viewState.coverage, { filteredShown: rows.length }), pilot, jurisdiction);
+  refreshMatchNote();
+  const jump = document.getElementById('unconfirmedJump');
+  if(jump){
+    if(unknownRows.length){
+      jump.hidden = false;
+      jump.innerHTML = '<a href="#ages-unconfirmed">' + unknownRows.length + ' with ages or hours not confirmed — call to check</a>';
+      jump.onclick = function(event){
+        event.preventDefault();
+        const targetId = rankedUnknown[0] && rankedUnknown[0].id;
+        const idx = directoryRows.findIndex(function(school){ return school.id === targetId; });
+        if(idx >= listLimit){
+          listLimit = idx + 1;
+          renderDirectory();
+        }
+        const banner = document.getElementById('ages-unconfirmed');
+        if(banner) banner.scrollIntoView({ block: 'start' });
+      };
+    } else {
+      jump.hidden = true;
+      jump.textContent = '';
+      jump.onclick = null;
+    }
+  }
   syncDirectoryPins(rows, pilot);
   fitDirectoryView(rows, pilot);
   if(!rows.length){
@@ -1019,7 +1053,7 @@ function renderDirectory(){
     }).join('<br>');
     const firstUnknown = unknownRows.length && school.id === rankedUnknown[0].id;
     const banner = firstUnknown
-      ? '<div class="outside-head"><strong>' + esc(unknownTitle) + '</strong><span>These programs do not say. They are not ranked as a fit. Call before you count on a seat.</span></div>'
+      ? '<div class="outside-head" id="ages-unconfirmed"><strong>' + esc(unknownTitle) + '</strong><span>These programs do not say. They are not ranked as a fit. Call before you count on a seat.</span></div>'
       : '';
     return banner + '<div class="scard" id="card-' + esc(view.id) + '" data-school="' + esc(view.id) + '">' +
       '<div class="card-top">' +

@@ -689,6 +689,9 @@
       "Sorted by straight-line miles to " + place + ".",
       "Choosing a base reorders these records. It does not mean a school is eligible only for that base, and it is not a drive time."
     ];
+    if (coverage && coverage.filteredShown != null) {
+      parts.push(coverage.filteredShown + " shown of " + coverage.rowCount + " directory rows.");
+    }
     if (coverage) {
       parts.push(coverage.shown + " shown from " + coverage.campusCount + " campuses and " + coverage.rowCount + " directory rows.");
       if (coverage.combined) {

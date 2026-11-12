@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none !important}
 :root{--g:#1D9E75;--dark:#085041;--light:#E1F5EE;--border:#d4ead8;--text:#1a1a18;--muted:#6b6b67;--cream:#F8FAF8}
 body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);line-height:1.5}
 a:focus-visible,button:focus-visible{outline:2px solid var(--g);outline-offset:2px}
@@ -124,7 +125,7 @@ code{font-size:.82rem}
 (function () {
   var params = new URLSearchParams(location.search);
   var id = (params.get("id") || "").trim();
-  var installation = NearBaseDirectory.pilotFor(params.get("base")) || NearBaseDirectory.pilotFor("pentagon");
+  var installation = NearBaseDirectory.sortBase(params.get("base")) || NearBaseDirectory.pilotFor("pentagon");
   var jurisdiction = NearBaseDirectory.normalizeJurisdiction(params.get("jurisdiction"));
   var back = "find.html?base=" + encodeURIComponent(installation.baseId);
   if (jurisdiction) back += "&jurisdiction=" + encodeURIComponent(jurisdiction);

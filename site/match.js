@@ -296,10 +296,28 @@
     return hh * 60 + mm;
   }
 
+  function clockText(text) {
+    return normText(text)
+      .replace(/\b([ap])\s*\.?\s*m\.?/gi, "$1m")
+      .replace(/(\d{1,2}):(\d)(?!\d)/g, function (_m, hour, minute) { return hour + ":0" + minute; })
+      .replace(/(\d{1,2}:\d{2}):\d{2}/g, "$1");
+  }
+
   function parseHours(text) {
-    var src = normText(text);
+    var src = clockText(text);
     var half = /half-?\s*day|part-?\s*day/i.test(src);
-    var range = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i.exec(src);
+    var range = null;
+    var rangeRe = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*-\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/ig;
+    var candidate;
+    while ((candidate = rangeRe.exec(src))) {
+      var hasMeridiem = !!(candidate[3] || candidate[6]);
+      var hasMinutes = !!(candidate[2] || candidate[5]);
+      var hour24 = Number(candidate[1]) >= 13 || Number(candidate[4]) >= 13;
+      if (hasMeridiem || hasMinutes || hour24) {
+        range = candidate;
+        break;
+      }
+    }
     var open = null;
     var close = null;
     var evidence = "";
