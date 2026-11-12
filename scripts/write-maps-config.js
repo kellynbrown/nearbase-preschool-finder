@@ -12,14 +12,12 @@ if (/[\r\n]/.test(key)) {
   process.exit(1);
 }
 var source = fs.readFileSync(file, "utf8");
-var next = source.replace(
-  /GOOGLE_MAPS_BROWSER_KEY:\s*"(?:\\.|[^"\\])*"/,
-  "GOOGLE_MAPS_BROWSER_KEY: " + JSON.stringify(key)
-);
-if (next === source) {
+var field = /GOOGLE_MAPS_BROWSER_KEY:\s*"(?:\\.|[^"\\])*"/;
+if (!field.test(source)) {
   console.error("site/billing-config.js has no GOOGLE_MAPS_BROWSER_KEY field.");
   process.exit(1);
 }
-fs.writeFileSync(file, next);
+var next = source.replace(field, "GOOGLE_MAPS_BROWSER_KEY: " + JSON.stringify(key));
+if (next !== source) fs.writeFileSync(file, next);
 if (key) console.log("Wrote GOOGLE_MAPS_BROWSER_KEY into site/billing-config.js (" + key.length + " characters).");
 else console.log("GOOGLE_MAPS_BROWSER_KEY is empty. School profiles keep the photo placeholder.");
