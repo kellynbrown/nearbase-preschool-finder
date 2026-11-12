@@ -600,9 +600,66 @@
     };
   }
 
+  function sortBase(baseId) {
+    var known = pilotFor(baseId);
+    if (known) return known;
+    var bases = root.NearBaseMatch && root.NearBaseMatch.BASES;
+    var key = text(baseId);
+    if (bases) {
+      for (var i = 0; i < bases.length; i++) {
+        if (bases[i].id === key) {
+          return {
+            id: bases[i].id,
+            baseId: bases[i].id,
+            aliases: [bases[i].id],
+            name: bases[i].name,
+            label: bases[i].name,
+            nearPhrase: bases[i].name,
+            distancePlace: bases[i].name,
+            badge: bases[i].name,
+            lat: bases[i].lat,
+            lng: bases[i].lng,
+            referenceOnly: true
+          };
+        }
+      }
+    }
+    return pilotFor(DEFAULT_PILOT_ID);
+  }
+
+  function familyPartition(schools, options) {
+    options = options || {};
+    var Match = root.NearBaseMatch;
+    var ages = options.ages || [];
+    var hours = options.hours || "any";
+    var childMonths = options.childMonths;
+    var radius = options.radiusMiles === "" || options.radiusMiles == null ? null : Number(options.radiusMiles);
+    var fit = [];
+    var unconfirmed = [];
+    var excluded = 0;
+    (schools || []).forEach(function (school) {
+      var miles = typeof options.milesOf === "function" ? options.milesOf(school) : null;
+      if (radius != null && isFinite(radius)) {
+        if (miles == null || miles > radius) {
+          excluded += 1;
+          return;
+        }
+      }
+      var ageStatus = Match && Match.ageFilterStatus ? Match.ageFilterStatus(school, ages, childMonths) : "na";
+      var hourStatus = Match && Match.hoursFilterStatus ? Match.hoursFilterStatus(school, hours) : "na";
+      if (ageStatus === "miss" || hourStatus === "miss") {
+        excluded += 1;
+        return;
+      }
+      if (ageStatus === "unknown" || hourStatus === "unknown") unconfirmed.push(school);
+      else fit.push(school);
+    });
+    return { fit: fit, unconfirmed: unconfirmed, excluded: excluded };
+  }
+
   function filterDirectory(schools, options) {
     options = options || {};
-    var base = pilotFor(options.baseId) || pilotFor(DEFAULT_PILOT_ID);
+    var base = sortBase(options.baseId) || pilotFor(DEFAULT_PILOT_ID);
     var summary = summarize(schools);
     var deduped = dedupeCampuses(schools);
     var jurisdiction = normalizeJurisdiction(options.jurisdiction);
@@ -889,6 +946,8 @@
     QUERY_MESSAGE: QUERY_MESSAGE,
     HONEST_LINE: HONEST_LINE,
     pilotFor: pilotFor,
+    sortBase: sortBase,
+    familyPartition: familyPartition,
     selectorBases: selectorBases,
     representedInstallations: representedInstallations,
     normalizeJurisdiction: normalizeJurisdiction,

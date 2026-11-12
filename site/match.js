@@ -332,6 +332,68 @@
     return h + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "") + ap;
   }
 
+  function listingAge(school) {
+    var direct = parseAge([school && school.agesServed, school && school.ages_served].filter(Boolean).join(" "));
+    if (direct.known) return direct;
+    return readSignals(school || {}).age;
+  }
+
+  function listingHours(school) {
+    var direct = parseHours(school && (school.hours || school.hours_served || ""));
+    if (direct.known) return direct;
+    return readSignals(school || {}).hours;
+  }
+
+  function servesChildMonths(bounds, months) {
+    if (!bounds || !bounds.known) return null;
+    if (bounds.min == null && bounds.max == null) return null;
+    var lo = bounds.min == null ? 0 : bounds.min;
+    var hi = bounds.max == null ? 216 : bounds.max;
+    return months >= lo && months <= hi;
+  }
+
+  function ageFilterStatus(school, ages, childMonths) {
+    var wanted = asArray(ages);
+    var months = childMonths === "" || childMonths == null ? null : Number(childMonths);
+    var hasMonths = months != null && isFinite(months);
+    if (!wanted.length && !hasMonths) return "na";
+    var bounds = listingAge(school);
+    if (!bounds.known) return "unknown";
+    if (hasMonths) {
+      var covered = servesChildMonths(bounds, months);
+      if (covered == null) return "unknown";
+      if (!covered) return "miss";
+    }
+    for (var i = 0; i < wanted.length; i++) {
+      var hit = ageCovers(bounds, wanted[i]);
+      if (hit === false) return "miss";
+      if (hit == null) return "unknown";
+    }
+    return "fit";
+  }
+
+  // "Open by 6:30" means the listed open is 6:30am or earlier. 7:00am is not a fit.
+  function hoursFilterStatus(school, hoursNeed) {
+    if (!hoursNeed || hoursNeed === "any") return "na";
+    var hours = listingHours(school);
+    if (!hours.known) return "unknown";
+    if (hoursNeed === "half") return "fit";
+    if (hours.half) return "miss";
+    if (hours.open == null) return "unknown";
+    if (hoursNeed === "early") return hours.open <= 390 ? "fit" : "miss";
+    if (hoursNeed === "duty") {
+      if (hours.open > 450) return "miss";
+      if (hours.close != null && hours.close < 1080) return "miss";
+      return "fit";
+    }
+    if (hoursNeed === "school") {
+      if (hours.open > 510) return "miss";
+      if (hours.close != null && hours.close < 900) return "miss";
+      return "fit";
+    }
+    return "fit";
+  }
+
   function readSignals(school) {
     var c = corpus(school || {});
     var badgeText = c.badges.join(" \n ");
@@ -810,6 +872,12 @@
     withQuiz: withQuiz,
     haversineMiles: haversineMiles,
     readSignals: readSignals,
+    parseAge: parseAge,
+    parseHours: parseHours,
+    listingAge: listingAge,
+    listingHours: listingHours,
+    ageFilterStatus: ageFilterStatus,
+    hoursFilterStatus: hoursFilterStatus,
     weightsFor: weightsFor,
     scoreSchool: scoreSchool,
     rankSchools: rankSchools,

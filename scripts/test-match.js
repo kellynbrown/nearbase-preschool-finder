@@ -335,6 +335,23 @@ check("mission, about, and director pages stay off menus", function () {
   });
 });
 
+check("a six-month-old is not a fit for a program that starts at age 2, and 7am is not open by 6:30", function () {
+  var infant = { agesServed: "3 months–6 years 11 months", hours: "7:30 AM–5:30 PM" };
+  var older = { agesServed: "2 years - 5 years", hours: "6:00 AM-6:00 PM" };
+  var seven = { agesServed: "6 weeks - 5 years", hours: "7:00 AM-6:00 PM" };
+  var unknown = { agesServed: "", hours: "" };
+  assert.strictEqual(match.ageFilterStatus(infant, [], 6), "fit");
+  assert.strictEqual(match.ageFilterStatus(older, ["infant"], 6), "miss");
+  assert.strictEqual(match.ageFilterStatus(unknown, ["infant"], 6), "unknown");
+  assert.strictEqual(match.hoursFilterStatus(seven, "early"), "miss");
+  assert.strictEqual(match.hoursFilterStatus(infant, "early"), "miss");
+  assert.strictEqual(match.hoursFilterStatus({ hours: "6:00 AM-6:00 PM" }, "early"), "fit");
+  assert.strictEqual(match.hoursFilterStatus(unknown, "early"), "unknown");
+  var age = match.parseAge("3 months–6 years 11 months");
+  assert.strictEqual(age.known, true);
+  assert.ok(age.min <= 6 && (age.max == null || age.max >= 6));
+});
+
 if (failures) {
   console.error("\n" + failures + " failed");
   process.exit(1);

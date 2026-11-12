@@ -445,6 +445,63 @@ check("find and home lead with the Pentagon and still load Belvoir by base", fun
   assert.ok(/client:\s*client/.test(account));
 });
 
+check("neighborhood bases stay on the live directory sort", function () {
+  global.NearBaseMatch = require(path.join(__dirname, "..", "site/match.js"));
+  var anchor = directory.sortBase("reston");
+  assert.strictEqual(anchor.baseId, "reston");
+  assert.ok(anchor.lat);
+  var cms = directory.normalizeSchool({
+    id: "ncr-va-vdoe-3573",
+    name: "Community Montessori School",
+    address: "1700 Reston Parkway",
+    city: "Reston",
+    state: "VA",
+    lat: 38.95,
+    lng: -77.36,
+    ages_served: "3 months–6 years 11 months",
+    hours: "7:30 AM–5:30 PM"
+  });
+  var older = directory.normalizeSchool({
+    id: "older-only",
+    name: "Older Only",
+    address: "1 Main St",
+    city: "Arlington",
+    state: "VA",
+    lat: 38.87,
+    lng: -77.06,
+    ages_served: "Ages 3-5",
+    hours: "9:00 AM-3:00 PM"
+  });
+  var unknown = directory.normalizeSchool({
+    id: "unknown-age",
+    name: "Unknown Age Center",
+    city: "Alexandria",
+    state: "VA",
+    lat: 38.8,
+    lng: -77.1
+  });
+  global.NearBaseMatch = require(path.join(__dirname, "..", "site/match.js"));
+  var split = directory.familyPartition([cms, older, unknown], {
+    ages: ["infant"],
+    childMonths: 6,
+    hours: "any",
+    milesOf: function () { return 10; }
+  });
+  assert.deepStrictEqual(split.fit.map(function (school) { return school.id; }), ["ncr-va-vdoe-3573"]);
+  assert.deepStrictEqual(split.unconfirmed.map(function (school) { return school.id; }), ["unknown-age"]);
+  assert.strictEqual(split.excluded, 1);
+  var early = directory.familyPartition([cms], { hours: "early", milesOf: function () { return 3; } });
+  assert.strictEqual(early.fit.length, 0);
+  assert.strictEqual(early.excluded, 1);
+  var find = fs.readFileSync(path.join(__dirname, "..", "site/find.html"), "utf8");
+  assert.ok(find.indexOf('href="school/') === -1);
+  assert.ok(find.indexOf("profile.html?id=") !== -1);
+  assert.ok(find.indexOf("function directoryActive()") !== -1);
+  assert.ok(find.indexOf("return true;") !== -1);
+  assert.ok(find.indexOf("Clear the search, age, hours, or distance filter") !== -1);
+  assert.ok(find.indexOf("title: name") !== -1);
+});
+
 Promise.all(pending).then(function () {
   if (failures) {
     console.error("\n" + failures + " failed");
