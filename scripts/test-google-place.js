@@ -47,6 +47,28 @@ check("build script writes the browser key and does not leave it in git", functi
     fs.writeFileSync(file, before);
   }
   assert.ok(fs.readFileSync(file, "utf8").indexOf("referrer-restricted-test") === -1);
+  var empty = child.execFileSync(process.execPath, [path.join(root, "scripts/write-maps-config.js")], {
+    env: Object.assign({}, process.env, { GOOGLE_MAPS_BROWSER_KEY: "" }),
+    encoding: "utf8"
+  });
+  assert.strictEqual(fs.readFileSync(file, "utf8"), before);
+  assert.ok(empty.indexOf("empty") !== -1);
+  var field = /GOOGLE_MAPS_BROWSER_KEY:\s*"(?:\\.|[^"\\])*"/;
+  var stripped = before.replace(field, "REMOVED");
+  assert.ok(!field.test(stripped));
+  fs.writeFileSync(file, stripped);
+  var missing = false;
+  try {
+    child.execFileSync(process.execPath, [path.join(root, "scripts/write-maps-config.js")], {
+      env: Object.assign({}, process.env, { GOOGLE_MAPS_BROWSER_KEY: "" })
+    });
+  } catch (error) {
+    missing = error.status === 1;
+  } finally {
+    fs.writeFileSync(file, before);
+  }
+  assert.strictEqual(missing, true);
+  assert.strictEqual(fs.readFileSync(file, "utf8"), before);
 });
 
 check("Street View uses the Maps Embed streetview URL and a missing key does not invent one", function () {
